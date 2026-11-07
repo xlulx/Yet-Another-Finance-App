@@ -3,17 +3,23 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
-
 import '../../models/category.dart';
 import '../../models/record.dart';
+import '../../models/transfer.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/category_picker.dart';
+import '../widgets/wallet_dropdown.dart';
 
+enum _Kind { expense, income, transfer }
+
+/// Adds or edits an income/expense record or a transfer between wallets.
+/// Pass [record] or [transfer] to edit; the type can be switched either way.
 class EditRecordPage extends StatefulWidget {
-  const EditRecordPage({super.key, this.record});
+  const EditRecordPage({super.key, this.record, this.transfer});
 
   final Record? record;
+  final Transfer? transfer;
 
   @override
   State<EditRecordPage> createState() => _EditRecordPageState();
@@ -24,33 +30,47 @@ class _EditRecordPageState extends State<EditRecordPage> {
   late final TextEditingController _amount;
   late final TextEditingController _title;
   late final TextEditingController _note;
-  late CategoryType _type;
+  late _Kind _kind;
   int? _categoryId;
+  late int _walletId;
+  int? _toWalletId;
   late DateTime _date;
 
-  bool get _isEdit => widget.record != null;
+  bool get _isEdit => widget.record != null || widget.transfer != null;
 
   @override
   void initState() {
     super.initState();
     final state = context.read<AppState>();
     final r = widget.record;
+    final t = widget.transfer;
+    final cents = r?.amount ?? t?.amount;
     _amount = TextEditingController(
-      text: r == null
+      text: cents == null
           ? ''
-          : (r.amount / 100).toStringAsFixed(2).replaceAll('.', ','),
+          : (cents / 100).toStringAsFixed(2).replaceAll('.', ','),
     );
     _title = TextEditingController(text: r?.title ?? '');
-    _note = TextEditingController(text: r?.note ?? '');
+    _note = TextEditingController(text: r?.note ?? t?.note ?? '');
     _categoryId = r?.categoryId;
-    _type = r == null
-        ? CategoryType.expense
-        : (state.categoryById(r.categoryId)?.type ?? CategoryType.expense);
+    if (t != null) {
+      _kind = _Kind.transfer;
+    } else if (r != null &&
+        state.categoryById(r.categoryId)?.type == CategoryType.income) {
+      _kind = _Kind.income;
+    } else {
+      _kind = _Kind.expense;
+    }
+    _walletId = t?.fromWalletId ?? r?.walletId ?? state.defaultWalletId;
+    _toWalletId = t?.toWalletId;
     final now = DateTime.now();
-    // For a new record, default to the 1st of the selected month unless it is
+    // For a new entry, default to the 1st of the selected month unless it is
     // the current month.
     final m = state.month;
-    _date = r?.date ?? (m.year == now.year && m.month == now.month ? now : m);
+    _date =
+        r?.date ??
+        t?.date ??
+        (m.year == now.year && m.month == now.month ? now : m);
   }
 
   @override
@@ -83,32 +103,63 @@ class _EditRecordPageState extends State<EditRecordPage> {
 
   Future<void> _save() async {
     final l = AppLocalizations.of(context);
+    final state = context.read<AppState>();
     if (!_formKey.currentState!.validate()) return;
-    if (_categoryId == null) {
+    if (_kind != _Kind.transfer && _categoryId == null) {
       ScaffoldMessenger.of(context)
           .showSnackBar(SnackBar(content: Text(l.pickCategory)));
       return;
     }
     final note = _note.text.trim();
-    final record = Record(
-      id: widget.record?.id,
-      title: _title.text.trim(),
-      amount: parseMoney(_amount.text)!,
-      date: _date,
-      categoryId: _categoryId!,
-      note: note.isEmpty ? null : note,
-      recurringId: widget.record?.recurringId,
-    );
-    await context.read<AppState>().saveRecord(record);
+    final amount = parseMoney(_amount.text)!;
+    final oldRecord = widget.record;
+    final oldTransfer = widget.transfer;
+
+    if (_kind == _Kind.transfer) {
+      final t = Transfer(
+        id: oldTransfer?.id,
+        fromWalletId: _walletId,
+        toWalletId: _toWalletId!,
+        amount: amount,
+        date: _date,
+        note: note.isEmpty ? null : note,
+      );
+      if (oldRecord != null) {
+        await state.replaceEntry(oldRecord: oldRecord, newTransfer: t);
+      } else {
+        await state.saveTransfer(t);
+      }
+    } else {
+      final r = Record(
+        id: oldRecord?.id,
+        title: _title.text.trim(),
+        amount: amount,
+        date: _date,
+        categoryId: _categoryId!,
+        note: note.isEmpty ? null : note,
+        recurringId: oldRecord?.recurringId,
+        walletId: _walletId,
+      );
+      if (oldTransfer != null) {
+        await state.replaceEntry(oldTransfer: oldTransfer, newRecord: r);
+      } else {
+        await state.saveRecord(r);
+      }
+    }
     if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
+    final state = context.read<AppState>();
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: Text(l.deleteRecordQuestion),
+        title: Text(
+          widget.transfer != null
+              ? l.deleteTransferQuestion
+              : l.deleteRecordQuestion,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
@@ -122,20 +173,57 @@ class _EditRecordPageState extends State<EditRecordPage> {
       ),
     );
     if (ok != true || !mounted) return;
-    await context.read<AppState>().deleteRecord(widget.record!);
+    if (widget.transfer != null) {
+      await state.deleteTransfer(widget.transfer!);
+    } else {
+      await state.deleteRecord(widget.record!);
+    }
     if (mounted) Navigator.of(context).pop();
+  }
+
+  void _setKind(_Kind kind, AppState state) {
+    setState(() {
+      _kind = kind;
+      if (kind == _Kind.transfer) {
+        // Preselect a destination different from the source.
+        _toWalletId ??= state.activeWallets
+            .where((w) => w.id != _walletId)
+            .map((w) => w.id)
+            .firstOrNull;
+        return;
+      }
+      final type = kind == _Kind.income
+          ? CategoryType.income
+          : CategoryType.expense;
+      if (state.categoryById(_categoryId ?? -1)?.type != type) {
+        _categoryId = null;
+      }
+    });
   }
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
+    final isTransfer = _kind == _Kind.transfer;
+    final type = _kind == _Kind.income
+        ? CategoryType.income
+        : CategoryType.expense;
     final categories = state.categories
-        .where((c) => c.type == _type && (!c.archived || c.id == _categoryId))
+        .where((c) => c.type == type && (!c.archived || c.id == _categoryId))
         .toList();
+    // Transfers need two wallets; keep the option when editing one anyway.
+    final canTransfer =
+        state.activeWallets.length >= 2 || widget.transfer != null;
+    final showWallet = state.wallets.length > 1;
+
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? l.editRecord : l.newRecord),
+        title: Text(
+          isTransfer
+              ? (_isEdit ? l.editTransfer : l.newTransfer)
+              : (_isEdit ? l.editRecord : l.newRecord),
+        ),
         actions: [
           if (_isEdit)
             IconButton(
@@ -150,26 +238,28 @@ class _EditRecordPageState extends State<EditRecordPage> {
         child: ListView(
           padding: const EdgeInsets.all(16),
           children: [
-            SegmentedButton<CategoryType>(
+            SegmentedButton<_Kind>(
+              showSelectedIcon: false,
               segments: [
                 ButtonSegment(
-                  value: CategoryType.expense,
+                  value: _Kind.expense,
                   label: Text(l.expense),
-                  icon: Icon(Icons.remove),
+                  icon: const Icon(Icons.remove),
                 ),
                 ButtonSegment(
-                  value: CategoryType.income,
+                  value: _Kind.income,
                   label: Text(l.income),
-                  icon: Icon(Icons.add),
+                  icon: const Icon(Icons.add),
                 ),
+                if (canTransfer)
+                  ButtonSegment(
+                    value: _Kind.transfer,
+                    label: Text(l.transfer),
+                    icon: const Icon(Icons.swap_horiz),
+                  ),
               ],
-              selected: {_type},
-              onSelectionChanged: (s) => setState(() {
-                _type = s.first;
-                if (state.categoryById(_categoryId ?? -1)?.type != _type) {
-                  _categoryId = null;
-                }
-              }),
+              selected: {_kind},
+              onSelectionChanged: (s) => _setKind(s.first, state),
             ),
             const SizedBox(height: 16),
             TextFormField(
@@ -190,22 +280,61 @@ class _EditRecordPageState extends State<EditRecordPage> {
               },
             ),
             const SizedBox(height: 16),
-            Text(l.category, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: 8),
-            CategoryPicker(
-              categories: categories,
-              selectedId: _categoryId,
-              onSelected: (c) => setState(() => _categoryId = c.id),
-            ),
-            const SizedBox(height: 16),
-            TextFormField(
-              controller: _title,
-              textCapitalization: TextCapitalization.sentences,
-              decoration: InputDecoration(
-                labelText: l.titleOptional,
-                border: OutlineInputBorder(),
+            if (isTransfer) ...[
+              WalletDropdown(
+                label: l.fromWallet,
+                wallets: state.wallets,
+                value: _walletId,
+                onChanged: (v) => setState(() => _walletId = v),
               ),
-            ),
+              Center(
+                child: IconButton(
+                  tooltip: '${l.fromWallet} / ${l.toWallet}',
+                  icon: const Icon(Icons.swap_vert),
+                  onPressed: _toWalletId == null
+                      ? null
+                      : () => setState(() {
+                          final from = _walletId;
+                          _walletId = _toWalletId!;
+                          _toWalletId = from;
+                        }),
+                ),
+              ),
+              WalletDropdown(
+                label: l.toWallet,
+                wallets: state.wallets,
+                value: _toWalletId,
+                onChanged: (v) => setState(() => _toWalletId = v),
+                validator: (v) =>
+                    (v == null || v == _walletId) ? l.sameWallet : null,
+              ),
+            ] else ...[
+              Text(l.category, style: Theme.of(context).textTheme.titleSmall),
+              const SizedBox(height: 8),
+              CategoryPicker(
+                categories: categories,
+                selectedId: _categoryId,
+                onSelected: (c) => setState(() => _categoryId = c.id),
+              ),
+              if (showWallet) ...[
+                const SizedBox(height: 16),
+                WalletDropdown(
+                  label: l.wallet,
+                  wallets: state.wallets,
+                  value: _walletId,
+                  onChanged: (v) => setState(() => _walletId = v),
+                ),
+              ],
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: _title,
+                textCapitalization: TextCapitalization.sentences,
+                decoration: InputDecoration(
+                  labelText: l.titleOptional,
+                  border: const OutlineInputBorder(),
+                ),
+              ),
+            ],
             const SizedBox(height: 16),
             ListTile(
               contentPadding: EdgeInsets.zero,
@@ -222,7 +351,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
               textCapitalization: TextCapitalization.sentences,
               decoration: InputDecoration(
                 labelText: l.noteOptional,
-                border: OutlineInputBorder(),
+                border: const OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 24),

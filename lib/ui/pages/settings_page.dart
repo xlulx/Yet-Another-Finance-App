@@ -10,6 +10,7 @@ import '../../services/oinkoin_import.dart';
 import '../../state/app_state.dart';
 import 'categories_page.dart';
 import 'recurring_page.dart';
+import 'wallets_page.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -35,7 +36,13 @@ class SettingsPage extends StatelessWidget {
     try {
       final text = utf8.decode(await file.readAsBytes());
       final s = await state.importOinkoin(text);
-      message = l.importDone(s.recordsAdded, s.categoriesAdded, s.rulesAdded);
+      message = l.importDone(
+        s.recordsAdded,
+        s.transfersAdded,
+        s.categoriesAdded,
+        s.walletsAdded,
+        s.rulesAdded,
+      );
       if (s.recordsSkipped > 0) {
         message += ' ${l.importSkipped(s.recordsSkipped)}';
       }
@@ -61,6 +68,14 @@ class SettingsPage extends StatelessWidget {
       appBar: AppBar(title: Text(l.settings)),
       body: ListView(
         children: [
+          ListTile(
+            leading: const Icon(Icons.account_balance_wallet),
+            title: Text(l.wallets),
+            subtitle: Text(l.walletCount(state.wallets.length)),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () => Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const WalletsPage())),
+          ),
           ListTile(
             leading: const Icon(Icons.category),
             title: Text(l.categories),

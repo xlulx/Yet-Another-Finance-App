@@ -19,6 +19,7 @@ Future<int> generateDueRecurringRecords(AppDatabase db, DateTime now) {
             categoryId: rule.categoryId,
             note: rule.note,
             recurringId: rule.id,
+            walletId: rule.walletId,
           ),
           txn: txn,
         );

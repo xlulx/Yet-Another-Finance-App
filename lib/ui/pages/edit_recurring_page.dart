@@ -9,6 +9,7 @@ import '../../models/recurring_rule.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/category_picker.dart';
+import '../widgets/wallet_dropdown.dart';
 import 'recurring_page.dart' show unitName;
 
 class EditRecurringPage extends StatefulWidget {
@@ -28,6 +29,7 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
   late final TextEditingController _interval;
   late CategoryType _type;
   int? _categoryId;
+  late int _walletId;
   late DateTime _start;
   DateTime? _end;
   late RecurrenceUnit _unit;
@@ -48,6 +50,7 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
     _note = TextEditingController(text: r?.note ?? '');
     _interval = TextEditingController(text: '${r?.interval ?? 1}');
     _categoryId = r?.categoryId;
+    _walletId = r?.walletId ?? state.defaultWalletId;
     _type = r == null
         ? CategoryType.expense
         : (state.categoryById(r.categoryId)?.type ?? CategoryType.expense);
@@ -95,6 +98,7 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
       unit: _unit,
       endDate: _end,
       lastGenerated: old?.lastGenerated,
+      walletId: _walletId,
     );
     final messenger = ScaffoldMessenger.of(context);
     final created = await context.read<AppState>().saveRule(rule);
@@ -205,6 +209,15 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
               selectedId: _categoryId,
               onSelected: (c) => setState(() => _categoryId = c.id),
             ),
+            if (state.wallets.length > 1) ...[
+              const SizedBox(height: 16),
+              WalletDropdown(
+                label: l.wallet,
+                wallets: state.wallets,
+                value: _walletId,
+                onChanged: (v) => setState(() => _walletId = v),
+              ),
+            ],
             const SizedBox(height: 16),
             Row(
               children: [

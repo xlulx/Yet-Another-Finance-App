@@ -4,6 +4,8 @@ import 'package:sqflite/sqflite.dart';
 import '../models/category.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
+import '../models/transfer.dart';
+import '../models/wallet.dart';
 
 /// SQLite access layer. All data stays on the device.
 class AppDatabase {
@@ -11,7 +13,9 @@ class AppDatabase {
 
   final Database db;
 
-  static const _version = 1;
+  /// 1: categories, records, recurring rules, settings.
+  /// 2: wallets and transfers.
+  static const _version = 2;
 
   /// Opens the app database. Tests can pass a [factory] and [path]
   /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`).
@@ -30,7 +34,13 @@ class AppDatabase {
       options: OpenDatabaseOptions(
         version: _version,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
-        onCreate: (db, version) => _onCreate(db, version, language),
+        onCreate: (db, version) async {
+          await _onCreate(db, version, language);
+          await _upgradeToV2(db, language);
+        },
+        onUpgrade: (db, from, to) async {
+          if (from < 2) await _upgradeToV2(db, language);
+        },
       ),
     );
     return AppDatabase._(db);
@@ -87,6 +97,52 @@ class AppDatabase {
       'key': 'currency',
       'value': language == 'tr' ? '₺' : r'$',
     });
+  }
+
+  /// Adds wallets and transfers. Existing records and recurring rules are
+  /// moved to a new default wallet ("Cash" / "Nakit").
+  static Future<void> _upgradeToV2(Database db, String language) async {
+    await db.execute('''
+      CREATE TABLE wallets (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL,
+        color INTEGER NOT NULL,
+        icon TEXT NOT NULL,
+        initial_balance INTEGER NOT NULL DEFAULT 0,
+        archived INTEGER NOT NULL DEFAULT 0,
+        sort_order INTEGER NOT NULL DEFAULT 0
+      )''');
+    // Wallets referenced by records or transfers cannot be deleted (no
+    // ON DELETE action), which protects against losing history.
+    await db.execute('''
+      CREATE TABLE transfers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        from_wallet_id INTEGER NOT NULL REFERENCES wallets(id),
+        to_wallet_id INTEGER NOT NULL REFERENCES wallets(id),
+        amount INTEGER NOT NULL,
+        date INTEGER NOT NULL,
+        note TEXT,
+        CHECK (from_wallet_id <> to_wallet_id)
+      )''');
+    await db.execute('CREATE INDEX idx_transfers_date ON transfers(date)');
+    await db.execute(
+      'ALTER TABLE records ADD COLUMN wallet_id INTEGER REFERENCES wallets(id)',
+    );
+    await db.execute(
+      'ALTER TABLE recurring_rules '
+      'ADD COLUMN wallet_id INTEGER REFERENCES wallets(id)',
+    );
+    await db.execute('CREATE INDEX idx_records_wallet ON records(wallet_id)');
+    final id = await db.insert(
+      'wallets',
+      Wallet(
+        name: language == 'tr' ? 'Nakit' : 'Cash',
+        color: 0xFF43A047,
+        icon: 'cash',
+      ).toRow()..remove('id'),
+    );
+    await db.update('records', {'wallet_id': id});
+    await db.update('recurring_rules', {'wallet_id': id});
   }
 
   static Future<void> _seedDefaultCategories(
@@ -165,10 +221,18 @@ class AppDatabase {
 
   // ---- Records ----
 
-  /// Records in [from, to), newest first.
-  Future<List<Record>> records({DateTime? from, DateTime? to}) async {
+  /// Records in [from, to), newest first; only [walletId]'s if given.
+  Future<List<Record>> records({
+    DateTime? from,
+    DateTime? to,
+    int? walletId,
+  }) async {
     final where = <String>[];
     final args = <Object>[];
+    if (walletId != null) {
+      where.add('wallet_id = ?');
+      args.add(walletId);
+    }
     if (from != null) {
       where.add('date >= ?');
       args.add(from.millisecondsSinceEpoch);
@@ -186,8 +250,11 @@ class AppDatabase {
     return rows.map(Record.fromRow).toList();
   }
 
-  Future<int> insertRecord(Record r, {DatabaseExecutor? txn}) =>
-      (txn ?? db).insert('records', r.toRow()..remove('id'));
+  Future<int> insertRecord(Record r, {DatabaseExecutor? txn}) async {
+    final row = r.toRow()..remove('id');
+    row['wallet_id'] ??= await defaultWalletId(txn: txn);
+    return (txn ?? db).insert('records', row);
+  }
 
   Future<void> updateRecord(Record r) =>
       db.update('records', r.toRow(), where: 'id = ?', whereArgs: [r.id]);
@@ -205,8 +272,14 @@ class AppDatabase {
     return rows.map(RecurringRule.fromRow).toList();
   }
 
-  Future<int> insertRecurringRule(RecurringRule r, {DatabaseExecutor? txn}) =>
-      (txn ?? db).insert('recurring_rules', r.toRow()..remove('id'));
+  Future<int> insertRecurringRule(
+    RecurringRule r, {
+    DatabaseExecutor? txn,
+  }) async {
+    final row = r.toRow()..remove('id');
+    row['wallet_id'] ??= await defaultWalletId(txn: txn);
+    return (txn ?? db).insert('recurring_rules', row);
+  }
 
   Future<void> updateRecurringRule(RecurringRule r, {DatabaseExecutor? txn}) =>
       (txn ?? db).update(
@@ -219,6 +292,109 @@ class AppDatabase {
   /// Deletes the rule. Records it already generated are kept.
   Future<void> deleteRecurringRule(int id) =>
       db.delete('recurring_rules', where: 'id = ?', whereArgs: [id]);
+
+  // ---- Wallets ----
+
+  Future<List<Wallet>> wallets({DatabaseExecutor? txn}) async {
+    final rows = await (txn ?? db).query(
+      'wallets',
+      orderBy: 'archived, sort_order, id',
+    );
+    return rows.map(Wallet.fromRow).toList();
+  }
+
+  /// The first active wallet; used when a record has no wallet.
+  Future<int> defaultWalletId({DatabaseExecutor? txn}) async {
+    final rows = await (txn ?? db).query(
+      'wallets',
+      columns: ['id'],
+      orderBy: 'archived, sort_order, id',
+      limit: 1,
+    );
+    return rows.first['id'] as int;
+  }
+
+  Future<int> insertWallet(Wallet w, {DatabaseExecutor? txn}) =>
+      (txn ?? db).insert('wallets', w.toRow()..remove('id'));
+
+  Future<void> updateWallet(Wallet w) =>
+      db.update('wallets', w.toRow(), where: 'id = ?', whereArgs: [w.id]);
+
+  /// Number of records, recurring rules and transfers using the wallet.
+  Future<int> walletUsage(int id) async {
+    final rows = await db.rawQuery(
+      '''SELECT
+           (SELECT COUNT(*) FROM records WHERE wallet_id = ?1)
+         + (SELECT COUNT(*) FROM recurring_rules WHERE wallet_id = ?1)
+         + (SELECT COUNT(*) FROM transfers
+              WHERE from_wallet_id = ?1 OR to_wallet_id = ?1) AS n''',
+      [id],
+    );
+    return rows.first['n'] as int;
+  }
+
+  /// Deletes an unused wallet (see [walletUsage]).
+  Future<void> deleteWallet(int id) =>
+      db.delete('wallets', where: 'id = ?', whereArgs: [id]);
+
+  /// Current balance of every wallet: starting balance + income - expenses
+  /// + transfers in - transfers out.
+  Future<Map<int, int>> walletBalances() async {
+    final rows = await db.rawQuery('''
+      SELECT w.id,
+        w.initial_balance
+        + COALESCE((SELECT SUM(CASE WHEN c.type = 1 THEN r.amount
+                                    ELSE -r.amount END)
+                    FROM records r JOIN categories c ON c.id = r.category_id
+                    WHERE r.wallet_id = w.id), 0)
+        + COALESCE((SELECT SUM(amount) FROM transfers
+                    WHERE to_wallet_id = w.id), 0)
+        - COALESCE((SELECT SUM(amount) FROM transfers
+                    WHERE from_wallet_id = w.id), 0) AS balance
+      FROM wallets w''');
+    return {for (final r in rows) r['id'] as int: r['balance'] as int};
+  }
+
+  // ---- Transfers ----
+
+  /// Transfers in [from, to), newest first; only those touching [walletId]
+  /// if given.
+  Future<List<Transfer>> transfers({
+    DateTime? from,
+    DateTime? to,
+    int? walletId,
+  }) async {
+    final where = <String>[];
+    final args = <Object>[];
+    if (walletId != null) {
+      where.add('(from_wallet_id = ? OR to_wallet_id = ?)');
+      args.addAll([walletId, walletId]);
+    }
+    if (from != null) {
+      where.add('date >= ?');
+      args.add(from.millisecondsSinceEpoch);
+    }
+    if (to != null) {
+      where.add('date < ?');
+      args.add(to.millisecondsSinceEpoch);
+    }
+    final rows = await db.query(
+      'transfers',
+      where: where.isEmpty ? null : where.join(' AND '),
+      whereArgs: args,
+      orderBy: 'date DESC, id DESC',
+    );
+    return rows.map(Transfer.fromRow).toList();
+  }
+
+  Future<int> insertTransfer(Transfer t, {DatabaseExecutor? txn}) =>
+      (txn ?? db).insert('transfers', t.toRow()..remove('id'));
+
+  Future<void> updateTransfer(Transfer t) =>
+      db.update('transfers', t.toRow(), where: 'id = ?', whereArgs: [t.id]);
+
+  Future<void> deleteTransfer(int id) =>
+      db.delete('transfers', where: 'id = ?', whereArgs: [id]);
 
   // ---- Settings ----
 

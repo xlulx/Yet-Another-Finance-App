@@ -7,19 +7,28 @@ is never sent anywhere.
 The app is available in **English** and **Turkish**. It follows the phone's
 language by default; you can also pick one in Settings.
 
-## Features (v0.1)
+## Features
 
 - **Income / expense records** — month-by-month list grouped by day,
   swipe to delete (with undo), monthly income/expense/balance summary.
+- **Wallets** — cash, bank accounts, credit cards...: each with a colour,
+  icon and starting balance (negative for debt). See every wallet's current
+  balance and the total, and filter records and statistics by wallet.
+- **Transfers between wallets** — move money from one wallet to another.
+  Transfers change balances but count as neither income nor expense.
 - **Categories** — name, colour, icon or emoji; archiving.
 - **Statistics** — monthly/yearly category breakdown (pie chart with
   percentages) and daily/monthly trend chart.
 - **Recurring transactions** — "every N days/weeks/months/years"; due records
   are created automatically when the app starts. Month ends are handled
   correctly (Jan 31 → Feb 28 → Mar 31).
-- **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: categories
-  (colour, emoji), records and recurring transactions (including custom
-  intervals). Importing the same backup twice does not duplicate records.
+- **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: wallets,
+  categories (colour, emoji), records, transfers and recurring transactions
+  (including custom intervals). Importing the same backup twice does not
+  duplicate anything. YAFA is not affiliated with Oinkoin; it only reads its
+  backup format.
+
+All wallets currently share one currency, chosen in Settings.
 
 ## Install
 
@@ -64,7 +73,7 @@ stored in the repository.
 
 ```
 lib/
-  models/      Category, Record, RecurringRule (plain data classes)
+  models/      Category, Record, RecurringRule, Wallet, Transfer
   data/        AppDatabase — sqflite schema and queries
   services/    recurrence (date maths), recurring_service, oinkoin_import, stats
   state/       AppState (ChangeNotifier, via provider)
@@ -77,6 +86,9 @@ lib/
   An amount is always positive; the category type (income/expense) gives
   its sign.
 - Enum indexes are stored in the database: **only append** new values.
+- Schema changes go through `onUpgrade` in `AppDatabase` (bump `_version`
+  and add a `_upgradeToVn` step); the tests open a version 1 database to
+  check the upgrade path.
 - UI texts live in `lib/l10n/*.arb`. After editing them run `flutter gen-l10n`
   (it also runs automatically on `flutter pub get` / `flutter run`). To add a
   language, add `app_<code>.arb` next to the others.
@@ -85,7 +97,7 @@ lib/
 
 - Own backup/restore (JSON) and CSV export
 - Budgets and limit alerts
-- Multiple wallets / transfers between accounts
+- A currency per wallet, with exchange rates for transfers
 - Tags and search
 - Home screen widget, app lock (biometric)
 - More languages
@@ -98,3 +110,8 @@ This program is free software: you can redistribute it and/or modify it under
 the terms of the GNU General Public License as published by the Free Software
 Foundation, either version 3 of the License, or (at your option) any later
 version. See [LICENSE](LICENSE) for the full text.
+
+---
+
+YAFA is developed with the help of [Claude](https://claude.ai), Anthropic's
+AI assistant.

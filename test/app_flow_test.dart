@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yafa/data/app_database.dart';
 import 'package:yafa/main.dart';
+import 'package:yafa/models/wallet.dart';
 import 'package:yafa/state/app_state.dart';
 
 /// Opens an in-memory app, adds an expense through the UI and checks it is
@@ -100,5 +101,67 @@ void main() {
       category: 'Market',
       formattedAmount: '250,75',
     );
+  });
+
+  testWidgets('transfer between wallets', (tester) async {
+    late AppState state;
+    late int cash, bank;
+    await tester.runAsync(() async {
+      final db = await AppDatabase.open(
+        factory: databaseFactoryFfiNoIsolate,
+        path: inMemoryDatabasePath,
+      );
+      cash = (await db.wallets()).single.id!;
+      bank = await db.insertWallet(
+        const Wallet(name: 'Bank', color: 0xFF42A5F5),
+      );
+      state = AppState(db);
+      await state.load();
+      await state.setLanguage('en');
+    });
+
+    await tester.pumpWidget(YafaApp(state: state));
+    await tester.pumpAndSettle();
+    // With two wallets the filter bar is shown.
+    expect(find.text('All wallets'), findsOneWidget);
+
+    await tester.tap(find.text('Add record'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Transfer'));
+    await tester.pumpAndSettle();
+    expect(find.text('New transfer'), findsOneWidget);
+    await tester.enterText(find.byType(TextFormField).first, '120');
+
+    final save = find.text('Save');
+    await tester.ensureVisible(save);
+    await tester.pumpAndSettle();
+    await tester.tap(save);
+    for (var i = 0; i < 20 && state.monthTransfers.isEmpty; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 50)),
+      );
+      await tester.pump();
+    }
+    await tester.pumpAndSettle();
+
+    expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
+    expect(find.text('Cash'), findsWidgets);
+    expect(state.balances[cash], -12000);
+    expect(state.balances[bank], 12000);
+    // Transfers are neither income nor expense.
+    expect(state.monthIncome + state.monthExpense, 0);
+
+    // Filtering by the bank shows the transfer as money coming in.
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Bank'));
+    for (var i = 0; i < 10; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(state.walletFilter, bank);
+    expect(find.textContaining('120.00'), findsWidgets);
+
+    await tester.runAsync(() => state.db.close());
   });
 }

@@ -22,6 +22,9 @@ class RecurringRule {
   /// Date of the last generated occurrence.
   final DateTime? lastGenerated;
 
+  /// Wallet for the generated records; the default wallet when null.
+  final int? walletId;
+
   const RecurringRule({
     this.id,
     required this.title,
@@ -33,6 +36,7 @@ class RecurringRule {
     this.unit = RecurrenceUnit.month,
     this.endDate,
     this.lastGenerated,
+    this.walletId,
   });
 
   RecurringRule copyWith({
@@ -47,6 +51,7 @@ class RecurringRule {
     DateTime? endDate,
     bool clearEndDate = false,
     DateTime? lastGenerated,
+    int? walletId,
   }) {
     return RecurringRule(
       id: id ?? this.id,
@@ -59,6 +64,7 @@ class RecurringRule {
       unit: unit ?? this.unit,
       endDate: clearEndDate ? null : (endDate ?? this.endDate),
       lastGenerated: lastGenerated ?? this.lastGenerated,
+      walletId: walletId ?? this.walletId,
     );
   }
 
@@ -73,6 +79,7 @@ class RecurringRule {
     'unit': unit.index,
     'end_date': endDate?.millisecondsSinceEpoch,
     'last_generated': lastGenerated?.millisecondsSinceEpoch,
+    'wallet_id': walletId,
   };
 
   factory RecurringRule.fromRow(Map<String, Object?> row) {
@@ -89,6 +96,7 @@ class RecurringRule {
       unit: RecurrenceUnit.values[row['unit'] as int? ?? 2],
       endDate: ms(row['end_date']),
       lastGenerated: ms(row['last_generated']),
+      walletId: row['wallet_id'] as int?,
     );
   }
 }

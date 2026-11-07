@@ -593,8 +593,14 @@ abstract class AppLocalizations {
   /// No description provided for @importDone.
   ///
   /// In en, this message translates to:
-  /// **'Imported {records} records, {categories} categories and {rules} recurring transactions.'**
-  String importDone(int records, int categories, int rules);
+  /// **'Imported {records} records, {transfers} transfers, {categories} categories, {wallets} wallets and {rules} recurring transactions.'**
+  String importDone(
+    int records,
+    int transfers,
+    int categories,
+    int wallets,
+    int rules,
+  );
 
   /// No description provided for @importSkipped.
   ///
@@ -631,6 +637,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Yet Another Financial App\nAll your data stays on your device.'**
   String get aboutLegalese;
+
+  /// No description provided for @wallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallet'**
+  String get wallet;
+
+  /// No description provided for @wallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get wallets;
+
+  /// No description provided for @allWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'All wallets'**
+  String get allWallets;
+
+  /// No description provided for @addWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Add wallet'**
+  String get addWallet;
+
+  /// No description provided for @newWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'New wallet'**
+  String get newWallet;
+
+  /// No description provided for @editWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit wallet'**
+  String get editWallet;
+
+  /// No description provided for @walletCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 wallet} other{{count} wallets}}'**
+  String walletCount(int count);
+
+  /// No description provided for @startingBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting balance'**
+  String get startingBalance;
+
+  /// No description provided for @startingBalanceHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a minus sign for debt, e.g. a credit card'**
+  String get startingBalanceHint;
+
+  /// No description provided for @invalidBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a valid balance'**
+  String get invalidBalance;
+
+  /// No description provided for @totalBalance.
+  ///
+  /// In en, this message translates to:
+  /// **'Total balance'**
+  String get totalBalance;
+
+  /// No description provided for @walletArchiveHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden when adding records; its history and balance are kept.'**
+  String get walletArchiveHint;
+
+  /// No description provided for @deleteWalletQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete \"{name}\"?'**
+  String deleteWalletQuestion(String name);
+
+  /// No description provided for @walletInUse.
+  ///
+  /// In en, this message translates to:
+  /// **'This wallet has records, transfers or recurring transactions. Archive it instead.'**
+  String get walletInUse;
+
+  /// No description provided for @lastWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'You need at least one wallet.'**
+  String get lastWallet;
+
+  /// No description provided for @transfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer'**
+  String get transfer;
+
+  /// No description provided for @fromWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'From'**
+  String get fromWallet;
+
+  /// No description provided for @toWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'To'**
+  String get toWallet;
+
+  /// No description provided for @sameWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose two different wallets'**
+  String get sameWallet;
+
+  /// No description provided for @newTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'New transfer'**
+  String get newTransfer;
+
+  /// No description provided for @editTransfer.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit transfer'**
+  String get editTransfer;
+
+  /// No description provided for @deleteTransferQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this transfer?'**
+  String get deleteTransferQuestion;
+
+  /// No description provided for @transferDeleted.
+  ///
+  /// In en, this message translates to:
+  /// **'Transfer deleted'**
+  String get transferDeleted;
+
+  /// No description provided for @needTwoWallets.
+  ///
+  /// In en, this message translates to:
+  /// **'Add a second wallet in Settings > Wallets to make transfers.'**
+  String get needTwoWallets;
 }
 
 class _AppLocalizationsDelegate
