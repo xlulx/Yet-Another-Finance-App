@@ -347,17 +347,54 @@ class _TransferTile extends StatelessWidget {
             Flexible(child: Text(to, overflow: TextOverflow.ellipsis)),
           ],
         ),
-        subtitle: Text(
-          [l.transfer, if (transfer.note != null) transfer.note!].join(' · '),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
+        // Without a filter, spell out what the transfer does to each wallet;
+        // with one, the sign on the right says it. Each wallet's part is
+        // kept on one line and wraps as a whole.
+        subtitle: effect == 0
+            ? Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Wrap(
+                    spacing: 12,
+                    children: [
+                      Text(
+                        '$from ${formatMoney(-transfer.amount, state.currency)}',
+                        softWrap: false,
+                      ),
+                      Text(
+                        '$to ${formatMoney(transfer.amount, state.currency, signed: true)}',
+                        softWrap: false,
+                        style: TextStyle(color: Colors.green.shade600),
+                      ),
+                    ],
+                  ),
+                  if (transfer.note != null)
+                    Text(
+                      transfer.note!,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                    ),
+                ],
+              )
+            : Text(
+                [
+                  l.transfer,
+                  if (transfer.note != null) transfer.note!,
+                ].join(' · '),
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
         trailing: Text(
-          // Signed only when looking at one wallet; neutral otherwise.
-          formatMoney(effect == 0 ? transfer.amount : effect, state.currency),
+          effect == 0
+              ? formatMoney(transfer.amount, state.currency)
+              : formatMoney(effect, state.currency, signed: true),
           style: TextStyle(
             fontWeight: FontWeight.w600,
-            color: effect > 0 ? Colors.green.shade600 : scheme.onSurfaceVariant,
+            color: effect > 0
+                ? Colors.green.shade600
+                : effect < 0
+                ? null
+                : scheme.onSurfaceVariant,
           ),
         ),
         onTap: () => Navigator.of(context).push(

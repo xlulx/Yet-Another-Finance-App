@@ -146,6 +146,9 @@ void main() {
 
     expect(find.byIcon(Icons.arrow_forward), findsOneWidget);
     expect(find.text('Cash'), findsWidgets);
+    // Without a filter the row says what happens to each wallet.
+    expect(find.text(r'Cash -$120.00'), findsOneWidget);
+    expect(find.text(r'Bank +$120.00'), findsOneWidget);
     expect(state.balances[cash], -12000);
     expect(state.balances[bank], 12000);
     // Transfers are neither income nor expense.
@@ -160,7 +163,18 @@ void main() {
       await tester.pump();
     }
     expect(state.walletFilter, bank);
-    expect(find.textContaining('120.00'), findsWidgets);
+    expect(find.text(r'+$120.00'), findsWidgets);
+
+    // ...and for the cash wallet as money going out.
+    await tester.tap(find.widgetWithText(ChoiceChip, 'Cash'));
+    for (var i = 0; i < 10; i++) {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      );
+      await tester.pump();
+    }
+    expect(state.walletFilter, cash);
+    expect(find.text(r'-$120.00'), findsWidgets);
 
     await tester.runAsync(() => state.db.close());
   });
