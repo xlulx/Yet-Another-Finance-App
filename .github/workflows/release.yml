@@ -79,7 +79,8 @@ jobs:
           NAME="${TAG#v}"
           flutter build apk --release --flavor prod \
             --target-platform android-arm64 \
-            --build-name="$NAME" --build-number="${{ github.run_number }}"
+            --build-name="$NAME" --build-number="${{ github.run_number }}" \
+            --dart-define=APP_VERSION="$NAME"
           cp build/app/outputs/flutter-apk/app-prod-release.apk "YAFA-$NAME.apk"
 
       - name: Create release and attach APK

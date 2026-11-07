@@ -12,6 +12,10 @@ import 'categories_page.dart';
 import 'recurring_page.dart';
 import 'wallets_page.dart';
 
+/// Set by the Release APK workflow (`--dart-define=APP_VERSION=1.2.3`);
+/// "dev" for local and test builds.
+const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
+
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
 
@@ -139,7 +143,7 @@ class SettingsPage extends StatelessWidget {
           AboutListTile(
             icon: const Icon(Icons.info_outline),
             applicationName: 'YAFA',
-            applicationVersion: '0.1.0',
+            applicationVersion: appVersion,
             applicationLegalese: l.aboutLegalese,
           ),
         ],
