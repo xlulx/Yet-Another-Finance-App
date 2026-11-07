@@ -45,7 +45,8 @@ class _EditRecordPageState extends State<EditRecordPage> {
         ? CategoryType.expense
         : (state.categoryById(r.categoryId)?.type ?? CategoryType.expense);
     final now = DateTime.now();
-    // Yeni kayıtta seçili ay bugünün ayı değilse ayın ilk gününü öner.
+    // For a new record, default to the 1st of the selected month unless it is
+    // the current month.
     final m = state.month;
     _date = r?.date ?? (m.year == now.year && m.month == now.month ? now : m);
   }

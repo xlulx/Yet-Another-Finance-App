@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Kategori türü. Sıra (index) veritabanında saklanır; sadece sona ekleyin.
+/// Category type. The index is stored in the database: only append.
 enum CategoryType { expense, income }
 
 class Category {
@@ -8,13 +8,13 @@ class Category {
   final String name;
   final CategoryType type;
 
-  /// ARGB renk değeri.
+  /// ARGB colour value.
   final int color;
 
-  /// [CategoryIcons.all] içindeki ikon anahtarı.
+  /// Icon key from [categoryIcons].
   final String icon;
 
-  /// Doluysa ikon yerine emoji gösterilir.
+  /// If set, shown instead of the icon.
   final String? emoji;
   final bool archived;
   final int sortOrder;

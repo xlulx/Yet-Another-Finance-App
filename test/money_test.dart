@@ -6,7 +6,7 @@ void main() {
   setUpAll(() => initializeDateFormatting('tr_TR'));
 
   group('parseMoney', () {
-    test('kabul edilen biçimler', () {
+    test('accepted formats', () {
       expect(parseMoney('12'), 1200);
       expect(parseMoney('12,5'), 1250);
       expect(parseMoney('12.50'), 1250);
@@ -17,7 +17,7 @@ void main() {
       expect(parseMoney('0.1'), 10);
     });
 
-    test('geçersiz girdiler', () {
+    test('invalid input', () {
       expect(parseMoney(''), isNull);
       expect(parseMoney('abc'), isNull);
       expect(parseMoney('-5'), isNull);

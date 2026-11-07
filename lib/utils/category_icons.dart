@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 
-/// Kategoriler için seçilebilir ikonlar. Anahtar veritabanında saklanır.
+/// Icons available for categories. The key is stored in the database.
 const Map<String, IconData> categoryIcons = {
   'category': Icons.category,
   'cart': Icons.shopping_cart,

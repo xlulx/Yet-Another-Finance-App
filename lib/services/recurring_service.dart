@@ -2,8 +2,8 @@ import '../data/app_database.dart';
 import '../models/record.dart';
 import 'recurrence.dart';
 
-/// Vadesi gelmiş tekrarlayan kayıtları oluşturur ve oluşturulan sayıyı
-/// döndürür. Uygulama açılışında ve kural değiştiğinde çağrılır.
+/// Creates all due recurring records and returns how many were created.
+/// Called on app start and whenever a rule changes.
 Future<int> generateDueRecurringRecords(AppDatabase db, DateTime now) {
   return db.db.transaction((txn) async {
     var created = 0;

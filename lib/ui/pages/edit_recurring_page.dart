@@ -79,8 +79,8 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
     }
     final note = _note.text.trim();
     final old = widget.rule;
-    // Üretim geçmişi korunur; başlangıç tarihi kayıt üretildikten sonra
-    // değiştirilemez (aşağıda devre dışı).
+    // Generation history is kept; the start date cannot be changed once
+    // records have been generated (the field is disabled below).
     final rule = RecurringRule(
       id: old?.id,
       title: _title.text.trim(),

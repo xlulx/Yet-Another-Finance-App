@@ -1,10 +1,10 @@
 import '../models/recurring_rule.dart';
 
-/// [base] tarihine [n] * [rule.interval] birim ekler.
+/// Returns the [n]th occurrence of [rule] (n = 0 is the start date).
 ///
-/// Ay/yıl eklerken gün, hedef ayın uzunluğuna kırpılır (31 Ocak + 1 ay =
-/// 28/29 Şubat). Hesap her zaman başlangıç tarihinden yapıldığı için gün
-/// kayması birikmez (31 Ocak -> 28 Şubat -> 31 Mart).
+/// When adding months/years the day is clamped to the target month's length
+/// (Jan 31 + 1 month = Feb 28/29). Every occurrence is computed from the
+/// start date, so clamping never accumulates (Jan 31 -> Feb 28 -> Mar 31).
 DateTime nthOccurrence(RecurringRule rule, int n) {
   final s = rule.startDate;
   final step = rule.interval * n;
@@ -29,10 +29,10 @@ DateTime _addMonths(DateTime d, int months) {
   return DateTime(year, month, day, d.hour, d.minute);
 }
 
-/// Kural için [now] anına kadar (dahil) henüz üretilmemiş tarihleri döndürür.
+/// Returns the not yet generated occurrences of [rule] up to [now] (inclusive).
 ///
-/// [RecurringRule.lastGenerated] boşsa başlangıç tarihi de dahil edilir.
-/// Sonsuz döngüye karşı [maxCount] sınırı vardır.
+/// If [RecurringRule.lastGenerated] is null the start date is included.
+/// [maxCount] guards against runaway loops.
 List<DateTime> pendingOccurrences(
   RecurringRule rule,
   DateTime now, {
@@ -53,7 +53,7 @@ List<DateTime> pendingOccurrences(
   return result;
 }
 
-/// Kuralın bir sonraki (henüz üretilmemiş) tarihini döndürür; bitmişse null.
+/// Returns the next not yet generated occurrence, or null if the rule ended.
 DateTime? nextOccurrence(RecurringRule rule, {int maxCount = 5000}) {
   for (var n = 0; n < maxCount; n++) {
     final date = nthOccurrence(rule, n);

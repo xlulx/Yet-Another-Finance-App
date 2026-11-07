@@ -5,7 +5,7 @@ import '../models/category.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
 
-/// SQLite erişim katmanı. Tüm veri cihazda kalır.
+/// SQLite access layer. All data stays on the device.
 class AppDatabase {
   AppDatabase._(this.db);
 
@@ -13,8 +13,8 @@ class AppDatabase {
 
   static const _version = 1;
 
-  /// Uygulama veritabanını açar. Testlerde [factory] ve [path] verilebilir
-  /// (ör. `databaseFactoryFfi` ve `inMemoryDatabasePath`).
+  /// Opens the app database. Tests can pass a [factory] and [path]
+  /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`).
   static Future<AppDatabase> open({
     DatabaseFactory? factory,
     String? path,
@@ -107,7 +107,7 @@ class AppDatabase {
 
   Future<void> close() => db.close();
 
-  // ---- Kategoriler ----
+  // ---- Categories ----
 
   Future<List<Category>> categories({DatabaseExecutor? txn}) async {
     final rows = await (txn ?? db).query(
@@ -123,13 +123,13 @@ class AppDatabase {
   Future<void> updateCategory(Category c) =>
       db.update('categories', c.toRow(), where: 'id = ?', whereArgs: [c.id]);
 
-  /// Kategoriyi ve ona bağlı tüm kayıtları siler.
+  /// Deletes the category and all of its records.
   Future<void> deleteCategory(int id) =>
       db.delete('categories', where: 'id = ?', whereArgs: [id]);
 
-  // ---- Kayıtlar ----
+  // ---- Records ----
 
-  /// [from] dahil, [to] hariç aralıktaki kayıtlar (yeniden eskiye).
+  /// Records in [from, to), newest first.
   Future<List<Record>> records({DateTime? from, DateTime? to}) async {
     final where = <String>[];
     final args = <Object>[];
@@ -159,7 +159,7 @@ class AppDatabase {
   Future<void> deleteRecord(int id) =>
       db.delete('records', where: 'id = ?', whereArgs: [id]);
 
-  // ---- Tekrarlayan kurallar ----
+  // ---- Recurring rules ----
 
   Future<List<RecurringRule>> recurringRules({DatabaseExecutor? txn}) async {
     final rows = await (txn ?? db).query(
@@ -180,11 +180,11 @@ class AppDatabase {
         whereArgs: [r.id],
       );
 
-  /// Kuralı siler. Daha önce üretilmiş kayıtlar korunur.
+  /// Deletes the rule. Records it already generated are kept.
   Future<void> deleteRecurringRule(int id) =>
       db.delete('recurring_rules', where: 'id = ?', whereArgs: [id]);
 
-  // ---- Ayarlar ----
+  // ---- Settings ----
 
   Future<String?> getSetting(String key) async {
     final rows = await db.query('settings', where: 'key = ?', whereArgs: [key]);

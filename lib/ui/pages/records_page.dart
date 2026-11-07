@@ -17,7 +17,7 @@ class RecordsPage extends StatelessWidget {
     final state = context.watch<AppState>();
     final records = state.monthRecords;
 
-    // Günlere göre grupla (kayıtlar zaten yeniden eskiye sıralı).
+    // Group by day (records are already sorted newest first).
     final groups = <DateTime, List<Record>>{};
     for (final r in records) {
       final day = DateTime(r.date.year, r.date.month, r.date.day);
@@ -36,7 +36,7 @@ class RecordsPage extends StatelessWidget {
             .push(MaterialPageRoute(builder: (_) => const EditRecordPage())),
       ),
       body: GestureDetector(
-        // Sağa/sola kaydırarak ay değiştir.
+        // Swipe left/right to change the month.
         onHorizontalDragEnd: (d) {
           final v = d.primaryVelocity ?? 0;
           if (v.abs() < 300) return;

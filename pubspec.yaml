@@ -1,5 +1,5 @@
 name: yafa
-description: "Yet Another Financial App - gizlilik odakli, cevrimdisi gelir/gider takibi."
+description: "Yet Another Financial App - a privacy-friendly, offline income and expense tracker."
 publish_to: 'none'
 version: 0.1.0+1
 

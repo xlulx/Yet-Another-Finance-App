@@ -14,7 +14,7 @@ void main() {
     await initializeDateFormatting('tr_TR');
   });
 
-  testWidgets('kayıt ekleme akışı', (tester) async {
+  testWidgets('add record flow', (tester) async {
     late AppState state;
     await tester.runAsync(() async {
       final db = await AppDatabase.open(
@@ -44,7 +44,7 @@ void main() {
     await tester.ensureVisible(save);
     await tester.pumpAndSettle();
     await tester.tap(save);
-    // Veritabanı işlemleri gerçek I/O; bitmelerini bekle.
+    // Database calls are real I/O; wait for them to finish.
     for (var i = 0; i < 20 && state.monthRecords.isEmpty; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 50)),

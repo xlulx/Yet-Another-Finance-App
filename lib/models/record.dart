@@ -1,8 +1,7 @@
-/// Tek bir gelir/gider kaydı.
+/// A single income/expense record.
 ///
-/// Tutarlar kuruş cinsinden (minor unit) tam sayı olarak saklanır; böylece
-/// ondalık yuvarlama hataları oluşmaz. [amount] her zaman pozitiftir, yönü
-/// kategorinin türü belirler.
+/// Amounts are stored as integers in minor units (cents) to avoid rounding
+/// errors. [amount] is always positive; the category type gives the sign.
 class Record {
   final int? id;
   final String title;
@@ -11,7 +10,7 @@ class Record {
   final int categoryId;
   final String? note;
 
-  /// Bu kayıt bir tekrarlayan kuraldan üretildiyse kuralın id'si.
+  /// Id of the recurring rule that generated this record, if any.
   final int? recurringId;
 
   const Record({

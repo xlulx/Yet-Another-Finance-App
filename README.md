@@ -1,76 +1,86 @@
 # YAFA — Yet Another Financial App
 
-Gizlilik odaklı, tamamen çevrimdışı çalışan gelir/gider takip uygulaması.
-Flutter ile yazıldı (Android + iOS). Tüm veriler cihazdaki SQLite
-veritabanında tutulur; hiçbir yere gönderilmez.
+A privacy-friendly, fully offline income and expense tracker for Android and
+iOS, built with Flutter. All data lives in a SQLite database on the device and
+is never sent anywhere.
 
-## Özellikler (v0.1)
+> The app's user interface is currently in Turkish only.
 
-- **Gelir / gider kayıtları** — ay ay listeleme, günlere göre gruplama,
-  kaydırarak silme (geri alma ile), aylık gelir/gider/bakiye özeti.
-- **Kategoriler** — ad, renk, ikon veya emoji; arşivleme.
-- **İstatistik** — aylık/yıllık kategori dağılımı (pasta grafik + yüzdeler)
-  ve günlük/aylık trend grafiği.
-- **Tekrarlayan işlemler** — "her N gün/hafta/ay/yıl"; vadesi gelen kayıtlar
-  uygulama açılınca otomatik oluşturulur. Ay sonu tarihleri doğru işlenir
-  (31 Ocak → 28 Şubat → 31 Mart).
-- **Oinkoin'den geçiş** — Oinkoin'in `.json` yedeğini içe aktarır: kategoriler
-  (renk, emoji), kayıtlar ve tekrarlayan işlemler (özel aralıklar dahil).
-  Aynı yedeği iki kez içe aktarmak kayıtları çoğaltmaz.
+## Features (v0.1)
 
-## Geliştirme
+- **Income / expense records** — month-by-month list grouped by day,
+  swipe to delete (with undo), monthly income/expense/balance summary.
+- **Categories** — name, colour, icon or emoji; archiving.
+- **Statistics** — monthly/yearly category breakdown (pie chart with
+  percentages) and daily/monthly trend chart.
+- **Recurring transactions** — "every N days/weeks/months/years"; due records
+  are created automatically when the app starts. Month ends are handled
+  correctly (Jan 31 → Feb 28 → Mar 31).
+- **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: categories
+  (colour, emoji), records and recurring transactions (including custom
+  intervals). Importing the same backup twice does not duplicate records.
+
+## Install
+
+Download the latest `YAFA-x.y.z.apk` from
+[Releases](https://github.com/xlulx/Yet-Another-Financial-App/releases) and
+install it on your Android phone (64-bit / arm64).
+
+## Development
 
 ```bash
 flutter pub get
 flutter analyze
 flutter test
-flutter run --flavor dev   # bağlı cihaz/emülatörde çalıştır
+flutter run --flavor dev   # run on a connected device/emulator
 ```
 
-### Sürümler (flavor)
+### Flavors
 
-| Flavor | Uygulama adı | Paket | Nerede derlenir |
+| Flavor | App name | Package | Built by |
 |---|---|---|---|
-| `dev`  | YAFA Dev | `io.github.xlulx.yafa.dev` | Geliştirme ortamında, test için |
-| `prod` | YAFA     | `io.github.xlulx.yafa`     | Sadece GitHub Release ile |
+| `dev`  | YAFA Dev | `io.github.xlulx.yafa.dev` | Locally, for testing |
+| `prod` | YAFA     | `io.github.xlulx.yafa`     | The Release APK workflow only |
 
-İkisi telefonda yan yana kurulabilir; verileri ayrıdır. Test sürümü
-herkese açık `android/keystores/dev.jks` ile imzalanır.
+Both can be installed side by side and keep separate data. Test builds are
+signed with the intentionally public `android/keystores/dev.jks`.
 
 ```bash
 flutter build apk --release --flavor dev --target-platform android-arm64
 ```
 
-### Release (Actions dakikası sadece burada harcanır)
+### Releases
 
-`v0.1.0` gibi bir etiket gönderilince (`git tag v0.1.0 && git push origin v0.1.0`
-ya da GitHub'da **Releases → Draft a new release**) `.github/workflows/release.yml`
-çalışır, testleri koşar, Release'i oluşturur ve imzalı `YAFA-0.1.0.apk`
-dosyasını ekler (~6-8 dk). Bunun için
-`RELEASE_KEYSTORE_BASE64` ve `RELEASE_KEYSTORE_PASSWORD` secret'ları gerekir.
-İmza anahtarı depoda **yoktur**.
+The only GitHub Actions workflow, `.github/workflows/release.yml`, runs when
+it is started manually (**Actions → Release APK → Run workflow**, with a
+version such as `0.1.0`) or when a `v*` tag is pushed. It runs the tests,
+creates the release if needed and attaches a signed `YAFA-x.y.z.apk`
+(~8 minutes). It needs the `RELEASE_KEYSTORE_BASE64` and
+`RELEASE_KEYSTORE_PASSWORD` repository secrets; the release key is **not**
+stored in the repository.
 
-## Mimari
+## Architecture
 
 ```
 lib/
-  models/      Category, Record, RecurringRule (saf veri sınıfları)
-  data/        AppDatabase — sqflite şeması ve sorgular
-  services/    recurrence (tarih hesabı), recurring_service, oinkoin_import, stats
-  state/       AppState (ChangeNotifier, provider ile)
-  ui/          sayfalar ve ortak widget'lar
-  utils/       para biçimlendirme/ayrıştırma, ikon ve renk listeleri
+  models/      Category, Record, RecurringRule (plain data classes)
+  data/        AppDatabase — sqflite schema and queries
+  services/    recurrence (date maths), recurring_service, oinkoin_import, stats
+  state/       AppState (ChangeNotifier, via provider)
+  ui/          pages and shared widgets
+  utils/       money formatting/parsing, icon and colour lists
 ```
 
-- Tutarlar **kuruş cinsinden tam sayı** olarak saklanır (yuvarlama hatası yok).
-  Tutar her zaman pozitiftir; yönü kategorinin türü (gelir/gider) belirler.
-- Enum index'leri veritabanında saklanır: yeni değerleri **sadece sona** ekleyin.
+- Amounts are stored as **integers in minor units** (no rounding errors).
+  An amount is always positive; the category type (income/expense) gives
+  its sign.
+- Enum indexes are stored in the database: **only append** new values.
 
-## Yol haritası (fikirler)
+## Roadmap (ideas)
 
-- Kendi yedek/geri yükleme (JSON) ve CSV dışa aktarma
-- Bütçeler ve limit uyarıları
-- Çoklu cüzdan / hesaplar arası transfer
-- Etiketler ve arama
-- Ana ekran widget'ı, uygulama kilidi (biyometrik)
-- İngilizce dil desteği
+- Own backup/restore (JSON) and CSV export
+- Budgets and limit alerts
+- Multiple wallets / transfers between accounts
+- Tags and search
+- Home screen widget, app lock (biometric)
+- English UI

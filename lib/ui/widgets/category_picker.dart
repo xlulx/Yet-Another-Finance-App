@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/category.dart';
 import 'category_avatar.dart';
 
-/// Kategorileri çip olarak gösterip birini seçtirir.
+/// Shows categories as chips and lets the user pick one.
 class CategoryPicker extends StatelessWidget {
   const CategoryPicker({
     super.key,

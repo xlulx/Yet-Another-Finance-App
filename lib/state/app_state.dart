@@ -7,7 +7,7 @@ import '../models/recurring_rule.dart';
 import '../services/oinkoin_import.dart';
 import '../services/recurring_service.dart';
 
-/// Uygulama durumu: kategoriler, seçili ayın kayıtları, tekrarlayan kurallar.
+/// App state: categories, the selected month's records and recurring rules.
 class AppState extends ChangeNotifier {
   AppState(this.db, {DateTime Function()? clock})
     : _clock = clock ?? DateTime.now;
@@ -54,7 +54,7 @@ class AppState extends ChangeNotifier {
   Future<void> shiftMonth(int delta) =>
       setMonth(DateTime(month.year, month.month + delta));
 
-  // ---- Özet ----
+  // ---- Summary ----
 
   bool isIncome(Record r) => _byId[r.categoryId]?.type == CategoryType.income;
 
@@ -65,10 +65,10 @@ class AppState extends ChangeNotifier {
       .where((r) => !isIncome(r))
       .fold(0, (sum, r) => sum + r.amount);
 
-  /// Gelir pozitif, gider negatif.
+  /// Positive for income, negative for expenses.
   int signedAmount(Record r) => isIncome(r) ? r.amount : -r.amount;
 
-  // ---- Kayıtlar ----
+  // ---- Records ----
 
   Future<void> saveRecord(Record r) async {
     if (r.id == null) {
@@ -84,13 +84,13 @@ class AppState extends ChangeNotifier {
     await _reloadMonth();
   }
 
-  /// Silinen bir kaydı geri getirir (aynı id ile).
+  /// Restores a deleted record (with the same id).
   Future<void> restoreRecord(Record r) async {
     await db.db.insert('records', r.toRow());
     await _reloadMonth();
   }
 
-  // ---- Kategoriler ----
+  // ---- Categories ----
 
   Future<void> saveCategory(Category c) async {
     if (c.id == null) {
@@ -115,7 +115,7 @@ class AppState extends ChangeNotifier {
             c.name.toLowerCase() == name.trim().toLowerCase(),
       );
 
-  // ---- Tekrarlayan ----
+  // ---- Recurring ----
 
   Future<int> saveRule(RecurringRule r) async {
     if (r.id == null) {
@@ -133,7 +133,7 @@ class AppState extends ChangeNotifier {
     await _reloadAll();
   }
 
-  // ---- Ayarlar / içe aktarma ----
+  // ---- Settings / import ----
 
   Future<void> setCurrency(String symbol) async {
     currency = symbol;
