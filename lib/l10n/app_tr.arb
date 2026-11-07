@@ -6,12 +6,10 @@
   "navSettings": "Ayarlar",
   "expense": "Gider",
   "income": "Gelir",
-  "balance": "Bakiye",
   "save": "Kaydet",
   "cancel": "Vazgeç",
   "delete": "Sil",
   "add": "Ekle",
-  "undo": "Geri al",
   "previous": "Önceki",
   "next": "Sonraki",
   "amount": "Tutar",
@@ -22,7 +20,6 @@
   "noCategoriesOfType": "Bu türde kategori yok. Ayarlar > Kategoriler'den ekleyin.",
   "addRecord": "Kayıt ekle",
   "noRecordsThisMonth": "Bu ay için kayıt yok.",
-  "recordDeleted": "Kayıt silindi",
   "newRecord": "Yeni kayıt",
   "editRecord": "Kaydı düzenle",
   "deleteRecordQuestion": "Kayıt silinsin mi?",
@@ -111,6 +108,10 @@
   "newTransfer": "Yeni aktarım",
   "editTransfer": "Aktarımı düzenle",
   "deleteTransferQuestion": "Aktarım silinsin mi?",
-  "transferDeleted": "Aktarım silindi",
-  "needTwoWallets": "Aktarım yapmak için Ayarlar > Cüzdanlar'dan ikinci bir cüzdan ekleyin."
+  "needTwoWallets": "Aktarım yapmak için Ayarlar > Cüzdanlar'dan ikinci bir cüzdan ekleyin.",
+  "moneyIn": "Giriş",
+  "moneyOut": "Çıkış",
+  "net": "Net",
+  "transferToWallet": "{name} cüzdanına",
+  "transferFromWallet": "{name} cüzdanından"
 }

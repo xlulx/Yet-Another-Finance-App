@@ -6,12 +6,10 @@
   "navSettings": "Settings",
   "expense": "Expense",
   "income": "Income",
-  "balance": "Balance",
   "save": "Save",
   "cancel": "Cancel",
   "delete": "Delete",
   "add": "Add",
-  "undo": "Undo",
   "previous": "Previous",
   "next": "Next",
   "amount": "Amount",
@@ -22,7 +20,6 @@
   "noCategoriesOfType": "No categories of this type. Add one in Settings > Categories.",
   "addRecord": "Add record",
   "noRecordsThisMonth": "No records this month.",
-  "recordDeleted": "Record deleted",
   "newRecord": "New record",
   "editRecord": "Edit record",
   "deleteRecordQuestion": "Delete this record?",
@@ -231,6 +228,24 @@
   "newTransfer": "New transfer",
   "editTransfer": "Edit transfer",
   "deleteTransferQuestion": "Delete this transfer?",
-  "transferDeleted": "Transfer deleted",
-  "needTwoWallets": "Add a second wallet in Settings > Wallets to make transfers."
+  "needTwoWallets": "Add a second wallet in Settings > Wallets to make transfers.",
+  "moneyIn": "Money in",
+  "moneyOut": "Money out",
+  "net": "Net",
+  "transferToWallet": "To {name}",
+  "transferFromWallet": "From {name}",
+  "@transferToWallet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@transferFromWallet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

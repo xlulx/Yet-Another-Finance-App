@@ -134,12 +134,6 @@ abstract class AppLocalizations {
   /// **'Income'**
   String get income;
 
-  /// No description provided for @balance.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance'**
-  String get balance;
-
   /// No description provided for @save.
   ///
   /// In en, this message translates to:
@@ -163,12 +157,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add'**
   String get add;
-
-  /// No description provided for @undo.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo'**
-  String get undo;
 
   /// No description provided for @previous.
   ///
@@ -229,12 +217,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No records this month.'**
   String get noRecordsThisMonth;
-
-  /// No description provided for @recordDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Record deleted'**
-  String get recordDeleted;
 
   /// No description provided for @newRecord.
   ///
@@ -770,17 +752,41 @@ abstract class AppLocalizations {
   /// **'Delete this transfer?'**
   String get deleteTransferQuestion;
 
-  /// No description provided for @transferDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Transfer deleted'**
-  String get transferDeleted;
-
   /// No description provided for @needTwoWallets.
   ///
   /// In en, this message translates to:
   /// **'Add a second wallet in Settings > Wallets to make transfers.'**
   String get needTwoWallets;
+
+  /// No description provided for @moneyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get moneyIn;
+
+  /// No description provided for @moneyOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get moneyOut;
+
+  /// No description provided for @net.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get net;
+
+  /// No description provided for @transferToWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'To {name}'**
+  String transferToWallet(String name);
+
+  /// No description provided for @transferFromWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String transferFromWallet(String name);
 }
 
 class _AppLocalizationsDelegate

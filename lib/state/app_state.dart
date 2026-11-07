@@ -117,6 +117,21 @@ class AppState extends ChangeNotifier {
       .where((r) => !isIncome(r))
       .fold(0, (sum, r) => sum + r.amount);
 
+  /// Transfers into the filtered wallet this month; 0 without a filter
+  /// (between all wallets, transfers cancel out).
+  int get monthTransfersIn => walletFilter == null
+      ? 0
+      : monthTransfers
+            .where((t) => t.toWalletId == walletFilter)
+            .fold(0, (sum, t) => sum + t.amount);
+
+  /// Transfers out of the filtered wallet this month; 0 without a filter.
+  int get monthTransfersOut => walletFilter == null
+      ? 0
+      : monthTransfers
+            .where((t) => t.fromWalletId == walletFilter)
+            .fold(0, (sum, t) => sum + t.amount);
+
   /// Positive for income, negative for expenses.
   int signedAmount(Record r) => isIncome(r) ? r.amount : -r.amount;
 
@@ -136,12 +151,6 @@ class AppState extends ChangeNotifier {
     await _reloadMonth();
   }
 
-  /// Restores a deleted record (with the same id).
-  Future<void> restoreRecord(Record r) async {
-    await db.db.insert('records', r.toRow());
-    await _reloadMonth();
-  }
-
   // ---- Transfers ----
 
   Future<void> saveTransfer(Transfer t) async {
@@ -155,12 +164,6 @@ class AppState extends ChangeNotifier {
 
   Future<void> deleteTransfer(Transfer t) async {
     await db.deleteTransfer(t.id!);
-    await _reloadMonth();
-  }
-
-  /// Restores a deleted transfer (with the same id).
-  Future<void> restoreTransfer(Transfer t) async {
-    await db.db.insert('transfers', t.toRow());
     await _reloadMonth();
   }
 

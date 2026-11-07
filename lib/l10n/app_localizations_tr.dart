@@ -28,9 +28,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get income => 'Gelir';
 
   @override
-  String get balance => 'Bakiye';
-
-  @override
   String get save => 'Kaydet';
 
   @override
@@ -41,9 +38,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get add => 'Ekle';
-
-  @override
-  String get undo => 'Geri al';
 
   @override
   String get previous => 'Önceki';
@@ -75,9 +69,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noRecordsThisMonth => 'Bu ay için kayıt yok.';
-
-  @override
-  String get recordDeleted => 'Kayıt silindi';
 
   @override
   String get newRecord => 'Yeni kayıt';
@@ -389,9 +380,25 @@ class AppLocalizationsTr extends AppLocalizations {
   String get deleteTransferQuestion => 'Aktarım silinsin mi?';
 
   @override
-  String get transferDeleted => 'Aktarım silindi';
-
-  @override
   String get needTwoWallets =>
       'Aktarım yapmak için Ayarlar > Cüzdanlar\'dan ikinci bir cüzdan ekleyin.';
+
+  @override
+  String get moneyIn => 'Giriş';
+
+  @override
+  String get moneyOut => 'Çıkış';
+
+  @override
+  String get net => 'Net';
+
+  @override
+  String transferToWallet(String name) {
+    return '$name cüzdanına';
+  }
+
+  @override
+  String transferFromWallet(String name) {
+    return '$name cüzdanından';
+  }
 }

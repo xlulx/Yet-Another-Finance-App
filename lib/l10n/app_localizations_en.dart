@@ -28,9 +28,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get income => 'Income';
 
   @override
-  String get balance => 'Balance';
-
-  @override
   String get save => 'Save';
 
   @override
@@ -41,9 +38,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get add => 'Add';
-
-  @override
-  String get undo => 'Undo';
 
   @override
   String get previous => 'Previous';
@@ -75,9 +69,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRecordsThisMonth => 'No records this month.';
-
-  @override
-  String get recordDeleted => 'Record deleted';
 
   @override
   String get newRecord => 'New record';
@@ -444,9 +435,25 @@ class AppLocalizationsEn extends AppLocalizations {
   String get deleteTransferQuestion => 'Delete this transfer?';
 
   @override
-  String get transferDeleted => 'Transfer deleted';
-
-  @override
   String get needTwoWallets =>
       'Add a second wallet in Settings > Wallets to make transfers.';
+
+  @override
+  String get moneyIn => 'Money in';
+
+  @override
+  String get moneyOut => 'Money out';
+
+  @override
+  String get net => 'Net';
+
+  @override
+  String transferToWallet(String name) {
+    return 'To $name';
+  }
+
+  @override
+  String transferFromWallet(String name) {
+    return 'From $name';
+  }
 }
