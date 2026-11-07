@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../models/category.dart';
 import '../../state/app_state.dart';
 import '../../utils/category_icons.dart';
@@ -67,27 +69,25 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final state = context.read<AppState>();
     final c = widget.category!;
     final ok = await showDialog<bool>(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text('"${c.name}" silinsin mi?'),
-        content: const Text(
-          'Bu kategoriye ait TÜM kayıtlar ve tekrarlayan işlemler de silinir. '
-          'Kayıtları korumak istiyorsanız kategoriyi arşivleyin.',
-        ),
+        title: Text(l.deleteCategoryQuestion(c.name)),
+        content: Text(l.deleteCategoryWarning),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Vazgeç'),
+            child: Text(l.cancel),
           ),
           FilledButton(
             style: FilledButton.styleFrom(
               backgroundColor: Theme.of(ctx).colorScheme.error,
             ),
             onPressed: () => Navigator.pop(ctx, true),
-            child: const Text('Sil'),
+            child: Text(l.delete),
           ),
         ],
       ),
@@ -99,14 +99,15 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final state = context.read<AppState>();
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Kategoriyi düzenle' : 'Yeni kategori'),
+        title: Text(_isEdit ? l.editCategory : l.newCategory),
         actions: [
           if (_isEdit)
             IconButton(
-              tooltip: 'Sil',
+              tooltip: l.delete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -121,14 +122,14 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
             const SizedBox(height: 16),
             if (!_isEdit) ...[
               SegmentedButton<CategoryType>(
-                segments: const [
+                segments: [
                   ButtonSegment(
                     value: CategoryType.expense,
-                    label: Text('Gider'),
+                    label: Text(l.expense),
                   ),
                   ButtonSegment(
                     value: CategoryType.income,
-                    label: Text('Gelir'),
+                    label: Text(l.income),
                   ),
                 ],
                 selected: {_type},
@@ -140,20 +141,20 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
               controller: _name,
               autofocus: !_isEdit,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Ad',
+              decoration: InputDecoration(
+                labelText: l.name,
                 border: OutlineInputBorder(),
               ),
               onChanged: (_) => setState(() {}),
               validator: (v) {
                 final name = v?.trim() ?? '';
-                if (name.isEmpty) return 'Ad gerekli';
+                if (name.isEmpty) return l.nameRequired;
                 if (state.categoryNameTaken(
                   name,
                   _type,
                   exceptId: widget.category?.id,
                 )) {
-                  return 'Bu adda bir kategori zaten var';
+                  return l.nameTaken;
                 }
                 return null;
               },
@@ -161,14 +162,14 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
             const SizedBox(height: 16),
             TextFormField(
               controller: _emoji,
-              decoration: const InputDecoration(
-                labelText: 'Emoji (isteğe bağlı, ikon yerine gösterilir)',
+              decoration: InputDecoration(
+                labelText: l.emojiOptional,
                 border: OutlineInputBorder(),
               ),
               onChanged: (_) => setState(() {}),
             ),
             const SizedBox(height: 24),
-            Text('Renk', style: Theme.of(context).textTheme.titleSmall),
+            Text(l.colour, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Wrap(
               spacing: 8,
@@ -189,7 +190,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
               ],
             ),
             const SizedBox(height: 24),
-            Text('İkon', style: Theme.of(context).textTheme.titleSmall),
+            Text(l.icon, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             Wrap(
               spacing: 4,
@@ -210,10 +211,8 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
             if (_isEdit)
               SwitchListTile(
                 contentPadding: EdgeInsets.zero,
-                title: const Text('Arşivle'),
-                subtitle: const Text(
-                  'Yeni kayıtlarda gösterilmez, eski kayıtlar korunur.',
-                ),
+                title: Text(l.archive),
+                subtitle: Text(l.archiveHint),
                 value: _archived,
                 onChanged: (v) => setState(() => _archived = v),
               ),
@@ -221,7 +220,7 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
             FilledButton.icon(
               onPressed: _save,
               icon: const Icon(Icons.check),
-              label: const Text('Kaydet'),
+              label: Text(l.save),
             ),
           ],
         ),

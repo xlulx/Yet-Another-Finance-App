@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../models/category.dart';
 import 'category_avatar.dart';
 
-/// Kategorileri çip olarak gösterip birini seçtirir.
+/// Shows categories as chips and lets the user pick one.
 class CategoryPicker extends StatelessWidget {
   const CategoryPicker({
     super.key,
@@ -18,12 +20,11 @@ class CategoryPicker extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     if (categories.isEmpty) {
-      return const Padding(
+      return Padding(
         padding: EdgeInsets.all(8),
-        child: Text(
-          'Bu türde kategori yok. Ayarlar > Kategoriler\'den ekleyin.',
-        ),
+        child: Text(l.noCategoriesOfType),
       );
     }
     return Wrap(

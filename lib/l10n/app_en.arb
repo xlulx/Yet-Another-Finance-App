@@ -1,0 +1,192 @@
+{
+  "@@locale": "en",
+  "appTitle": "YAFA",
+  "navRecords": "Records",
+  "navStats": "Statistics",
+  "navSettings": "Settings",
+  "expense": "Expense",
+  "income": "Income",
+  "balance": "Balance",
+  "save": "Save",
+  "cancel": "Cancel",
+  "delete": "Delete",
+  "add": "Add",
+  "undo": "Undo",
+  "previous": "Previous",
+  "next": "Next",
+  "amount": "Amount",
+  "category": "Category",
+  "noteOptional": "Note (optional)",
+  "invalidAmount": "Enter a valid amount",
+  "pickCategory": "Please choose a category",
+  "noCategoriesOfType": "No categories of this type. Add one in Settings > Categories.",
+  "addRecord": "Add record",
+  "noRecordsThisMonth": "No records this month.",
+  "recordDeleted": "Record deleted",
+  "newRecord": "New record",
+  "editRecord": "Edit record",
+  "deleteRecordQuestion": "Delete this record?",
+  "titleOptional": "Title (optional)",
+  "categories": "Categories",
+  "addCategory": "Add category",
+  "noCategoriesYet": "No categories yet.",
+  "archived": "Archived",
+  "newCategory": "New category",
+  "editCategory": "Edit category",
+  "deleteCategoryQuestion": "Delete \"{name}\"?",
+  "@deleteCategoryQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "deleteCategoryWarning": "ALL records and recurring transactions in this category will be deleted too. Archive the category instead to keep its records.",
+  "name": "Name",
+  "nameRequired": "A name is required",
+  "nameTaken": "A category with this name already exists",
+  "emojiOptional": "Emoji (optional, shown instead of the icon)",
+  "colour": "Colour",
+  "icon": "Icon",
+  "archive": "Archive",
+  "archiveHint": "Hidden for new records; existing records are kept.",
+  "recurringTransactions": "Recurring transactions",
+  "recurringEmpty": "Add regular transactions such as rent, salary or subscriptions and they will be recorded automatically when due.",
+  "finished": "Finished",
+  "nextOn": "Next: {date}",
+  "@nextOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "newRecurring": "New recurring transaction",
+  "editRecurring": "Edit recurring transaction",
+  "deleteRecurringQuestion": "Delete this recurring transaction?",
+  "deleteRecurringHint": "Records already created are kept; only new ones stop.",
+  "recurringTitleHint": "Title (e.g. Rent, Netflix)",
+  "every": "Every",
+  "start": "Start",
+  "endOptional": "End (optional)",
+  "noEnd": "No end date",
+  "removeEnd": "Remove end date",
+  "pastRecordsCreated": "{count, plural, =1{1 past record was created automatically} other{{count} past records were created automatically}}",
+  "@pastRecordsCreated": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unitDay": "{count, plural, =1{day} other{days}}",
+  "@unitDay": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unitWeek": "{count, plural, =1{week} other{weeks}}",
+  "@unitWeek": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unitMonth": "{count, plural, =1{month} other{months}}",
+  "@unitMonth": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "unitYear": "{count, plural, =1{year} other{years}}",
+  "@unitYear": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "everyDay": "Every day",
+  "everyWeek": "Every week",
+  "everyMonth": "Every month",
+  "everyYear": "Every year",
+  "everyN": "Every {count} {unit}",
+  "@everyN": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "unit": {
+        "type": "String"
+      }
+    }
+  },
+  "periodMonth": "Month",
+  "periodYear": "Year",
+  "noDataForPeriod": "No data for this period.",
+  "total": "Total",
+  "daily": "Daily",
+  "monthly": "Monthly",
+  "settings": "Settings",
+  "categoryCount": "{count, plural, =1{1 category} other{{count} categories}}",
+  "@categoryCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "ruleCount": "{count, plural, =1{1 rule} other{{count} rules}}",
+  "@ruleCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "currency": "Currency",
+  "language": "Language",
+  "languageSystem": "System",
+  "importOinkoin": "Import Oinkoin backup",
+  "importOinkoinHint": "The .json file from Oinkoin > Settings > Backup",
+  "pickOinkoinBackup": "Choose the Oinkoin backup",
+  "importDone": "Imported {records} records, {categories} categories and {rules} recurring transactions.",
+  "@importDone": {
+    "placeholders": {
+      "records": {
+        "type": "int"
+      },
+      "categories": {
+        "type": "int"
+      },
+      "rules": {
+        "type": "int"
+      }
+    }
+  },
+  "importSkipped": "{count, plural, =1{1 record already existed.} other{{count} records already existed.}}",
+  "@importSkipped": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "importNotJson": "The file is not valid JSON.",
+  "importNotOinkoin": "This file does not look like an Oinkoin backup.",
+  "importNotUtf8": "The file could not be read (not UTF-8).",
+  "importFailed": "Import failed: {error}",
+  "@importFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutLegalese": "Yet Another Financial App\nAll your data stays on your device."
+}

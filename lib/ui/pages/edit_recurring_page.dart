@@ -2,11 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../models/category.dart';
 import '../../models/recurring_rule.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/category_picker.dart';
+import 'recurring_page.dart' show unitName;
 
 class EditRecurringPage extends StatefulWidget {
   const EditRecurringPage({super.key, this.rule});
@@ -70,17 +73,17 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
   );
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
     if (_categoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bir kategori seçin')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.pickCategory)));
       return;
     }
     final note = _note.text.trim();
     final old = widget.rule;
-    // Üretim geçmişi korunur; başlangıç tarihi kayıt üretildikten sonra
-    // değiştirilemez (aşağıda devre dışı).
+    // Generation history is kept; the start date cannot be changed once
+    // records have been generated (the field is disabled below).
     final rule = RecurringRule(
       id: old?.id,
       title: _title.text.trim(),
@@ -97,28 +100,27 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
     final created = await context.read<AppState>().saveRule(rule);
     if (created > 0) {
       messenger.showSnackBar(
-        SnackBar(content: Text('$created geçmiş kayıt otomatik oluşturuldu')),
+        SnackBar(content: Text(l.pastRecordsCreated(created))),
       );
     }
     if (mounted) Navigator.of(context).pop();
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('Tekrarlayan işlem silinsin mi?'),
-        content: const Text(
-          'Daha önce oluşturulmuş kayıtlar silinmez, sadece yenileri oluşmaz.',
-        ),
+        title: Text(l.deleteRecurringQuestion),
+        content: Text(l.deleteRecurringHint),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: const Text('Vazgeç'),
+            child: Text(l.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(c, true),
-            child: const Text('Sil'),
+            child: Text(l.delete),
           ),
         ],
       ),
@@ -130,18 +132,19 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
     final categories = state.categories
         .where((c) => c.type == _type && (!c.archived || c.id == _categoryId))
         .toList();
-    final fmt = DateFormat('d MMMM y', 'tr_TR');
+    final fmt = DateFormat.yMMMMd();
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Tekrarlayanı düzenle' : 'Yeni tekrarlayan'),
+        title: Text(_isEdit ? l.editRecurring : l.newRecurring),
         actions: [
           if (_isEdit)
             IconButton(
-              tooltip: 'Sil',
+              tooltip: l.delete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -153,12 +156,15 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
           padding: const EdgeInsets.all(16),
           children: [
             SegmentedButton<CategoryType>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: CategoryType.expense,
-                  label: Text('Gider'),
+                  label: Text(l.expense),
                 ),
-                ButtonSegment(value: CategoryType.income, label: Text('Gelir')),
+                ButtonSegment(
+                  value: CategoryType.income,
+                  label: Text(l.income),
+                ),
               ],
               selected: {_type},
               onSelectionChanged: (s) => setState(() {
@@ -173,28 +179,26 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
                 decimal: true,
               ),
               decoration: InputDecoration(
-                labelText: 'Tutar',
+                labelText: l.amount,
                 suffixText: state.currency,
                 border: const OutlineInputBorder(),
               ),
               validator: (v) {
                 final cents = parseMoney(v ?? '');
-                return (cents == null || cents == 0)
-                    ? 'Geçerli bir tutar girin'
-                    : null;
+                return (cents == null || cents == 0) ? l.invalidAmount : null;
               },
             ),
             const SizedBox(height: 16),
             TextFormField(
               controller: _title,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Başlık (ör. Kira, Netflix)',
+              decoration: InputDecoration(
+                labelText: l.recurringTitleHint,
                 border: OutlineInputBorder(),
               ),
             ),
             const SizedBox(height: 16),
-            Text('Kategori', style: Theme.of(context).textTheme.titleSmall),
+            Text(l.category, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             CategoryPicker(
               categories: categories,
@@ -204,13 +208,15 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
             const SizedBox(height: 16),
             Row(
               children: [
-                const Text('Her'),
+                Text(l.every),
                 const SizedBox(width: 12),
                 SizedBox(
                   width: 72,
                   child: TextFormField(
                     controller: _interval,
                     keyboardType: TextInputType.number,
+                    // Refresh the unit names ("month" vs "months").
+                    onChanged: (_) => setState(() {}),
                     textAlign: TextAlign.center,
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
@@ -228,23 +234,14 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
                     decoration: const InputDecoration(
                       border: OutlineInputBorder(),
                     ),
-                    items: const [
-                      DropdownMenuItem(
-                        value: RecurrenceUnit.day,
-                        child: Text('gün'),
-                      ),
-                      DropdownMenuItem(
-                        value: RecurrenceUnit.week,
-                        child: Text('hafta'),
-                      ),
-                      DropdownMenuItem(
-                        value: RecurrenceUnit.month,
-                        child: Text('ay'),
-                      ),
-                      DropdownMenuItem(
-                        value: RecurrenceUnit.year,
-                        child: Text('yıl'),
-                      ),
+                    items: [
+                      for (final u in RecurrenceUnit.values)
+                        DropdownMenuItem(
+                          value: u,
+                          child: Text(
+                            unitName(l, u, int.tryParse(_interval.text) ?? 1),
+                          ),
+                        ),
                     ],
                     onChanged: (u) => setState(() => _unit = u!),
                   ),
@@ -255,7 +252,7 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.play_arrow),
-              title: const Text('Başlangıç'),
+              title: Text(l.start),
               subtitle: Text(fmt.format(_start)),
               enabled: !_isEdit || widget.rule!.lastGenerated == null,
               onTap: () async {
@@ -266,12 +263,12 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.stop),
-              title: const Text('Bitiş (isteğe bağlı)'),
-              subtitle: Text(_end == null ? 'Süresiz' : fmt.format(_end!)),
+              title: Text(l.endOptional),
+              subtitle: Text(_end == null ? l.noEnd : fmt.format(_end!)),
               trailing: _end == null
                   ? null
                   : IconButton(
-                      tooltip: 'Bitişi kaldır',
+                      tooltip: l.removeEnd,
                       icon: const Icon(Icons.clear),
                       onPressed: () => setState(() => _end = null),
                     ),
@@ -287,8 +284,8 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
             const SizedBox(height: 8),
             TextFormField(
               controller: _note,
-              decoration: const InputDecoration(
-                labelText: 'Not (isteğe bağlı)',
+              decoration: InputDecoration(
+                labelText: l.noteOptional,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -296,7 +293,7 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
             FilledButton.icon(
               onPressed: _save,
               icon: const Icon(Icons.check),
-              label: const Text('Kaydet'),
+              label: Text(l.save),
             ),
           ],
         ),

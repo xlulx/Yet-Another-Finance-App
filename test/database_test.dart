@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -9,7 +10,7 @@ import 'package:yafa/services/oinkoin_import.dart';
 import 'package:yafa/services/recurring_service.dart';
 import 'package:yafa/services/stats.dart';
 
-/// Oinkoin'in yedek biçimini taklit eden küçük örnek.
+/// A small sample mimicking Oinkoin's backup format.
 final _backup = jsonEncode({
   'package_name': 'com.github.emavgl.piggybankpro',
   'version': '1.0',
@@ -60,7 +61,7 @@ final _backup = jsonEncode({
       'category_type': 1,
       'recurrence_id': 'abc',
     },
-    // Transfer: kategorisiz, atlanmalı.
+    // Transfer: no category, must be skipped.
     {
       'id': 4,
       'value': -10.0,
@@ -101,24 +102,43 @@ void main() {
     db = await AppDatabase.open(
       factory: databaseFactoryFfiNoIsolate,
       path: inMemoryDatabasePath,
+      // Turkish defaults, so the sample backup's "Market"/"Maaş" categories
+      // merge with existing ones.
+      language: 'tr',
     );
   });
   tearDown(() => db.close());
 
-  test('varsayılan kategoriler oluşturulur', () async {
+  test('default categories are created', () async {
     final cats = await db.categories();
     expect(cats.where((c) => c.type == CategoryType.expense), isNotEmpty);
     expect(cats.where((c) => c.type == CategoryType.income), isNotEmpty);
+    expect(cats.map((c) => c.name), contains('Maaş'));
+    expect(await db.getSetting('currency'), '₺');
   });
 
-  group('Oinkoin içe aktarma', () {
-    test('ayrıştırma', () {
+  test('default categories and currency follow the language', () async {
+    // A separate file: the in-memory database is shared within a process.
+    final dir = await Directory.systemTemp.createTemp('yafa');
+    final en = await AppDatabase.open(
+      factory: databaseFactoryFfiNoIsolate,
+      path: '${dir.path}/en.db',
+    );
+    final names = (await en.categories()).map((c) => c.name);
+    expect(names, containsAll(['Groceries', 'Salary']));
+    expect(await en.getSetting('currency'), r'$');
+    await en.close();
+    await dir.delete(recursive: true);
+  });
+
+  group('Oinkoin import', () {
+    test('parsing', () {
       final b = parseOinkoinBackup(_backup);
       expect(b.categories, hasLength(3));
       final kahve = b.categories.firstWhere((c) => c.name == 'Kahve');
       expect(kahve.emoji, '☕');
       expect(kahve.color, 0xFFFF0000);
-      expect(b.records, hasLength(3)); // transfer atlandı
+      expect(b.records, hasLength(3)); // transfer skipped
       expect(b.records.first.$2.amount, 12345);
       expect(b.rules, hasLength(2));
       final custom = b.rules.firstWhere((r) => r.$2.title == 'Özel').$2;
@@ -126,7 +146,7 @@ void main() {
       expect(custom.unit, RecurrenceUnit.month);
     });
 
-    test('geçersiz dosya anlaşılır hata verir', () {
+    test('invalid file gives a clear error', () {
       expect(
         () => parseOinkoinBackup('nope'),
         throwsA(isA<OinkoinImportException>()),
@@ -137,10 +157,10 @@ void main() {
       );
     });
 
-    test('veritabanına yazma, birleştirme ve tekrar içe aktarma', () async {
+    test('writing, merging and re-importing', () async {
       final before = (await db.categories()).length;
       final s1 = await importOinkoinBackup(db, parseOinkoinBackup(_backup));
-      // "Market" ve "Maaş" varsayılanlarda var, sadece "Kahve" eklenir.
+      // "Market" and "Maaş" are default categories, only "Kahve" is added.
       expect(s1.categoriesAdded, 1);
       expect((await db.categories()).length, before + 1);
       expect(s1.recordsAdded, 3);
@@ -159,7 +179,7 @@ void main() {
     });
   });
 
-  test('tekrarlayan kayıtlar üretilir ve tekrar üretilmez', () async {
+  test('recurring records are generated exactly once', () async {
     final cat = (await db.categories()).first;
     await db.insertRecurringRule(
       RecurringRule(
@@ -176,14 +196,14 @@ void main() {
     expect(records, hasLength(4));
     expect(records.every((r) => r.recurringId != null), isTrue);
 
-    // Kural silinince kayıtlar kalır.
+    // Records survive deleting the rule.
     await db.deleteRecurringRule((await db.recurringRules()).single.id!);
     final after = await db.records();
     expect(after, hasLength(4));
     expect(after.every((r) => r.recurringId == null), isTrue);
   });
 
-  test('kategori silinince kayıtları da silinir; istatistik', () async {
+  test('deleting a category deletes its records; stats', () async {
     await importOinkoinBackup(db, parseOinkoinBackup(_backup));
     final cats = await db.categories();
     final byId = {for (final c in cats) c.id!: c};

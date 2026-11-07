@@ -1,9 +1,15 @@
 import 'package:intl/intl.dart';
 
-/// Kuruş cinsinden tutarı biçimlendirir: 123456 -> "1.234,56 ₺".
-String formatMoney(int cents, String symbol, {bool signed = false}) {
+/// Formats an amount in minor units for [locale] (defaults to the current
+/// Intl locale): 123456 -> "1.234,56 ₺" (tr) or "₺1,234.56" (en).
+String formatMoney(
+  int cents,
+  String symbol, {
+  bool signed = false,
+  String? locale,
+}) {
   final f = NumberFormat.currency(
-    locale: 'tr_TR',
+    locale: locale ?? Intl.getCurrentLocale(),
     symbol: symbol,
     decimalDigits: 2,
   );
@@ -12,22 +18,22 @@ String formatMoney(int cents, String symbol, {bool signed = false}) {
   return cents < 0 ? '-$text' : '+$text';
 }
 
-/// Kullanıcının yazdığı tutarı kuruşa çevirir. "1.234,5", "1234.50", "12"
-/// gibi girdileri kabul eder; geçersizse null döner.
+/// Parses user input into minor units. Accepts "1.234,5", "1234.50", "12"
+/// and similar; returns null if invalid.
 int? parseMoney(String input) {
   var s = input.trim().replaceAll(' ', '');
   if (s.isEmpty) return null;
   final lastComma = s.lastIndexOf(',');
   final lastDot = s.lastIndexOf('.');
   if (lastComma >= 0 && lastDot >= 0) {
-    // İkisi de varsa sondaki ondalık ayırıcıdır.
+    // If both are present, the last one is the decimal separator.
     final decimal = lastComma > lastDot ? ',' : '.';
     final thousands = decimal == ',' ? '.' : ',';
     s = s.replaceAll(thousands, '').replaceAll(decimal, '.');
   } else if (lastComma >= 0) {
     s = s.replaceAll(',', '.');
   }
-  // Birden fazla nokta kaldıysa (1.234.567) sonuncusu hariç binlik say.
+  // Several dots left (1.234.567): treat them as thousands separators.
   final parts = s.split('.');
   if (parts.length > 2) {
     final tail = parts.removeLast();

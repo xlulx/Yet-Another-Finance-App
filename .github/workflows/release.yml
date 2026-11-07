@@ -1,16 +1,15 @@
-# SADECE elle başlatılınca ya da "v" ile başlayan bir etiket (ör. v0.1.0) gelince çalışır.
-# Normal push'lar, PR'lar veya dallar Actions dakikası harcamaz. Geliştirme
-# sırasındaki testler ve test APK'ları ("YAFA Dev") geliştirme ortamında derlenir.
+# Runs ONLY when started manually or when a tag starting with "v" (e.g. v0.1.0)
+# is pushed. Regular pushes, PRs and branches use no Actions minutes.
 #
-# Release çıkarmanın yolları:
-#   - GitHub > Actions > Release APK > Run workflow (sürüm: 0.1.0)
+# Ways to cut a release:
+#   - GitHub > Actions > Release APK > Run workflow (version: 0.1.0)
 #   - git tag v0.1.0 && git push origin v0.1.0
-#   - GitHub > Releases > Draft a new release (yeni v* etiketiyle)
-# İş akışı etiket/Release yoksa oluşturur ve imzalı APK'yı ekler.
+#   - GitHub > Releases > Draft a new release (with a new v* tag)
+# The workflow creates the tag/release if needed and attaches the signed APK.
 #
-# Gerekli repo secret'ları (Settings > Secrets and variables > Actions):
-#   RELEASE_KEYSTORE_BASE64   - imza anahtarı dosyasının base64 hali
-#   RELEASE_KEYSTORE_PASSWORD - anahtar şifresi
+# Required repository secrets (Settings > Secrets and variables > Actions):
+#   RELEASE_KEYSTORE_BASE64   - the signing keystore, base64 encoded
+#   RELEASE_KEYSTORE_PASSWORD - the keystore password
 name: Release APK
 
 on:
@@ -19,7 +18,7 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Sürüm (ör. 0.1.0)'
+        description: 'Version (e.g. 0.1.0)'
         required: true
         type: string
 
@@ -37,18 +36,18 @@ jobs:
     env:
       TAG: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
     steps:
-      # Secret yoksa hiçbir şey indirmeden hemen dur (dakika harcamasın).
+      # Fail fast, before downloading anything, if the secrets are missing.
       - name: Check secrets
         env:
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
-            echo "::error::RELEASE_KEYSTORE_BASE64 / RELEASE_KEYSTORE_PASSWORD secret'ları eksik."
+            echo "::error::RELEASE_KEYSTORE_BASE64 / RELEASE_KEYSTORE_PASSWORD secrets are missing."
             exit 1
           fi
           if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-            echo "::error::Sürüm 1.2.3 biçiminde olmalı (gelen: $TAG)."
+            echo "::error::Version must look like 1.2.3 (got: $TAG)."
             exit 1
           fi
 
@@ -76,7 +75,7 @@ jobs:
         env:
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
         run: |
-          # Sürüm adı etiketten alınır: v1.2.3 -> 1.2.3
+          # Version name comes from the tag: v1.2.3 -> 1.2.3
           NAME="${TAG#v}"
           flutter build apk --release --flavor prod \
             --target-platform android-arm64 \

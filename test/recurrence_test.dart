@@ -20,7 +20,7 @@ RecurringRule rule(
 );
 
 void main() {
-  test('ay sonu kırpılır ama kayma birikmez', () {
+  test('month end is clamped without drift', () {
     final r = rule(DateTime(2025, 1, 31));
     expect(nthOccurrence(r, 1), DateTime(2025, 2, 28));
     expect(nthOccurrence(r, 2), DateTime(2025, 3, 31));
@@ -31,13 +31,13 @@ void main() {
     );
   });
 
-  test('artık yıl 29 Şubat yıllık', () {
+  test('yearly rule on Feb 29 of a leap year', () {
     final r = rule(DateTime(2024, 2, 29), unit: RecurrenceUnit.year);
     expect(nthOccurrence(r, 1), DateTime(2025, 2, 28));
     expect(nthOccurrence(r, 4), DateTime(2028, 2, 29));
   });
 
-  test('bekleyen tarihler: başlangıç dahil, şimdi dahil', () {
+  test('pending dates include start and now', () {
     final r = rule(DateTime(2025, 1, 10));
     expect(pendingOccurrences(r, DateTime(2025, 3, 10)), [
       DateTime(2025, 1, 10),
@@ -46,7 +46,7 @@ void main() {
     ]);
   });
 
-  test('lastGenerated sonrası üretilir', () {
+  test('only dates after lastGenerated are pending', () {
     final r = rule(DateTime(2025, 1, 10), last: DateTime(2025, 2, 10));
     expect(pendingOccurrences(r, DateTime(2025, 4, 1)), [
       DateTime(2025, 3, 10),
@@ -54,7 +54,7 @@ void main() {
     expect(nextOccurrence(r), DateTime(2025, 3, 10));
   });
 
-  test('bitiş tarihi uygulanır', () {
+  test('end date is respected', () {
     final r = rule(
       DateTime(2025, 1, 1),
       unit: RecurrenceUnit.week,
@@ -72,7 +72,7 @@ void main() {
     );
   });
 
-  test('gelecekte başlayan kural üretmez', () {
+  test('rule starting in the future generates nothing', () {
     final r = rule(DateTime(2030), unit: RecurrenceUnit.day);
     expect(pendingOccurrences(r, DateTime(2025)), isEmpty);
   });

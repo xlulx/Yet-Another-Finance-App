@@ -8,7 +8,7 @@ class CategoryTotal {
   final int count;
 }
 
-/// Verilen türdeki kayıtları kategoriye göre toplar (büyükten küçüğe).
+/// Sums records of the given type per category (largest first).
 List<CategoryTotal> totalsByCategory(
   Iterable<Record> records,
   Map<int, Category> categories,
@@ -28,8 +28,8 @@ List<CategoryTotal> totalsByCategory(
   ]..sort((a, b) => b.total.compareTo(a.total));
 }
 
-/// Kayıtları kovalara böler: [bucketOf] kayıt tarihini kova index'ine çevirir.
-/// Dönen liste `(gelir, gider)` çiftleridir.
+/// Splits records into buckets; [bucketOf] maps a record date to a bucket
+/// index. Returns `(income, expense)` pairs.
 List<(int income, int expense)> bucketTotals(
   Iterable<Record> records,
   Map<int, Category> categories,

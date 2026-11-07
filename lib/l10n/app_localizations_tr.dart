@@ -1,0 +1,311 @@
+// ignore: unused_import
+import 'package:intl/intl.dart' as intl;
+
+import 'app_localizations.dart';
+
+// ignore_for_file: type=lint
+
+/// The translations for Turkish (`tr`).
+class AppLocalizationsTr extends AppLocalizations {
+  AppLocalizationsTr([String locale = 'tr']) : super(locale);
+
+  @override
+  String get appTitle => 'YAFA';
+
+  @override
+  String get navRecords => 'Kayıtlar';
+
+  @override
+  String get navStats => 'İstatistik';
+
+  @override
+  String get navSettings => 'Ayarlar';
+
+  @override
+  String get expense => 'Gider';
+
+  @override
+  String get income => 'Gelir';
+
+  @override
+  String get balance => 'Bakiye';
+
+  @override
+  String get save => 'Kaydet';
+
+  @override
+  String get cancel => 'Vazgeç';
+
+  @override
+  String get delete => 'Sil';
+
+  @override
+  String get add => 'Ekle';
+
+  @override
+  String get undo => 'Geri al';
+
+  @override
+  String get previous => 'Önceki';
+
+  @override
+  String get next => 'Sonraki';
+
+  @override
+  String get amount => 'Tutar';
+
+  @override
+  String get category => 'Kategori';
+
+  @override
+  String get noteOptional => 'Not (isteğe bağlı)';
+
+  @override
+  String get invalidAmount => 'Geçerli bir tutar girin';
+
+  @override
+  String get pickCategory => 'Lütfen bir kategori seçin';
+
+  @override
+  String get noCategoriesOfType =>
+      'Bu türde kategori yok. Ayarlar > Kategoriler\'den ekleyin.';
+
+  @override
+  String get addRecord => 'Kayıt ekle';
+
+  @override
+  String get noRecordsThisMonth => 'Bu ay için kayıt yok.';
+
+  @override
+  String get recordDeleted => 'Kayıt silindi';
+
+  @override
+  String get newRecord => 'Yeni kayıt';
+
+  @override
+  String get editRecord => 'Kaydı düzenle';
+
+  @override
+  String get deleteRecordQuestion => 'Kayıt silinsin mi?';
+
+  @override
+  String get titleOptional => 'Başlık (isteğe bağlı)';
+
+  @override
+  String get categories => 'Kategoriler';
+
+  @override
+  String get addCategory => 'Kategori ekle';
+
+  @override
+  String get noCategoriesYet => 'Henüz kategori yok.';
+
+  @override
+  String get archived => 'Arşivlendi';
+
+  @override
+  String get newCategory => 'Yeni kategori';
+
+  @override
+  String get editCategory => 'Kategoriyi düzenle';
+
+  @override
+  String deleteCategoryQuestion(String name) {
+    return '\"$name\" silinsin mi?';
+  }
+
+  @override
+  String get deleteCategoryWarning =>
+      'Bu kategoriye ait TÜM kayıtlar ve tekrarlayan işlemler de silinir. Kayıtları korumak istiyorsanız kategoriyi arşivleyin.';
+
+  @override
+  String get name => 'Ad';
+
+  @override
+  String get nameRequired => 'Ad gerekli';
+
+  @override
+  String get nameTaken => 'Bu adda bir kategori zaten var';
+
+  @override
+  String get emojiOptional => 'Emoji (isteğe bağlı, ikon yerine gösterilir)';
+
+  @override
+  String get colour => 'Renk';
+
+  @override
+  String get icon => 'İkon';
+
+  @override
+  String get archive => 'Arşivle';
+
+  @override
+  String get archiveHint =>
+      'Yeni kayıtlarda gösterilmez, eski kayıtlar korunur.';
+
+  @override
+  String get recurringTransactions => 'Tekrarlayan işlemler';
+
+  @override
+  String get recurringEmpty =>
+      'Kira, maaş, abonelik gibi düzenli işlemleri ekleyin; zamanı gelince otomatik kaydedilsin.';
+
+  @override
+  String get finished => 'Bitti';
+
+  @override
+  String nextOn(String date) {
+    return 'Sonraki: $date';
+  }
+
+  @override
+  String get newRecurring => 'Yeni tekrarlayan';
+
+  @override
+  String get editRecurring => 'Tekrarlayanı düzenle';
+
+  @override
+  String get deleteRecurringQuestion => 'Tekrarlayan işlem silinsin mi?';
+
+  @override
+  String get deleteRecurringHint =>
+      'Daha önce oluşturulmuş kayıtlar silinmez, sadece yenileri oluşmaz.';
+
+  @override
+  String get recurringTitleHint => 'Başlık (ör. Kira, Netflix)';
+
+  @override
+  String get every => 'Her';
+
+  @override
+  String get start => 'Başlangıç';
+
+  @override
+  String get endOptional => 'Bitiş (isteğe bağlı)';
+
+  @override
+  String get noEnd => 'Süresiz';
+
+  @override
+  String get removeEnd => 'Bitişi kaldır';
+
+  @override
+  String pastRecordsCreated(int count) {
+    return '$count geçmiş kayıt otomatik oluşturuldu';
+  }
+
+  @override
+  String unitDay(int count) {
+    return 'gün';
+  }
+
+  @override
+  String unitWeek(int count) {
+    return 'hafta';
+  }
+
+  @override
+  String unitMonth(int count) {
+    return 'ay';
+  }
+
+  @override
+  String unitYear(int count) {
+    return 'yıl';
+  }
+
+  @override
+  String get everyDay => 'Her gün';
+
+  @override
+  String get everyWeek => 'Her hafta';
+
+  @override
+  String get everyMonth => 'Her ay';
+
+  @override
+  String get everyYear => 'Her yıl';
+
+  @override
+  String everyN(int count, String unit) {
+    return 'Her $count $unit';
+  }
+
+  @override
+  String get periodMonth => 'Ay';
+
+  @override
+  String get periodYear => 'Yıl';
+
+  @override
+  String get noDataForPeriod => 'Bu dönem için veri yok.';
+
+  @override
+  String get total => 'Toplam';
+
+  @override
+  String get daily => 'Günlük';
+
+  @override
+  String get monthly => 'Aylık';
+
+  @override
+  String get settings => 'Ayarlar';
+
+  @override
+  String categoryCount(int count) {
+    return '$count kategori';
+  }
+
+  @override
+  String ruleCount(int count) {
+    return '$count kural';
+  }
+
+  @override
+  String get currency => 'Para birimi';
+
+  @override
+  String get language => 'Dil';
+
+  @override
+  String get languageSystem => 'Sistem';
+
+  @override
+  String get importOinkoin => 'Oinkoin yedeğini içe aktar';
+
+  @override
+  String get importOinkoinHint =>
+      'Oinkoin > Ayarlar > Yedekle ile aldığınız .json dosyası';
+
+  @override
+  String get pickOinkoinBackup => 'Oinkoin yedeğini seçin';
+
+  @override
+  String importDone(int records, int categories, int rules) {
+    return 'İçe aktarıldı: $records kayıt, $categories kategori, $rules tekrarlayan.';
+  }
+
+  @override
+  String importSkipped(int count) {
+    return '$count kayıt zaten vardı.';
+  }
+
+  @override
+  String get importNotJson => 'Dosya geçerli bir JSON değil.';
+
+  @override
+  String get importNotOinkoin => 'Bu dosya bir Oinkoin yedeği gibi görünmüyor.';
+
+  @override
+  String get importNotUtf8 => 'Dosya okunamadı (UTF-8 değil).';
+
+  @override
+  String importFailed(String error) {
+    return 'İçe aktarma başarısız: $error';
+  }
+
+  @override
+  String get aboutLegalese =>
+      'Yet Another Financial App\nTüm verileriniz cihazınızda kalır.';
+}

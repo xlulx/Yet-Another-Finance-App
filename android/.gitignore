@@ -13,10 +13,10 @@ key.properties
 **/*.keystore
 **/*.jks
 
-# Test sürümü anahtarı bilerek depoda: şifresi herkese açık, değeri yok;
-# sadece test APK'larının birbirinin üzerine güncellenebilmesi için.
-# Gerçek sürüm anahtarı ASLA depoya konmaz (GitHub secret'ında durur).
+# The test (dev) keystore is committed on purpose: its password is public and
+# it only lets test APKs update each other in place. The real release key is
+# NEVER committed (it lives in a GitHub secret).
 !keystores/dev.jks
 
-# Gradle derleme çıktısı
+# Gradle build output
 /build/

@@ -5,26 +5,28 @@ import '../models/category.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
 
-/// Oinkoin yedeğinden okunan (henüz veritabanına yazılmamış) veriler.
+/// Data read from an Oinkoin backup (not yet written to the database).
 ///
-/// Kategoriler `(ad, tür)` çiftiyle eşleştirilir; Oinkoin de böyle yapar.
+/// Categories are matched by `(name, type)`, the same way Oinkoin does.
 class OinkoinBackup {
   OinkoinBackup(this.categories, this.records, this.rules);
 
   final List<Category> categories;
 
-  /// Kategori anahtarı + kayıt. [Record.categoryId] burada anlamsızdır.
+  /// Category key + record. [Record.categoryId] is meaningless here.
   final List<(CategoryKey, Record, String? patternId)> records;
   final List<(CategoryKey, RecurringRule, String? patternId)> rules;
 }
 
 typedef CategoryKey = (String name, CategoryType type);
 
+enum OinkoinImportError { notJson, notOinkoinBackup }
+
 class OinkoinImportException implements Exception {
-  OinkoinImportException(this.message);
-  final String message;
+  OinkoinImportException(this.error);
+  final OinkoinImportError error;
   @override
-  String toString() => message;
+  String toString() => 'OinkoinImportException(${error.name})';
 }
 
 class ImportSummary {
@@ -40,18 +42,16 @@ class ImportSummary {
   final int rulesAdded;
 }
 
-/// Oinkoin'in `.json` yedek dosyasını ayrıştırır.
+/// Parses an Oinkoin `.json` backup file.
 OinkoinBackup parseOinkoinBackup(String source) {
   final Object? decoded;
   try {
     decoded = jsonDecode(source);
   } on FormatException {
-    throw OinkoinImportException('Dosya geçerli bir JSON değil.');
+    throw OinkoinImportException(OinkoinImportError.notJson);
   }
   if (decoded is! Map || decoded['categories'] is! List) {
-    throw OinkoinImportException(
-      'Bu dosya bir Oinkoin yedeği gibi görünmüyor.',
-    );
+    throw OinkoinImportException(OinkoinImportError.notOinkoinBackup);
   }
 
   final categories = <CategoryKey, Category>{};
@@ -77,7 +77,7 @@ OinkoinBackup parseOinkoinBackup(String source) {
     final name = raw['category_name']?.toString().trim();
     if (name == null || name.isEmpty) return null;
     final key = (name, _type(raw['category_type']));
-    // Yedekte kategorisi olmayan kayıt için kategoriyi oluştur.
+    // Create the category if a record references one missing from the backup.
     categories.putIfAbsent(
       key,
       () => Category(
@@ -96,7 +96,7 @@ OinkoinBackup parseOinkoinBackup(String source) {
     final key = keyOf(raw);
     final millis = (raw['datetime'] as num?)?.toInt();
     final value = (raw['value'] as num?)?.toDouble();
-    // Not: transferler (cüzdanlar arası) kategorisizdir, atlanır.
+    // Note: transfers (between wallets) have no category and are skipped.
     if (key == null || millis == null || value == null) continue;
     records.add((
       key,
@@ -143,9 +143,9 @@ OinkoinBackup parseOinkoinBackup(String source) {
   return OinkoinBackup(categories.values.toList(), records, rules);
 }
 
-/// Ayrıştırılmış yedeği veritabanına yazar. Aynı ad/türdeki kategoriler
-/// birleştirilir; birebir aynı kayıtlar (tarih, tutar, başlık, kategori)
-/// tekrar eklenmez, böylece aynı yedeği iki kez içe aktarmak güvenlidir.
+/// Writes a parsed backup to the database. Categories with the same
+/// name/type are merged and identical records (date, amount, title,
+/// category) are skipped, so importing the same backup twice is safe.
 Future<ImportSummary> importOinkoinBackup(
   AppDatabase db,
   OinkoinBackup backup,
@@ -226,7 +226,7 @@ Future<ImportSummary> importOinkoinBackup(
 CategoryType _type(Object? v) =>
     v == 1 ? CategoryType.income : CategoryType.expense;
 
-/// Oinkoin tutarları double ve giderlerde negatiftir.
+/// Oinkoin stores amounts as doubles, negative for expenses.
 int _cents(double v) => (v.abs() * 100).round();
 
 String? _nonEmpty(Object? v) {
@@ -234,7 +234,7 @@ String? _nonEmpty(Object? v) {
   return (s == null || s.isEmpty) ? null : s;
 }
 
-/// Oinkoin rengi `"a:r:g:b"` biçiminde saklar.
+/// Oinkoin stores colours as `"a:r:g:b"`.
 int _color(Object? v, CategoryType type) {
   if (v is String) {
     final parts = v.split(':').map(int.tryParse).toList();
@@ -246,7 +246,7 @@ int _color(Object? v, CategoryType type) {
   return type == CategoryType.income ? 0xFF66BB6A : 0xFF90A4AE;
 }
 
-/// Oinkoin `RecurrentPeriod` index'ini (aralık, birim) çiftine çevirir.
+/// Maps an Oinkoin `RecurrentPeriod` index to an (interval, unit) pair.
 (int, RecurrenceUnit)? _period(Map raw) {
   switch (raw['recurrent_period']) {
     case 0:

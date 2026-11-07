@@ -1,7 +1,7 @@
-/// Tekrar birimi. Index veritabanında saklanır; sadece sona ekleyin.
+/// Recurrence unit. The index is stored in the database: only append.
 enum RecurrenceUnit { day, week, month, year }
 
-/// Belirli aralıklarla otomatik kayıt üreten kural (kira, maaş, abonelik...).
+/// A rule that creates records at a fixed interval (rent, salary, subscriptions...).
 class RecurringRule {
   final int? id;
   final String title;
@@ -9,17 +9,17 @@ class RecurringRule {
   final int categoryId;
   final String? note;
 
-  /// İlk kaydın tarihi.
+  /// Date of the first occurrence.
   final DateTime startDate;
 
-  /// Her [interval] [unit]'te bir tekrarlanır (ör. 3 ay).
+  /// Repeats every [interval] [unit]s (e.g. every 3 months).
   final int interval;
   final RecurrenceUnit unit;
 
-  /// Doluysa bu tarihten sonra kayıt üretilmez.
+  /// If set, no records are generated after this date.
   final DateTime? endDate;
 
-  /// Şimdiye kadar üretilen son kaydın tarihi.
+  /// Date of the last generated occurrence.
   final DateTime? lastGenerated;
 
   const RecurringRule({

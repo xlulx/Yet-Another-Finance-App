@@ -5,7 +5,7 @@ import '../models/category.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
 
-/// SQLite erişim katmanı. Tüm veri cihazda kalır.
+/// SQLite access layer. All data stays on the device.
 class AppDatabase {
   AppDatabase._(this.db);
 
@@ -13,11 +13,15 @@ class AppDatabase {
 
   static const _version = 1;
 
-  /// Uygulama veritabanını açar. Testlerde [factory] ve [path] verilebilir
-  /// (ör. `databaseFactoryFfi` ve `inMemoryDatabasePath`).
+  /// Opens the app database. Tests can pass a [factory] and [path]
+  /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`).
+  ///
+  /// [language] picks the names of the default categories created on first
+  /// launch (`tr` or anything else for English).
   static Future<AppDatabase> open({
     DatabaseFactory? factory,
     String? path,
+    String language = 'en',
   }) async {
     final f = factory ?? databaseFactory;
     final dbPath = path ?? p.join(await f.getDatabasesPath(), 'yafa.db');
@@ -26,13 +30,17 @@ class AppDatabase {
       options: OpenDatabaseOptions(
         version: _version,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
-        onCreate: _onCreate,
+        onCreate: (db, version) => _onCreate(db, version, language),
       ),
     );
     return AppDatabase._(db);
   }
 
-  static Future<void> _onCreate(Database db, int version) async {
+  static Future<void> _onCreate(
+    Database db,
+    int version,
+    String language,
+  ) async {
     await db.execute('''
       CREATE TABLE categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,21 +82,49 @@ class AppDatabase {
         key TEXT PRIMARY KEY,
         value TEXT
       )''');
-    await _seedDefaultCategories(db);
+    await _seedDefaultCategories(db, language);
+    await db.insert('settings', {
+      'key': 'currency',
+      'value': language == 'tr' ? '₺' : r'$',
+    });
   }
 
-  static Future<void> _seedDefaultCategories(DatabaseExecutor db) async {
-    const defaults = <(String, CategoryType, int, String)>[
-      ('Market', CategoryType.expense, 0xFF66BB6A, 'cart'),
-      ('Yeme-İçme', CategoryType.expense, 0xFFFFA726, 'restaurant'),
-      ('Ulaşım', CategoryType.expense, 0xFF42A5F5, 'car'),
-      ('Faturalar', CategoryType.expense, 0xFFEF5350, 'bill'),
-      ('Kira', CategoryType.expense, 0xFF8D6E63, 'home'),
-      ('Sağlık', CategoryType.expense, 0xFFEC407A, 'health'),
-      ('Eğlence', CategoryType.expense, 0xFFAB47BC, 'movie'),
-      ('Alışveriş', CategoryType.expense, 0xFF26A69A, 'shopping'),
-      ('Maaş', CategoryType.income, 0xFF43A047, 'work'),
-      ('Diğer Gelir', CategoryType.income, 0xFF7CB342, 'savings'),
+  static Future<void> _seedDefaultCategories(
+    DatabaseExecutor db,
+    String language,
+  ) async {
+    final tr = language == 'tr';
+    final defaults = <(String, CategoryType, int, String)>[
+      (tr ? 'Market' : 'Groceries', CategoryType.expense, 0xFF66BB6A, 'cart'),
+      (
+        tr ? 'Yeme-İçme' : 'Eating out',
+        CategoryType.expense,
+        0xFFFFA726,
+        'restaurant',
+      ),
+      (tr ? 'Ulaşım' : 'Transport', CategoryType.expense, 0xFF42A5F5, 'car'),
+      (tr ? 'Faturalar' : 'Bills', CategoryType.expense, 0xFFEF5350, 'bill'),
+      (tr ? 'Kira' : 'Rent', CategoryType.expense, 0xFF8D6E63, 'home'),
+      (tr ? 'Sağlık' : 'Health', CategoryType.expense, 0xFFEC407A, 'health'),
+      (
+        tr ? 'Eğlence' : 'Entertainment',
+        CategoryType.expense,
+        0xFFAB47BC,
+        'movie',
+      ),
+      (
+        tr ? 'Alışveriş' : 'Shopping',
+        CategoryType.expense,
+        0xFF26A69A,
+        'shopping',
+      ),
+      (tr ? 'Maaş' : 'Salary', CategoryType.income, 0xFF43A047, 'work'),
+      (
+        tr ? 'Diğer Gelir' : 'Other income',
+        CategoryType.income,
+        0xFF7CB342,
+        'savings',
+      ),
     ];
     for (var i = 0; i < defaults.length; i++) {
       final (name, type, color, icon) = defaults[i];
@@ -107,7 +143,7 @@ class AppDatabase {
 
   Future<void> close() => db.close();
 
-  // ---- Kategoriler ----
+  // ---- Categories ----
 
   Future<List<Category>> categories({DatabaseExecutor? txn}) async {
     final rows = await (txn ?? db).query(
@@ -123,13 +159,13 @@ class AppDatabase {
   Future<void> updateCategory(Category c) =>
       db.update('categories', c.toRow(), where: 'id = ?', whereArgs: [c.id]);
 
-  /// Kategoriyi ve ona bağlı tüm kayıtları siler.
+  /// Deletes the category and all of its records.
   Future<void> deleteCategory(int id) =>
       db.delete('categories', where: 'id = ?', whereArgs: [id]);
 
-  // ---- Kayıtlar ----
+  // ---- Records ----
 
-  /// [from] dahil, [to] hariç aralıktaki kayıtlar (yeniden eskiye).
+  /// Records in [from, to), newest first.
   Future<List<Record>> records({DateTime? from, DateTime? to}) async {
     final where = <String>[];
     final args = <Object>[];
@@ -159,7 +195,7 @@ class AppDatabase {
   Future<void> deleteRecord(int id) =>
       db.delete('records', where: 'id = ?', whereArgs: [id]);
 
-  // ---- Tekrarlayan kurallar ----
+  // ---- Recurring rules ----
 
   Future<List<RecurringRule>> recurringRules({DatabaseExecutor? txn}) async {
     final rows = await (txn ?? db).query(
@@ -180,11 +216,11 @@ class AppDatabase {
         whereArgs: [r.id],
       );
 
-  /// Kuralı siler. Daha önce üretilmiş kayıtlar korunur.
+  /// Deletes the rule. Records it already generated are kept.
   Future<void> deleteRecurringRule(int id) =>
       db.delete('recurring_rules', where: 'id = ?', whereArgs: [id]);
 
-  // ---- Ayarlar ----
+  // ---- Settings ----
 
   Future<String?> getSetting(String key) async {
     final rows = await db.query('settings', where: 'key = ?', whereArgs: [key]);

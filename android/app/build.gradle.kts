@@ -34,16 +34,16 @@ android {
     }
 
     signingConfigs {
-        // Test sürümü: şifresi herkese açık, her makinede aynı anahtar olduğu
-        // için test APK'ları birbirinin üzerine güncellenebilir.
+        // Test builds: the password is public on purpose. Using the same key
+        // everywhere lets test APKs update each other in place.
         create("dev") {
             storeFile = rootProject.file("keystores/dev.jks")
             storePassword = "yafa-dev-public"
             keyAlias = "dev"
             keyPassword = "yafa-dev-public"
         }
-        // Gerçek sürüm: anahtar dosyası ve şifresi sadece CI'da, GitHub
-        // secret'larından gelir (bkz. .github/workflows/release.yml).
+        // Real releases: the keystore and its password only exist in CI, taken
+        // from GitHub secrets (see .github/workflows/release.yml).
         val releaseStore = System.getenv("RELEASE_KEYSTORE_PATH")
         val releasePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
         if (!releaseStore.isNullOrEmpty() && !releasePassword.isNullOrEmpty()) {
@@ -56,9 +56,9 @@ android {
         }
     }
 
-    // "dev":  telefonda gerçek uygulamanın yanına ayrı kurulan test sürümü
-    //         ("YAFA Dev" adıyla, verileri ayrı).
-    // "prod": gerçek uygulama; sadece GitHub Release ile derlenir.
+    // "dev":  test build installed next to the real app ("YAFA Dev",
+    //         separate data).
+    // "prod": the real app; only built by the Release APK workflow.
     flavorDimensions += "channel"
     productFlavors {
         create("dev") {
@@ -71,7 +71,8 @@ android {
         create("prod") {
             dimension = "channel"
             resValue("string", "app_name", "YAFA")
-            // Anahtar yoksa imzasız kalır; yanlış anahtarla sürüm çıkmaz.
+            // Left unsigned without a key, so a release is never signed with the
+            // wrong key.
             signingConfig = signingConfigs.findByName("release")
         }
     }
