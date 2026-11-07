@@ -158,12 +158,6 @@ abstract class AppLocalizations {
   /// **'Add'**
   String get add;
 
-  /// No description provided for @undo.
-  ///
-  /// In en, this message translates to:
-  /// **'Undo'**
-  String get undo;
-
   /// No description provided for @previous.
   ///
   /// In en, this message translates to:
@@ -223,12 +217,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No records this month.'**
   String get noRecordsThisMonth;
-
-  /// No description provided for @recordDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Record deleted'**
-  String get recordDeleted;
 
   /// No description provided for @newRecord.
   ///
@@ -763,12 +751,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete this transfer?'**
   String get deleteTransferQuestion;
-
-  /// No description provided for @transferDeleted.
-  ///
-  /// In en, this message translates to:
-  /// **'Transfer deleted'**
-  String get transferDeleted;
 
   /// No description provided for @needTwoWallets.
   ///

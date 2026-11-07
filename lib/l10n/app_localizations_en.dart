@@ -40,9 +40,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get add => 'Add';
 
   @override
-  String get undo => 'Undo';
-
-  @override
   String get previous => 'Previous';
 
   @override
@@ -72,9 +69,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get noRecordsThisMonth => 'No records this month.';
-
-  @override
-  String get recordDeleted => 'Record deleted';
 
   @override
   String get newRecord => 'New record';
@@ -439,9 +433,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteTransferQuestion => 'Delete this transfer?';
-
-  @override
-  String get transferDeleted => 'Transfer deleted';
 
   @override
   String get needTwoWallets =>

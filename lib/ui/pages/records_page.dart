@@ -213,49 +213,6 @@ class _DayHeader extends StatelessWidget {
   }
 }
 
-/// Swipe-to-delete wrapper with an undo action.
-class _Deletable extends StatelessWidget {
-  const _Deletable({
-    required this.id,
-    required this.onDelete,
-    required this.onUndo,
-    required this.deletedText,
-    required this.child,
-  });
-
-  final String id;
-  final Future<void> Function() onDelete;
-  final VoidCallback onUndo;
-  final String deletedText;
-  final Widget child;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return Dismissible(
-      key: ValueKey(id),
-      direction: DismissDirection.endToStart,
-      background: Container(
-        color: Theme.of(context).colorScheme.errorContainer,
-        alignment: Alignment.centerRight,
-        padding: const EdgeInsets.only(right: 24),
-        child: const Icon(Icons.delete),
-      ),
-      onDismissed: (_) async {
-        final messenger = ScaffoldMessenger.of(context);
-        await onDelete();
-        messenger.showSnackBar(
-          SnackBar(
-            content: Text(deletedText),
-            action: SnackBarAction(label: l.undo, onPressed: onUndo),
-          ),
-        );
-      },
-      child: child,
-    );
-  }
-}
-
 class _RecordTile extends StatelessWidget {
   const _RecordTile({required this.record});
 
@@ -263,7 +220,6 @@ class _RecordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
     final state = context.read<AppState>();
     final category = state.categoryById(record.categoryId);
     final income = state.isIncome(record);
@@ -274,47 +230,41 @@ class _RecordTile extends StatelessWidget {
     final wallet = state.wallets.length > 1 && state.walletFilter == null
         ? state.walletById(record.walletId)
         : null;
-    return _Deletable(
-      id: 'record-${record.id}',
-      deletedText: l.recordDeleted,
-      onDelete: () => state.deleteRecord(record),
-      onUndo: () => state.restoreRecord(record),
-      child: ListTile(
-        leading: CategoryAvatar(category: category),
-        title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
-        subtitle: Text(
-          [
-            if (record.title.isNotEmpty && category != null) category.name,
-            if (wallet != null) wallet.name,
-            if (record.note != null) record.note!,
-          ].join(' · '),
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-        ),
-        trailing: Row(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            if (record.recurringId != null)
-              const Padding(
-                padding: EdgeInsets.only(right: 4),
-                child: Icon(Icons.repeat, size: 16),
-              ),
-            Text(
-              formatMoney(
-                income ? record.amount : -record.amount,
-                state.currency,
-              ),
-              style: TextStyle(
-                fontWeight: FontWeight.w600,
-                color: income ? Colors.green.shade600 : null,
-              ),
-            ),
-          ],
-        ),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => EditRecordPage(record: record)),
-        ),
+    return ListTile(
+      leading: CategoryAvatar(category: category),
+      title: Text(title, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        [
+          if (record.title.isNotEmpty && category != null) category.name,
+          if (wallet != null) wallet.name,
+          if (record.note != null) record.note!,
+        ].join(' · '),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
       ),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          if (record.recurringId != null)
+            const Padding(
+              padding: EdgeInsets.only(right: 4),
+              child: Icon(Icons.repeat, size: 16),
+            ),
+          Text(
+            formatMoney(
+              income ? record.amount : -record.amount,
+              state.currency,
+            ),
+            style: TextStyle(
+              fontWeight: FontWeight.w600,
+              color: income ? Colors.green.shade600 : null,
+            ),
+          ),
+        ],
+      ),
+      onTap: () => Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => EditRecordPage(record: record))),
     );
   }
 }
@@ -332,81 +282,75 @@ class _TransferTile extends StatelessWidget {
     final from = state.walletById(transfer.fromWalletId)?.name ?? '?';
     final to = state.walletById(transfer.toWalletId)?.name ?? '?';
     final effect = _transferEffect(state, transfer);
-    return _Deletable(
-      id: 'transfer-${transfer.id}',
-      deletedText: l.transferDeleted,
-      onDelete: () => state.deleteTransfer(transfer),
-      onUndo: () => state.restoreTransfer(transfer),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: scheme.secondaryContainer,
-          foregroundColor: scheme.onSecondaryContainer,
-          child: const Icon(Icons.swap_horiz),
-        ),
-        // An icon rather than "→", which some fonts lack.
-        title: Row(
-          children: [
-            Flexible(child: Text(from, overflow: TextOverflow.ellipsis)),
-            const Padding(
-              padding: EdgeInsets.symmetric(horizontal: 6),
-              child: Icon(Icons.arrow_forward, size: 18),
-            ),
-            Flexible(child: Text(to, overflow: TextOverflow.ellipsis)),
-          ],
-        ),
-        // Without a filter, spell out what the transfer does to each wallet;
-        // with one, the sign on the right says it. Each wallet's part is
-        // kept on one line and wraps as a whole.
-        subtitle: effect == 0
-            ? Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Wrap(
-                    spacing: 12,
-                    children: [
-                      Text(
-                        '$from ${formatMoney(-transfer.amount, state.currency)}',
-                        softWrap: false,
-                      ),
-                      Text(
-                        '$to ${formatMoney(transfer.amount, state.currency, signed: true)}',
-                        softWrap: false,
-                        style: TextStyle(color: Colors.green.shade600),
-                      ),
-                    ],
-                  ),
-                  if (transfer.note != null)
-                    Text(
-                      transfer.note!,
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                ],
-              )
-            : Text(
-                [
-                  l.transfer,
-                  if (transfer.note != null) transfer.note!,
-                ].join(' · '),
-                maxLines: 1,
-                overflow: TextOverflow.ellipsis,
-              ),
-        trailing: Text(
-          effect == 0
-              ? formatMoney(transfer.amount, state.currency)
-              : formatMoney(effect, state.currency, signed: true),
-          style: TextStyle(
-            fontWeight: FontWeight.w600,
-            color: effect > 0
-                ? Colors.green.shade600
-                : effect < 0
-                ? null
-                : scheme.onSurfaceVariant,
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: scheme.secondaryContainer,
+        foregroundColor: scheme.onSecondaryContainer,
+        child: const Icon(Icons.swap_horiz),
+      ),
+      // An icon rather than "→", which some fonts lack.
+      title: Row(
+        children: [
+          Flexible(child: Text(from, overflow: TextOverflow.ellipsis)),
+          const Padding(
+            padding: EdgeInsets.symmetric(horizontal: 6),
+            child: Icon(Icons.arrow_forward, size: 18),
           ),
+          Flexible(child: Text(to, overflow: TextOverflow.ellipsis)),
+        ],
+      ),
+      // Without a filter, spell out what the transfer does to each wallet;
+      // with one, the sign on the right says it. Each wallet's part is
+      // kept on one line and wraps as a whole.
+      subtitle: effect == 0
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Wrap(
+                  spacing: 12,
+                  children: [
+                    Text(
+                      '$from ${formatMoney(-transfer.amount, state.currency)}',
+                      softWrap: false,
+                    ),
+                    Text(
+                      '$to ${formatMoney(transfer.amount, state.currency, signed: true)}',
+                      softWrap: false,
+                      style: TextStyle(color: Colors.green.shade600),
+                    ),
+                  ],
+                ),
+                if (transfer.note != null)
+                  Text(
+                    transfer.note!,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+              ],
+            )
+          : Text(
+              [
+                l.transfer,
+                if (transfer.note != null) transfer.note!,
+              ].join(' · '),
+              maxLines: 1,
+              overflow: TextOverflow.ellipsis,
+            ),
+      trailing: Text(
+        effect == 0
+            ? formatMoney(transfer.amount, state.currency)
+            : formatMoney(effect, state.currency, signed: true),
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: effect > 0
+              ? Colors.green.shade600
+              : effect < 0
+              ? null
+              : scheme.onSurfaceVariant,
         ),
-        onTap: () => Navigator.of(context).push(
-          MaterialPageRoute(builder: (_) => EditRecordPage(transfer: transfer)),
-        ),
+      ),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => EditRecordPage(transfer: transfer)),
       ),
     );
   }

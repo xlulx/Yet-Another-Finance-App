@@ -40,9 +40,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get add => 'Ekle';
 
   @override
-  String get undo => 'Geri al';
-
-  @override
   String get previous => 'Önceki';
 
   @override
@@ -72,9 +69,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get noRecordsThisMonth => 'Bu ay için kayıt yok.';
-
-  @override
-  String get recordDeleted => 'Kayıt silindi';
 
   @override
   String get newRecord => 'Yeni kayıt';
@@ -384,9 +378,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get deleteTransferQuestion => 'Aktarım silinsin mi?';
-
-  @override
-  String get transferDeleted => 'Aktarım silindi';
 
   @override
   String get needTwoWallets =>

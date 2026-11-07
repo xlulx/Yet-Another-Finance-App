@@ -61,6 +61,16 @@ Future<void> addRecordFlow(
   expect(state.monthExpense, 25075);
   expect(find.textContaining(formattedAmount), findsWidgets);
 
+  // Swiping a record does not delete it (too easy to do by accident).
+  await tester.timedDrag(
+    find.text('Migros'),
+    const Offset(-300, 0),
+    const Duration(seconds: 1),
+  );
+  await tester.pumpAndSettle();
+  expect(find.text('Migros'), findsOneWidget);
+  expect(state.monthRecords, hasLength(1));
+
   // Close so the next test gets a fresh in-memory database.
   await tester.runAsync(() => state.db.close());
 }

@@ -151,12 +151,6 @@ class AppState extends ChangeNotifier {
     await _reloadMonth();
   }
 
-  /// Restores a deleted record (with the same id).
-  Future<void> restoreRecord(Record r) async {
-    await db.db.insert('records', r.toRow());
-    await _reloadMonth();
-  }
-
   // ---- Transfers ----
 
   Future<void> saveTransfer(Transfer t) async {
@@ -170,12 +164,6 @@ class AppState extends ChangeNotifier {
 
   Future<void> deleteTransfer(Transfer t) async {
     await db.deleteTransfer(t.id!);
-    await _reloadMonth();
-  }
-
-  /// Restores a deleted transfer (with the same id).
-  Future<void> restoreTransfer(Transfer t) async {
-    await db.db.insert('transfers', t.toRow());
     await _reloadMonth();
   }
 
