@@ -456,4 +456,16 @@ class AppLocalizationsEn extends AppLocalizations {
   String transferFromWallet(String name) {
     return 'From $name';
   }
+
+  @override
+  String get manage => 'Manage';
+
+  @override
+  String get recurringShort => 'Recurring';
+
+  @override
+  String get pickMonth => 'Choose month';
+
+  @override
+  String get pickYear => 'Choose year';
 }

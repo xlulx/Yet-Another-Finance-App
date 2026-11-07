@@ -8,47 +8,44 @@ import '../../state/app_state.dart';
 import '../widgets/category_avatar.dart';
 import 'edit_category_page.dart';
 
-class CategoriesPage extends StatelessWidget {
-  const CategoriesPage({super.key});
+/// Categories of one type, chosen with buttons rather than nested tabs
+/// (those would fight with [ManagePage]'s swipeable tabs). [type] is shared
+/// with the page's add button.
+class CategoriesTab extends StatelessWidget {
+  const CategoriesTab({super.key, required this.type});
+
+  final ValueNotifier<CategoryType> type;
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    return DefaultTabController(
-      length: 2,
-      child: Builder(
-        builder: (context) {
-          return Scaffold(
-            appBar: AppBar(
-              title: Text(l.categories),
-              bottom: TabBar(
-                tabs: [
-                  Tab(text: l.expense),
-                  Tab(text: l.income),
+    return ValueListenableBuilder<CategoryType>(
+      valueListenable: type,
+      builder: (context, current, _) => Column(
+        children: [
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 12, 16, 4),
+            child: SizedBox(
+              width: double.infinity,
+              child: SegmentedButton<CategoryType>(
+                showSelectedIcon: false,
+                segments: [
+                  ButtonSegment(
+                    value: CategoryType.expense,
+                    label: Text(l.expense),
+                  ),
+                  ButtonSegment(
+                    value: CategoryType.income,
+                    label: Text(l.income),
+                  ),
                 ],
+                selected: {current},
+                onSelectionChanged: (s) => type.value = s.first,
               ),
             ),
-            floatingActionButton: FloatingActionButton(
-              tooltip: l.addCategory,
-              child: const Icon(Icons.add),
-              onPressed: () {
-                final tab = DefaultTabController.of(context).index;
-                Navigator.of(context).push(
-                  MaterialPageRoute(
-                    builder: (_) =>
-                        EditCategoryPage(initialType: CategoryType.values[tab]),
-                  ),
-                );
-              },
-            ),
-            body: const TabBarView(
-              children: [
-                _CategoryList(type: CategoryType.expense),
-                _CategoryList(type: CategoryType.income),
-              ],
-            ),
-          );
-        },
+          ),
+          Expanded(child: _CategoryList(type: current)),
+        ],
       ),
     );
   }

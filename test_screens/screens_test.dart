@@ -279,17 +279,14 @@ void main() {
       await tapNav(tester, Icons.settings_outlined);
       await shot(tester, '${lang}_4_settings');
 
-      await tester.tap(find.byIcon(Icons.repeat));
+      await tapNav(tester, Icons.tune_outlined);
+      await shot(tester, '${lang}_5_manage_categories');
+      await tester.fling(find.byType(TabBarView), const Offset(-250, 0), 1000);
       await tester.pumpAndSettle();
-      await shot(tester, '${lang}_5_recurring');
-      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_5b_manage_recurring');
 
-      await tester.tap(find.byIcon(Icons.account_balance_wallet));
-      await tester.pumpAndSettle();
+      await tapNav(tester, Icons.account_balance_wallet_outlined);
       await shot(tester, '${lang}_6_wallets');
-      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-      await tester.pumpAndSettle();
 
       await tapNav(tester, Icons.receipt_long_outlined);
       await tester.tap(find.byType(FloatingActionButton));

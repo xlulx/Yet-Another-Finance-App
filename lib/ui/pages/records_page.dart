@@ -53,6 +53,9 @@ class RecordsPage extends StatelessWidget {
             : null,
       ),
       floatingActionButton: FloatingActionButton.extended(
+        // Root pages stay alive side by side in the bottom navigation;
+        // shared hero tags would clash when a new screen opens.
+        heroTag: null,
         icon: const Icon(Icons.add),
         label: Text(l.addRecord),
         onPressed: () => Navigator.of(context)

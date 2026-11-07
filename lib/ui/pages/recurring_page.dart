@@ -32,34 +32,25 @@ String unitName(AppLocalizations l, RecurrenceUnit unit, int count) =>
       RecurrenceUnit.year => l.unitYear(count),
     };
 
-class RecurringPage extends StatelessWidget {
-  const RecurringPage({super.key});
+/// Recurring transactions list; a tab of [ManagePage].
+class RecurringTab extends StatelessWidget {
+  const RecurringTab({super.key});
 
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
-    return Scaffold(
-      appBar: AppBar(title: Text(l.recurringTransactions)),
-      floatingActionButton: FloatingActionButton(
-        tooltip: l.add,
-        child: const Icon(Icons.add),
-        onPressed: () => Navigator.of(context)
-            .push(MaterialPageRoute(builder: (_) => const EditRecurringPage())),
-      ),
-      body: state.rules.isEmpty
-          ? Center(
-              child: Padding(
-                padding: EdgeInsets.all(32),
-                child: Text(l.recurringEmpty, textAlign: TextAlign.center),
-              ),
-            )
-          : ListView(
-              padding: const EdgeInsets.only(bottom: 88),
-              children: [
-                for (final r in state.rules) _RuleTile(rule: r, state: state),
-              ],
-            ),
+    if (state.rules.isEmpty) {
+      return Center(
+        child: Padding(
+          padding: const EdgeInsets.all(32),
+          child: Text(l.recurringEmpty, textAlign: TextAlign.center),
+        ),
+      );
+    }
+    return ListView(
+      padding: const EdgeInsets.only(bottom: 88),
+      children: [for (final r in state.rules) _RuleTile(rule: r, state: state)],
     );
   }
 }

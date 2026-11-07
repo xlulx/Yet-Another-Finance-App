@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 
 import '../l10n/app_localizations.dart';
 
+import 'pages/manage_page.dart';
 import 'pages/records_page.dart';
 import 'pages/settings_page.dart';
 import 'pages/stats_page.dart';
+import 'pages/wallets_page.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -22,7 +24,14 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [RecordsPage(), StatsPage(), SettingsPage()],
+        children: [
+          const RecordsPage(),
+          const StatsPage(),
+          // Choosing a wallet shows its records.
+          WalletsPage(onWalletChosen: () => setState(() => _index = 0)),
+          const ManagePage(),
+          const SettingsPage(),
+        ],
       ),
       bottomNavigationBar: NavigationBar(
         selectedIndex: _index,
@@ -37,6 +46,16 @@ class _HomeShellState extends State<HomeShell> {
             icon: Icon(Icons.pie_chart_outline),
             selectedIcon: Icon(Icons.pie_chart),
             label: l.navStats,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.account_balance_wallet_outlined),
+            selectedIcon: const Icon(Icons.account_balance_wallet),
+            label: l.wallets,
+          ),
+          NavigationDestination(
+            icon: const Icon(Icons.tune_outlined),
+            selectedIcon: const Icon(Icons.tune),
+            label: l.manage,
           ),
           NavigationDestination(
             icon: Icon(Icons.settings_outlined),
