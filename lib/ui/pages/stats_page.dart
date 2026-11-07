@@ -103,6 +103,8 @@ class _StatsPageState extends State<StatsPage> {
             children: [
               Expanded(
                 child: SegmentedButton<_Period>(
+                  // The check mark makes the labels wrap on phones.
+                  showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
                       value: _Period.month,
@@ -120,6 +122,8 @@ class _StatsPageState extends State<StatsPage> {
               const SizedBox(width: 8),
               Expanded(
                 child: SegmentedButton<CategoryType>(
+                  // The check mark makes the labels wrap on phones.
+                  showSelectedIcon: false,
                   segments: [
                     ButtonSegment(
                       value: CategoryType.expense,
@@ -270,7 +274,8 @@ class _CategoryRow extends StatelessWidget {
                     SizedBox(
                       width: 44,
                       child: Text(
-                        '%${(ratio * 100).toStringAsFixed(1)}',
+                        NumberFormat.decimalPercentPattern(decimalDigits: 1)
+                            .format(ratio),
                         textAlign: TextAlign.end,
                         style: Theme.of(context).textTheme.labelSmall,
                       ),
