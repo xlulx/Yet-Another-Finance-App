@@ -32,7 +32,7 @@ String unitName(AppLocalizations l, RecurrenceUnit unit, int count) =>
       RecurrenceUnit.year => l.unitYear(count),
     };
 
-/// Recurring transactions list; one tab of [ManagePage].
+/// Recurring transactions list; a tab of [ManagePage].
 class RecurringTab extends StatelessWidget {
   const RecurringTab({super.key});
 

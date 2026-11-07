@@ -9,8 +9,8 @@ import '../widgets/category_avatar.dart';
 import 'edit_category_page.dart';
 
 /// Categories of one type, chosen with buttons rather than nested tabs
-/// (those would fight with [ManagePage]'s swipeable tabs); one tab of
-/// [ManagePage]. [type] is shared with the page's add button.
+/// (those would fight with [ManagePage]'s swipeable tabs). [type] is shared
+/// with the page's add button.
 class CategoriesTab extends StatelessWidget {
   const CategoriesTab({super.key, required this.type});
 

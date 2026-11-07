@@ -7,7 +7,30 @@ import '../../utils/money.dart';
 import '../widgets/wallet_avatar.dart';
 import 'edit_wallet_page.dart';
 
-/// Wallet list with balances; one tab of [ManagePage].
+/// Wallets with their balances; a page of the bottom navigation.
+class WalletsPage extends StatelessWidget {
+  const WalletsPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l.wallets)),
+      floatingActionButton: FloatingActionButton(
+        // Root pages stay alive side by side in the bottom navigation;
+        // shared hero tags would clash when a new screen opens.
+        heroTag: null,
+        tooltip: l.addWallet,
+        child: const Icon(Icons.add),
+        onPressed: () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const EditWalletPage())),
+      ),
+      body: const WalletsTab(),
+    );
+  }
+}
+
+/// Wallet list with balances.
 class WalletsTab extends StatelessWidget {
   const WalletsTab({super.key});
 

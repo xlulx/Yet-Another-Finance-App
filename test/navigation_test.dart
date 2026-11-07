@@ -66,20 +66,18 @@ void main() {
     await tester.runAsync(() => state.db.close());
   });
 
-  testWidgets('wallets, categories and recurring are swipeable tabs', (
+  testWidgets('wallets and manage pages in the bottom navigation', (
     tester,
   ) async {
     final state = await openApp(tester);
-    await tester.tap(find.text('Settings'));
-    await tester.pumpAndSettle();
+
     await tester.tap(find.text('Wallets'));
     await tester.pumpAndSettle();
-
-    expect(find.text('Manage'), findsOneWidget);
     expect(find.text('Total balance'), findsOneWidget);
+    expect(find.text('Cash'), findsOneWidget);
 
-    // Swipe to categories; the type is picked with buttons, not tabs.
-    await tester.fling(find.text('Total balance'), const Offset(-300, 0), 1000);
+    // Manage: categories and recurring transactions as swipeable tabs.
+    await tester.tap(find.text('Manage'));
     await tester.pumpAndSettle();
     expect(find.text('Groceries'), findsOneWidget);
     await tester.tap(find.text('Income').last);
@@ -94,10 +92,12 @@ void main() {
     await tester.pageBack();
     await tester.pumpAndSettle();
 
-    // Swipe on to recurring transactions.
-    await tester.fling(find.text('Salary'), const Offset(-300, 0), 1000);
+    await tester.fling(find.text('Salary'), const Offset(-250, 0), 1000);
     await tester.pumpAndSettle();
     expect(find.textContaining('rent, salary'), findsOneWidget);
+    await tester.tap(find.byType(FloatingActionButton));
+    await tester.pumpAndSettle();
+    expect(find.text('New recurring transaction'), findsOneWidget);
     await tester.runAsync(() => state.db.close());
   });
 }
