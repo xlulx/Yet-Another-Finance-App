@@ -24,12 +24,13 @@ class _HomeShellState extends State<HomeShell> {
     return Scaffold(
       body: IndexedStack(
         index: _index,
-        children: const [
-          RecordsPage(),
-          StatsPage(),
-          WalletsPage(),
-          ManagePage(),
-          SettingsPage(),
+        children: [
+          const RecordsPage(),
+          const StatsPage(),
+          // Choosing a wallet shows its records.
+          WalletsPage(onWalletChosen: () => setState(() => _index = 0)),
+          const ManagePage(),
+          const SettingsPage(),
         ],
       ),
       bottomNavigationBar: NavigationBar(

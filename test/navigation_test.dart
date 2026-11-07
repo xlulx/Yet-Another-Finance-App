@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yafa/data/app_database.dart';
 import 'package:yafa/main.dart';
+import 'package:yafa/models/wallet.dart';
 import 'package:yafa/state/app_state.dart';
 
 Future<AppState> openApp(WidgetTester tester) async {
@@ -73,7 +74,7 @@ void main() {
 
     await tester.tap(find.text('Wallets'));
     await tester.pumpAndSettle();
-    expect(find.text('Total balance'), findsOneWidget);
+    expect(find.text('All wallets'), findsOneWidget);
     expect(find.text('Cash'), findsOneWidget);
 
     // Manage: categories and recurring transactions as swipeable tabs.
@@ -98,6 +99,62 @@ void main() {
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     expect(find.text('New recurring transaction'), findsOneWidget);
+    await tester.runAsync(() => state.db.close());
+  });
+
+  testWidgets('tapping a wallet filters records and statistics', (
+    tester,
+  ) async {
+    late AppState state;
+    late int bank;
+    await tester.runAsync(() async {
+      final db = await AppDatabase.open(
+        factory: databaseFactoryFfiNoIsolate,
+        path: inMemoryDatabasePath,
+      );
+      bank = await db.insertWallet(
+        const Wallet(name: 'Bank', color: 0xFF42A5F5),
+      );
+      state = AppState(db);
+      await state.load();
+      await state.setLanguage('en');
+    });
+    await tester.pumpWidget(YafaApp(state: state));
+    await tester.pumpAndSettle();
+
+    await tester.tap(find.text('Wallets'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Bank'));
+    await settle(tester);
+
+    // Back on Records, filtered to the bank.
+    expect(state.walletFilter, bank);
+    expect(find.text('Add record'), findsOneWidget);
+    expect(
+      tester
+          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Bank'))
+          .selected,
+      isTrue,
+    );
+
+    // "All wallets" on the Wallets page clears the filter.
+    await tester.tap(find.text('Wallets').last);
+    await tester.pumpAndSettle();
+    await tester.tap(
+      find.descendant(
+        of: find.byType(ListTile),
+        matching: find.text('All wallets'),
+      ),
+    );
+    await settle(tester);
+    expect(state.walletFilter, isNull);
+
+    // The edit button still opens the wallet.
+    await tester.tap(find.text('Wallets').last);
+    await tester.pumpAndSettle();
+    await tester.tap(find.byTooltip('Edit wallet').last);
+    await tester.pumpAndSettle();
+    expect(find.text('Edit wallet'), findsOneWidget);
     await tester.runAsync(() => state.db.close());
   });
 }
