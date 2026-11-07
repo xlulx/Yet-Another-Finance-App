@@ -251,6 +251,30 @@ void main() {
         await tester.pump();
       }
       await shot(tester, '${lang}_3_stats');
+      await tester.tap(
+        find.widgetWithText(ChoiceChip, lang == 'tr' ? 'Banka' : 'Bank').last,
+      );
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future.delayed(const Duration(milliseconds: 30)),
+        );
+        await tester.pump();
+      }
+      await shot(tester, '${lang}_3b_stats_one_wallet');
+      await tester.tap(
+        find
+            .widgetWithText(
+              ChoiceChip,
+              lang == 'tr' ? 'Tüm cüzdanlar' : 'All wallets',
+            )
+            .last,
+      );
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future.delayed(const Duration(milliseconds: 30)),
+        );
+        await tester.pump();
+      }
 
       await tapNav(tester, Icons.settings_outlined);
       await shot(tester, '${lang}_4_settings');

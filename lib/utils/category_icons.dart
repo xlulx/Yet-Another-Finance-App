@@ -65,4 +65,9 @@ const List<int> categoryColors = [
   0xFF455A64,
 ];
 
-IconData iconFor(String key) => categoryIcons[key] ?? Icons.category;
+/// Icon key for transfer slices in statistics; not offered in the picker.
+const transferIconKey = 'transfer';
+
+IconData iconFor(String key) => key == transferIconKey
+    ? Icons.swap_horiz
+    : categoryIcons[key] ?? Icons.category;

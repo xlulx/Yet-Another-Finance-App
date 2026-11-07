@@ -446,4 +446,14 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get net => 'Net';
+
+  @override
+  String transferToWallet(String name) {
+    return 'To $name';
+  }
+
+  @override
+  String transferFromWallet(String name) {
+    return 'From $name';
+  }
 }

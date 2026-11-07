@@ -10,6 +10,7 @@ import 'package:yafa/models/recurring_rule.dart';
 import 'package:yafa/models/transfer.dart';
 import 'package:yafa/models/wallet.dart';
 import 'package:yafa/services/oinkoin_import.dart';
+import 'package:yafa/services/stats.dart';
 import 'package:yafa/state/app_state.dart';
 
 Future<AppDatabase> openMemory() => AppDatabase.open(
@@ -164,6 +165,55 @@ void main() {
       expect(
         await db.transfers(walletId: bank, from: DateTime(2025, 2)),
         isEmpty,
+      );
+    });
+
+    test('one wallet\'s statistics include its transfers', () async {
+      Transfer t(int from, int to, int amount, int day) => Transfer(
+        fromWalletId: from,
+        toWalletId: to,
+        amount: amount,
+        date: DateTime(2025, 1, day),
+      );
+      final card = await db.insertWallet(
+        const Wallet(name: 'Kart', color: 0xFF5C6BC0),
+      );
+      final transfers = [
+        t(bank, cash, 1000, 1),
+        t(bank, cash, 500, 2),
+        t(bank, card, 300, 2),
+        t(cash, bank, 200, 3),
+      ];
+      // Bank: money out per destination, largest first; money in per source.
+      expect(transferTotals(transfers, bank, CategoryType.expense), [
+        (cash, 1500, 2),
+        (card, 300, 1),
+      ]);
+      expect(transferTotals(transfers, bank, CategoryType.income), [
+        (cash, 200, 1),
+      ]);
+      expect(transferTotals(transfers, card, CategoryType.expense), isEmpty);
+
+      final byId = {for (final c in await db.categories()) c.id!: c};
+      final record = Record(
+        title: '',
+        amount: 50,
+        date: DateTime(2025, 1, 2),
+        categoryId: market.id!,
+      );
+      final days = bucketTotals(
+        [record],
+        byId,
+        3,
+        (d) => d.day - 1,
+        transfers: transfers,
+        walletId: bank,
+      );
+      expect(days, [(0, 1000), (0, 50 + 500 + 300), (200, 0)]);
+      // Without a wallet, transfers are left out.
+      expect(
+        bucketTotals([record], byId, 3, (d) => d.day - 1, transfers: transfers),
+        [(0, 0), (0, 50), (0, 0)],
       );
     });
 

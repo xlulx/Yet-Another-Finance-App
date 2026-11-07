@@ -111,5 +111,7 @@
   "needTwoWallets": "Aktarım yapmak için Ayarlar > Cüzdanlar'dan ikinci bir cüzdan ekleyin.",
   "moneyIn": "Giriş",
   "moneyOut": "Çıkış",
-  "net": "Net"
+  "net": "Net",
+  "transferToWallet": "{name} cüzdanına",
+  "transferFromWallet": "{name} cüzdanından"
 }

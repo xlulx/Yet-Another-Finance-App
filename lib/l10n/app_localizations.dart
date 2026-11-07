@@ -775,6 +775,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Net'**
   String get net;
+
+  /// No description provided for @transferToWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'To {name}'**
+  String transferToWallet(String name);
+
+  /// No description provided for @transferFromWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'From {name}'**
+  String transferFromWallet(String name);
 }
 
 class _AppLocalizationsDelegate

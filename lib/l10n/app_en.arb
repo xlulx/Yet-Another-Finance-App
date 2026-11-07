@@ -231,5 +231,21 @@
   "needTwoWallets": "Add a second wallet in Settings > Wallets to make transfers.",
   "moneyIn": "Money in",
   "moneyOut": "Money out",
-  "net": "Net"
+  "net": "Net",
+  "transferToWallet": "To {name}",
+  "transferFromWallet": "From {name}",
+  "@transferToWallet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "@transferFromWallet": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  }
 }

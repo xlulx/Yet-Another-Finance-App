@@ -9,8 +9,10 @@ import '../../l10n/app_localizations.dart';
 
 import '../../models/category.dart';
 import '../../models/record.dart';
+import '../../models/transfer.dart';
 import '../../services/stats.dart';
 import '../../state/app_state.dart';
+import '../../utils/category_icons.dart';
 import '../../utils/money.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
@@ -30,6 +32,7 @@ class _StatsPageState extends State<StatsPage> {
   CategoryType _type = CategoryType.expense;
   DateTime _anchor = DateTime(DateTime.now().year, DateTime.now().month);
   List<Record> _records = [];
+  List<Transfer> _transfers = [];
   int? _touched;
   AppState? _state;
 
@@ -58,12 +61,23 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Future<void> _load() async {
+    final wallet = _state!.walletFilter;
     final records = await _state!.db.records(
       from: _from,
       to: _to,
-      walletId: _state!.walletFilter,
+      walletId: wallet,
     );
-    if (mounted) setState(() => _records = records);
+    // Like a bank statement, one wallet's statistics include its transfers.
+    // Across all wallets they cancel out and are left out.
+    final transfers = wallet == null
+        ? <Transfer>[]
+        : await _state!.db.transfers(from: _from, to: _to, walletId: wallet);
+    if (mounted) {
+      setState(() {
+        _records = records;
+        _transfers = transfers;
+      });
+    }
   }
 
   void _update(VoidCallback fn) {
@@ -79,7 +93,34 @@ class _StatsPageState extends State<StatsPage> {
     final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
     final byId = {for (final c in state.categories) c.id!: c};
+    final wallet = state.walletFilter;
     final totals = totalsByCategory(_records, byId, _type);
+    if (wallet != null) {
+      // One slice per other wallet, shown like a category.
+      for (final (other, total, count) in transferTotals(
+        _transfers,
+        wallet,
+        _type,
+      )) {
+        final w = state.walletById(other);
+        final name = w?.name ?? '?';
+        totals.add(
+          CategoryTotal(
+            Category(
+              name: _type == CategoryType.expense
+                  ? l.transferToWallet(name)
+                  : l.transferFromWallet(name),
+              type: _type,
+              color: w?.color ?? 0xFF9E9E9E,
+              icon: transferIconKey,
+            ),
+            total,
+            count,
+          ),
+        );
+      }
+      totals.sort((a, b) => b.total.compareTo(a.total));
+    }
     final sum = totals.fold(0, (s, t) => s + t.total);
 
     final bucketCount = _period == _Period.month
@@ -90,6 +131,8 @@ class _StatsPageState extends State<StatsPage> {
       byId,
       bucketCount,
       _period == _Period.month ? (d) => d.day - 1 : (d) => d.month - 1,
+      transfers: _transfers,
+      walletId: wallet,
     );
 
     return Scaffold(

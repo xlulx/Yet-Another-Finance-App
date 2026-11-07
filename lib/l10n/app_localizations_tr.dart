@@ -391,4 +391,14 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get net => 'Net';
+
+  @override
+  String transferToWallet(String name) {
+    return '$name cüzdanına';
+  }
+
+  @override
+  String transferFromWallet(String name) {
+    return '$name cüzdanından';
+  }
 }
