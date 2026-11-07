@@ -28,9 +28,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get income => 'Gelir';
 
   @override
-  String get balance => 'Bakiye';
-
-  @override
   String get save => 'Kaydet';
 
   @override
@@ -394,4 +391,13 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get needTwoWallets =>
       'Aktarım yapmak için Ayarlar > Cüzdanlar\'dan ikinci bir cüzdan ekleyin.';
+
+  @override
+  String get moneyIn => 'Giriş';
+
+  @override
+  String get moneyOut => 'Çıkış';
+
+  @override
+  String get net => 'Net';
 }

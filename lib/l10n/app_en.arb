@@ -6,7 +6,6 @@
   "navSettings": "Settings",
   "expense": "Expense",
   "income": "Income",
-  "balance": "Balance",
   "save": "Save",
   "cancel": "Cancel",
   "delete": "Delete",
@@ -232,5 +231,8 @@
   "editTransfer": "Edit transfer",
   "deleteTransferQuestion": "Delete this transfer?",
   "transferDeleted": "Transfer deleted",
-  "needTwoWallets": "Add a second wallet in Settings > Wallets to make transfers."
+  "needTwoWallets": "Add a second wallet in Settings > Wallets to make transfers.",
+  "moneyIn": "Money in",
+  "moneyOut": "Money out",
+  "net": "Net"
 }

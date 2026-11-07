@@ -134,12 +134,6 @@ abstract class AppLocalizations {
   /// **'Income'**
   String get income;
 
-  /// No description provided for @balance.
-  ///
-  /// In en, this message translates to:
-  /// **'Balance'**
-  String get balance;
-
   /// No description provided for @save.
   ///
   /// In en, this message translates to:
@@ -781,6 +775,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Add a second wallet in Settings > Wallets to make transfers.'**
   String get needTwoWallets;
+
+  /// No description provided for @moneyIn.
+  ///
+  /// In en, this message translates to:
+  /// **'Money in'**
+  String get moneyIn;
+
+  /// No description provided for @moneyOut.
+  ///
+  /// In en, this message translates to:
+  /// **'Money out'**
+  String get moneyOut;
+
+  /// No description provided for @net.
+  ///
+  /// In en, this message translates to:
+  /// **'Net'**
+  String get net;
 }
 
 class _AppLocalizationsDelegate

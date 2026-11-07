@@ -28,9 +28,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get income => 'Income';
 
   @override
-  String get balance => 'Balance';
-
-  @override
   String get save => 'Save';
 
   @override
@@ -449,4 +446,13 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get needTwoWallets =>
       'Add a second wallet in Settings > Wallets to make transfers.';
+
+  @override
+  String get moneyIn => 'Money in';
+
+  @override
+  String get moneyOut => 'Money out';
+
+  @override
+  String get net => 'Net';
 }

@@ -6,7 +6,6 @@
   "navSettings": "Ayarlar",
   "expense": "Gider",
   "income": "Gelir",
-  "balance": "Bakiye",
   "save": "Kaydet",
   "cancel": "Vazgeç",
   "delete": "Sil",
@@ -112,5 +111,8 @@
   "editTransfer": "Aktarımı düzenle",
   "deleteTransferQuestion": "Aktarım silinsin mi?",
   "transferDeleted": "Aktarım silindi",
-  "needTwoWallets": "Aktarım yapmak için Ayarlar > Cüzdanlar'dan ikinci bir cüzdan ekleyin."
+  "needTwoWallets": "Aktarım yapmak için Ayarlar > Cüzdanlar'dan ikinci bir cüzdan ekleyin.",
+  "moneyIn": "Giriş",
+  "moneyOut": "Çıkış",
+  "net": "Net"
 }

@@ -96,8 +96,11 @@ class _SummaryCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
-    final income = state.monthIncome;
-    final expense = state.monthExpense;
+    // One wallet: a statement of money in and out, transfers included.
+    // All wallets: real income and expenses (transfers cancel out).
+    final income = state.monthIncome + state.monthTransfersIn;
+    final expense = state.monthExpense + state.monthTransfersOut;
+    final oneWallet = state.walletFilter != null;
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
     Widget cell(String label, int value, Color color) => Expanded(
@@ -129,10 +132,14 @@ class _SummaryCard extends StatelessWidget {
           children: [
             Row(
               children: [
-                cell(l.income, income, Colors.green.shade600),
-                cell(l.expense, expense, scheme.error),
                 cell(
-                  l.balance,
+                  oneWallet ? l.moneyIn : l.income,
+                  income,
+                  Colors.green.shade600,
+                ),
+                cell(oneWallet ? l.moneyOut : l.expense, expense, scheme.error),
+                cell(
+                  l.net,
                   income - expense,
                   income - expense >= 0 ? scheme.primary : scheme.error,
                 ),

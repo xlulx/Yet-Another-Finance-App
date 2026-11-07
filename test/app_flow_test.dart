@@ -151,8 +151,10 @@ void main() {
     expect(find.text(r'Bank +$120.00'), findsOneWidget);
     expect(state.balances[cash], -12000);
     expect(state.balances[bank], 12000);
-    // Transfers are neither income nor expense.
+    // Across all wallets, transfers are neither income nor expense.
     expect(state.monthIncome + state.monthExpense, 0);
+    expect(find.text('Income'), findsOneWidget);
+    expect(find.text('Net'), findsOneWidget);
 
     // Filtering by the bank shows the transfer as money coming in.
     await tester.tap(find.widgetWithText(ChoiceChip, 'Bank'));
@@ -164,6 +166,10 @@ void main() {
     }
     expect(state.walletFilter, bank);
     expect(find.text(r'+$120.00'), findsWidgets);
+    // One wallet: the summary works like a bank statement.
+    expect(find.text('Money in'), findsOneWidget);
+    expect(state.monthTransfersIn, 12000);
+    expect(state.monthTransfersOut, 0);
 
     // ...and for the cash wallet as money going out.
     await tester.tap(find.widgetWithText(ChoiceChip, 'Cash'));
@@ -175,6 +181,8 @@ void main() {
     }
     expect(state.walletFilter, cash);
     expect(find.text(r'-$120.00'), findsWidgets);
+    expect(find.text('Money out'), findsOneWidget);
+    expect((state.monthTransfersIn, state.monthTransfersOut), (0, 12000));
 
     await tester.runAsync(() => state.db.close());
   });
