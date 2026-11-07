@@ -6,10 +6,13 @@ import '../data/app_database.dart';
 import '../models/category.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
+import '../models/transfer.dart';
+import '../models/wallet.dart';
 import '../services/oinkoin_import.dart';
 import '../services/recurring_service.dart';
 
-/// App state: categories, the selected month's records and recurring rules.
+/// App state: categories, wallets, the selected month's records and
+/// transfers, and recurring rules.
 class AppState extends ChangeNotifier {
   AppState(this.db, {DateTime Function()? clock})
     : _clock = clock ?? DateTime.now;
@@ -20,6 +23,14 @@ class AppState extends ChangeNotifier {
   List<Category> categories = [];
   List<RecurringRule> rules = [];
   List<Record> monthRecords = [];
+  List<Transfer> monthTransfers = [];
+  List<Wallet> wallets = [];
+
+  /// Current balance per wallet id.
+  Map<int, int> balances = {};
+
+  /// Wallet shown on the records and statistics pages; null for all.
+  int? walletFilter;
   late DateTime month = DateTime(_clock().year, _clock().month);
   String currency = '₺';
 
@@ -32,6 +43,20 @@ class AppState extends ChangeNotifier {
   Map<int, Category> _byId = {};
   Category? categoryById(int id) => _byId[id];
 
+  Map<int, Wallet> _walletsById = {};
+  Wallet? walletById(int? id) => id == null ? null : _walletsById[id];
+
+  List<Wallet> get activeWallets => wallets.where((w) => !w.archived).toList();
+
+  /// Wallet preselected for new records: the filtered wallet, else the
+  /// first active one.
+  int get defaultWalletId =>
+      walletFilter ??
+      (activeWallets.isNotEmpty ? activeWallets.first : wallets.first).id!;
+
+  /// Sum of all wallet balances.
+  int get totalBalance => balances.values.fold(0, (a, b) => a + b);
+
   Future<void> load() async {
     currency = await db.getSetting('currency') ?? '₺';
     language = await db.getSetting('language') ?? '';
@@ -43,20 +68,38 @@ class AppState extends ChangeNotifier {
     categories = await db.categories();
     _byId = {for (final c in categories) c.id!: c};
     rules = await db.recurringRules();
+    wallets = await db.wallets();
+    _walletsById = {for (final w in wallets) w.id!: w};
+    if (walletFilter != null && !_walletsById.containsKey(walletFilter)) {
+      walletFilter = null;
+    }
     await _reloadMonth(notify: false);
     notifyListeners();
   }
 
   Future<void> _reloadMonth({bool notify = true}) async {
+    final to = DateTime(month.year, month.month + 1);
     monthRecords = await db.records(
       from: month,
-      to: DateTime(month.year, month.month + 1),
+      to: to,
+      walletId: walletFilter,
     );
+    monthTransfers = await db.transfers(
+      from: month,
+      to: to,
+      walletId: walletFilter,
+    );
+    balances = await db.walletBalances();
     if (notify) notifyListeners();
   }
 
   Future<void> setMonth(DateTime m) async {
     month = DateTime(m.year, m.month);
+    await _reloadMonth();
+  }
+
+  Future<void> setWalletFilter(int? walletId) async {
+    walletFilter = walletId;
     await _reloadMonth();
   }
 
@@ -98,6 +141,77 @@ class AppState extends ChangeNotifier {
     await db.db.insert('records', r.toRow());
     await _reloadMonth();
   }
+
+  // ---- Transfers ----
+
+  Future<void> saveTransfer(Transfer t) async {
+    if (t.id == null) {
+      await db.insertTransfer(t);
+    } else {
+      await db.updateTransfer(t);
+    }
+    await _reloadMonth();
+  }
+
+  Future<void> deleteTransfer(Transfer t) async {
+    await db.deleteTransfer(t.id!);
+    await _reloadMonth();
+  }
+
+  /// Restores a deleted transfer (with the same id).
+  Future<void> restoreTransfer(Transfer t) async {
+    await db.db.insert('transfers', t.toRow());
+    await _reloadMonth();
+  }
+
+  /// Replaces a record with a transfer or the other way round, when the
+  /// user switches the type while editing.
+  Future<void> replaceEntry({
+    Record? oldRecord,
+    Transfer? oldTransfer,
+    Record? newRecord,
+    Transfer? newTransfer,
+  }) async {
+    await db.db.transaction((txn) async {
+      if (oldRecord != null) {
+        await txn.delete('records', where: 'id = ?', whereArgs: [oldRecord.id]);
+      }
+      if (oldTransfer != null) {
+        await txn.delete(
+          'transfers',
+          where: 'id = ?',
+          whereArgs: [oldTransfer.id],
+        );
+      }
+      if (newRecord != null) await db.insertRecord(newRecord, txn: txn);
+      if (newTransfer != null) await db.insertTransfer(newTransfer, txn: txn);
+    });
+    await _reloadMonth();
+  }
+
+  // ---- Wallets ----
+
+  Future<void> saveWallet(Wallet w) async {
+    if (w.id == null) {
+      await db.insertWallet(w.copyWith(sortOrder: wallets.length));
+    } else {
+      await db.updateWallet(w);
+    }
+    await _reloadAll();
+  }
+
+  /// Deletes the wallet if nothing uses it; returns false otherwise.
+  Future<bool> deleteWallet(Wallet w) async {
+    if (wallets.length <= 1 || await db.walletUsage(w.id!) > 0) return false;
+    await db.deleteWallet(w.id!);
+    await _reloadAll();
+    return true;
+  }
+
+  bool walletNameTaken(String name, {int? exceptId}) => wallets.any(
+    (w) =>
+        w.id != exceptId && w.name.toLowerCase() == name.trim().toLowerCase(),
+  );
 
   // ---- Categories ----
 

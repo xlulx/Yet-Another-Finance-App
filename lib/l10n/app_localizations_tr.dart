@@ -282,8 +282,14 @@ class AppLocalizationsTr extends AppLocalizations {
   String get pickOinkoinBackup => 'Oinkoin yedeğini seçin';
 
   @override
-  String importDone(int records, int categories, int rules) {
-    return 'İçe aktarıldı: $records kayıt, $categories kategori, $rules tekrarlayan.';
+  String importDone(
+    int records,
+    int transfers,
+    int categories,
+    int wallets,
+    int rules,
+  ) {
+    return 'İçe aktarıldı: $records kayıt, $transfers aktarım, $categories kategori, $wallets cüzdan, $rules tekrarlayan.';
   }
 
   @override
@@ -308,4 +314,84 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get aboutLegalese =>
       'Yet Another Financial App\nTüm verileriniz cihazınızda kalır.';
+
+  @override
+  String get wallet => 'Cüzdan';
+
+  @override
+  String get wallets => 'Cüzdanlar';
+
+  @override
+  String get allWallets => 'Tüm cüzdanlar';
+
+  @override
+  String get addWallet => 'Cüzdan ekle';
+
+  @override
+  String get newWallet => 'Yeni cüzdan';
+
+  @override
+  String get editWallet => 'Cüzdanı düzenle';
+
+  @override
+  String walletCount(int count) {
+    return '$count cüzdan';
+  }
+
+  @override
+  String get startingBalance => 'Başlangıç bakiyesi';
+
+  @override
+  String get startingBalanceHint =>
+      'Borç için eksi işareti kullanın (ör. kredi kartı)';
+
+  @override
+  String get invalidBalance => 'Geçerli bir bakiye girin';
+
+  @override
+  String get totalBalance => 'Toplam bakiye';
+
+  @override
+  String get walletArchiveHint =>
+      'Kayıt eklerken gösterilmez; geçmişi ve bakiyesi korunur.';
+
+  @override
+  String deleteWalletQuestion(String name) {
+    return '\"$name\" silinsin mi?';
+  }
+
+  @override
+  String get walletInUse =>
+      'Bu cüzdanda kayıt, aktarım veya tekrarlayan işlem var. Bunun yerine arşivleyin.';
+
+  @override
+  String get lastWallet => 'En az bir cüzdan olmalı.';
+
+  @override
+  String get transfer => 'Aktarım';
+
+  @override
+  String get fromWallet => 'Kaynak cüzdan';
+
+  @override
+  String get toWallet => 'Hedef cüzdan';
+
+  @override
+  String get sameWallet => 'İki farklı cüzdan seçin';
+
+  @override
+  String get newTransfer => 'Yeni aktarım';
+
+  @override
+  String get editTransfer => 'Aktarımı düzenle';
+
+  @override
+  String get deleteTransferQuestion => 'Aktarım silinsin mi?';
+
+  @override
+  String get transferDeleted => 'Aktarım silindi';
+
+  @override
+  String get needTwoWallets =>
+      'Aktarım yapmak için Ayarlar > Cüzdanlar\'dan ikinci bir cüzdan ekleyin.';
 }

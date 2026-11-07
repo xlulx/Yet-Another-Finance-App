@@ -13,6 +13,10 @@ class Record {
   /// Id of the recurring rule that generated this record, if any.
   final int? recurringId;
 
+  /// Wallet the money came from or went to. When null on insert, the
+  /// default wallet is used.
+  final int? walletId;
+
   const Record({
     this.id,
     required this.title,
@@ -21,6 +25,7 @@ class Record {
     required this.categoryId,
     this.note,
     this.recurringId,
+    this.walletId,
   });
 
   Record copyWith({
@@ -31,6 +36,7 @@ class Record {
     int? categoryId,
     String? note,
     int? recurringId,
+    int? walletId,
   }) {
     return Record(
       id: id ?? this.id,
@@ -40,6 +46,7 @@ class Record {
       categoryId: categoryId ?? this.categoryId,
       note: note ?? this.note,
       recurringId: recurringId ?? this.recurringId,
+      walletId: walletId ?? this.walletId,
     );
   }
 
@@ -51,6 +58,7 @@ class Record {
     'category_id': categoryId,
     'note': note,
     'recurring_id': recurringId,
+    'wallet_id': walletId,
   };
 
   factory Record.fromRow(Map<String, Object?> row) => Record(
@@ -61,5 +69,6 @@ class Record {
     categoryId: row['category_id'] as int,
     note: row['note'] as String?,
     recurringId: row['recurring_id'] as int?,
+    walletId: row['wallet_id'] as int?,
   );
 }

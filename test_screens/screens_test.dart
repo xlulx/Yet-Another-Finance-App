@@ -11,6 +11,8 @@ import 'package:yafa/data/app_database.dart';
 import 'package:yafa/main.dart';
 import 'package:yafa/models/record.dart';
 import 'package:yafa/models/recurring_rule.dart';
+import 'package:yafa/models/transfer.dart';
+import 'package:yafa/models/wallet.dart';
 import 'package:yafa/state/app_state.dart';
 
 /// Renders the main screens in English and Turkish with sample data and
@@ -83,12 +85,47 @@ Future<void> seed(AppDatabase db, String lang) async {
     ),
     (lang == 'tr' ? 'Eczane' : 'Pharmacy', 18750, 5, id('Health', 'Sağlık')),
   ];
+  final cash = (await db.wallets()).first.id!;
+  final bank = await db.insertWallet(
+    Wallet(
+      name: lang == 'tr' ? 'Banka' : 'Bank',
+      color: 0xFF1E88E5,
+      icon: 'bank',
+      initialBalance: 1250000,
+      sortOrder: 1,
+    ),
+  );
+  await db.insertWallet(
+    Wallet(
+      name: lang == 'tr' ? 'Kredi kartı' : 'Credit card',
+      color: 0xFF5C6BC0,
+      icon: 'card',
+      initialBalance: -340000,
+      sortOrder: 2,
+    ),
+  );
+  var i = 0;
   for (final (t, c, off, cat) in rows) {
     final day = (today - off).clamp(1, 28);
     await db.insertRecord(
-      Record(title: t, amount: c, date: d(day, 18 - off), categoryId: cat),
+      Record(
+        title: t,
+        amount: c,
+        date: d(day, 18 - off),
+        categoryId: cat,
+        walletId: (i++).isEven ? bank : cash,
+      ),
     );
   }
+  await db.insertTransfer(
+    Transfer(
+      fromWalletId: bank,
+      toWalletId: cash,
+      amount: 200000,
+      date: d(today.clamp(1, 28), 10),
+      note: lang == 'tr' ? 'ATM' : 'ATM',
+    ),
+  );
   await db.insertRecurringRule(
     RecurringRule(
       title: lang == 'tr' ? 'Maaş' : 'Salary',
@@ -197,6 +234,21 @@ void main() {
       await tester.tap(find.byIcon(Icons.repeat));
       await tester.pumpAndSettle();
       await shot(tester, '${lang}_5_recurring');
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+
+      await tester.tap(find.byIcon(Icons.account_balance_wallet));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_6_wallets');
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+
+      await tapNav(tester, Icons.receipt_long_outlined);
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      await tester.tap(find.byIcon(Icons.swap_horiz).first);
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_7_transfer');
 
       await tester.runAsync(() => state.db.close());
       tester.view.reset();

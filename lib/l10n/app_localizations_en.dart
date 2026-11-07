@@ -324,8 +324,14 @@ class AppLocalizationsEn extends AppLocalizations {
   String get pickOinkoinBackup => 'Choose the Oinkoin backup';
 
   @override
-  String importDone(int records, int categories, int rules) {
-    return 'Imported $records records, $categories categories and $rules recurring transactions.';
+  String importDone(
+    int records,
+    int transfers,
+    int categories,
+    int wallets,
+    int rules,
+  ) {
+    return 'Imported $records records, $transfers transfers, $categories categories, $wallets wallets and $rules recurring transactions.';
   }
 
   @override
@@ -357,4 +363,90 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get aboutLegalese =>
       'Yet Another Financial App\nAll your data stays on your device.';
+
+  @override
+  String get wallet => 'Wallet';
+
+  @override
+  String get wallets => 'Wallets';
+
+  @override
+  String get allWallets => 'All wallets';
+
+  @override
+  String get addWallet => 'Add wallet';
+
+  @override
+  String get newWallet => 'New wallet';
+
+  @override
+  String get editWallet => 'Edit wallet';
+
+  @override
+  String walletCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count wallets',
+      one: '1 wallet',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get startingBalance => 'Starting balance';
+
+  @override
+  String get startingBalanceHint =>
+      'Use a minus sign for debt, e.g. a credit card';
+
+  @override
+  String get invalidBalance => 'Enter a valid balance';
+
+  @override
+  String get totalBalance => 'Total balance';
+
+  @override
+  String get walletArchiveHint =>
+      'Hidden when adding records; its history and balance are kept.';
+
+  @override
+  String deleteWalletQuestion(String name) {
+    return 'Delete \"$name\"?';
+  }
+
+  @override
+  String get walletInUse =>
+      'This wallet has records, transfers or recurring transactions. Archive it instead.';
+
+  @override
+  String get lastWallet => 'You need at least one wallet.';
+
+  @override
+  String get transfer => 'Transfer';
+
+  @override
+  String get fromWallet => 'From';
+
+  @override
+  String get toWallet => 'To';
+
+  @override
+  String get sameWallet => 'Choose two different wallets';
+
+  @override
+  String get newTransfer => 'New transfer';
+
+  @override
+  String get editTransfer => 'Edit transfer';
+
+  @override
+  String get deleteTransferQuestion => 'Delete this transfer?';
+
+  @override
+  String get transferDeleted => 'Transfer deleted';
+
+  @override
+  String get needTwoWallets =>
+      'Add a second wallet in Settings > Wallets to make transfers.';
 }

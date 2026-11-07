@@ -155,13 +155,19 @@
   "importOinkoin": "Import Oinkoin backup",
   "importOinkoinHint": "The .json file from Oinkoin > Settings > Backup",
   "pickOinkoinBackup": "Choose the Oinkoin backup",
-  "importDone": "Imported {records} records, {categories} categories and {rules} recurring transactions.",
+  "importDone": "Imported {records} records, {transfers} transfers, {categories} categories, {wallets} wallets and {rules} recurring transactions.",
   "@importDone": {
     "placeholders": {
       "records": {
         "type": "int"
       },
+      "transfers": {
+        "type": "int"
+      },
       "categories": {
+        "type": "int"
+      },
+      "wallets": {
         "type": "int"
       },
       "rules": {
@@ -188,5 +194,43 @@
       }
     }
   },
-  "aboutLegalese": "Yet Another Financial App\nAll your data stays on your device."
+  "aboutLegalese": "Yet Another Financial App\nAll your data stays on your device.",
+  "wallet": "Wallet",
+  "wallets": "Wallets",
+  "allWallets": "All wallets",
+  "addWallet": "Add wallet",
+  "newWallet": "New wallet",
+  "editWallet": "Edit wallet",
+  "walletCount": "{count, plural, =1{1 wallet} other{{count} wallets}}",
+  "@walletCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "startingBalance": "Starting balance",
+  "startingBalanceHint": "Use a minus sign for debt, e.g. a credit card",
+  "invalidBalance": "Enter a valid balance",
+  "totalBalance": "Total balance",
+  "walletArchiveHint": "Hidden when adding records; its history and balance are kept.",
+  "deleteWalletQuestion": "Delete \"{name}\"?",
+  "@deleteWalletQuestion": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "walletInUse": "This wallet has records, transfers or recurring transactions. Archive it instead.",
+  "lastWallet": "You need at least one wallet.",
+  "transfer": "Transfer",
+  "fromWallet": "From",
+  "toWallet": "To",
+  "sameWallet": "Choose two different wallets",
+  "newTransfer": "New transfer",
+  "editTransfer": "Edit transfer",
+  "deleteTransferQuestion": "Delete this transfer?",
+  "transferDeleted": "Transfer deleted",
+  "needTwoWallets": "Add a second wallet in Settings > Wallets to make transfers."
 }

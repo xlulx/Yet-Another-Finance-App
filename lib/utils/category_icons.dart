@@ -39,6 +39,7 @@ const Map<String, IconData> categoryIcons = {
   'invest': Icons.trending_up,
   'cash': Icons.payments,
   'bank': Icons.account_balance_wallet,
+  'card': Icons.credit_card,
 };
 
 const List<int> categoryColors = [

@@ -4,14 +4,29 @@ import '../data/app_database.dart';
 import '../models/category.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
+import '../models/transfer.dart';
+import '../models/wallet.dart';
 
 /// Data read from an Oinkoin backup (not yet written to the database).
 ///
 /// Categories are matched by `(name, type)`, the same way Oinkoin does.
+///
+/// Wallet ids in [records], [rules] and [transfers] are Oinkoin's own ids
+/// (keys of [wallets]); they are mapped to local ids on import.
 class OinkoinBackup {
-  OinkoinBackup(this.categories, this.records, this.rules);
+  OinkoinBackup(
+    this.categories,
+    this.records,
+    this.rules, {
+    this.wallets = const {},
+    this.transfers = const [],
+  });
 
   final List<Category> categories;
+
+  /// Oinkoin wallet id -> wallet.
+  final Map<int, Wallet> wallets;
+  final List<Transfer> transfers;
 
   /// Category key + record. [Record.categoryId] is meaningless here.
   final List<(CategoryKey, Record, String? patternId)> records;
@@ -35,7 +50,11 @@ class ImportSummary {
     required this.recordsAdded,
     required this.recordsSkipped,
     required this.rulesAdded,
+    this.walletsAdded = 0,
+    this.transfersAdded = 0,
   });
+  final int walletsAdded;
+  final int transfersAdded;
   final int categoriesAdded;
   final int recordsAdded;
   final int recordsSkipped;
@@ -90,14 +109,53 @@ OinkoinBackup parseOinkoinBackup(String source) {
     return key;
   }
 
+  final wallets = <int, Wallet>{};
+  for (final raw in decoded['wallets'] as List? ?? const []) {
+    if (raw is! Map) continue;
+    final id = (raw['id'] as num?)?.toInt();
+    final name = raw['name']?.toString().trim() ?? '';
+    if (id == null || name.isEmpty) continue;
+    wallets[id] = Wallet(
+      name: name,
+      color: _color(raw['color'], CategoryType.expense, fallback: 0xFF42A5F5),
+      icon: 'bank',
+      initialBalance: ((raw['initial_amount'] as num? ?? 0) * 100).round(),
+      archived: raw['is_archived'] == 1 || raw['is_archived'] == true,
+      sortOrder: (raw['sort_order'] as num?)?.toInt() ?? wallets.length,
+    );
+  }
+  int? walletOf(Object? v) {
+    final id = (v as num?)?.toInt();
+    return wallets.containsKey(id) ? id : null;
+  }
+
+  final transfers = <Transfer>[];
   final records = <(CategoryKey, Record, String?)>[];
   for (final raw in decoded['records'] as List? ?? const []) {
     if (raw is! Map) continue;
-    final key = keyOf(raw);
     final millis = (raw['datetime'] as num?)?.toInt();
     final value = (raw['value'] as num?)?.toDouble();
-    // Note: transfers (between wallets) have no category and are skipped.
-    if (key == null || millis == null || value == null) continue;
+    if (millis == null || value == null) continue;
+    // Transfers have no category: the record's wallet is the source and
+    // transfer_wallet_id the destination.
+    if (raw['transfer_wallet_id'] != null) {
+      final from = walletOf(raw['wallet_id']);
+      final to = walletOf(raw['transfer_wallet_id']);
+      if (from != null && to != null && from != to && value != 0) {
+        transfers.add(
+          Transfer(
+            fromWalletId: from,
+            toWalletId: to,
+            amount: _cents(value),
+            date: DateTime.fromMillisecondsSinceEpoch(millis),
+            note: _nonEmpty(raw['title']) ?? _nonEmpty(raw['description']),
+          ),
+        );
+      }
+      continue;
+    }
+    final key = keyOf(raw);
+    if (key == null) continue;
     records.add((
       key,
       Record(
@@ -106,6 +164,7 @@ OinkoinBackup parseOinkoinBackup(String source) {
         date: DateTime.fromMillisecondsSinceEpoch(millis),
         categoryId: 0,
         note: _nonEmpty(raw['description']),
+        walletId: walletOf(raw['wallet_id']),
       ),
       raw['recurrence_id']?.toString(),
     ));
@@ -114,6 +173,8 @@ OinkoinBackup parseOinkoinBackup(String source) {
   final rules = <(CategoryKey, RecurringRule, String?)>[];
   for (final raw in decoded['recurrent_record_patterns'] as List? ?? const []) {
     if (raw is! Map) continue;
+    // Recurring transfers are not supported yet.
+    if (raw['transfer_wallet_id'] != null) continue;
     final key = keyOf(raw);
     final millis = (raw['datetime'] as num?)?.toInt();
     final value = (raw['value'] as num?)?.toDouble();
@@ -135,17 +196,25 @@ OinkoinBackup parseOinkoinBackup(String source) {
         unit: period.$2,
         endDate: ms(raw['end_date']),
         lastGenerated: ms(raw['last_update']),
+        walletId: walletOf(raw['wallet_id']),
       ),
       raw['id']?.toString(),
     ));
   }
 
-  return OinkoinBackup(categories.values.toList(), records, rules);
+  return OinkoinBackup(
+    categories.values.toList(),
+    records,
+    rules,
+    wallets: wallets,
+    transfers: transfers,
+  );
 }
 
-/// Writes a parsed backup to the database. Categories with the same
-/// name/type are merged and identical records (date, amount, title,
-/// category) are skipped, so importing the same backup twice is safe.
+/// Writes a parsed backup to the database. Wallets with the same name and
+/// categories with the same name/type are merged, and identical records and
+/// transfers are skipped, so importing the same backup twice is safe.
+/// Records without a known wallet go to the default wallet.
 Future<ImportSummary> importOinkoinBackup(
   AppDatabase db,
   OinkoinBackup backup,
@@ -162,6 +231,22 @@ Future<ImportSummary> importOinkoinBackup(
       categoriesAdded++;
     }
 
+    final walletByName = {
+      for (final w in await db.wallets(txn: txn)) w.name: w.id!,
+    };
+    final walletIds = <int, int>{}; // Oinkoin id -> local id
+    var walletsAdded = 0;
+    for (final MapEntry(key: oid, value: w) in backup.wallets.entries) {
+      final existing = walletByName[w.name];
+      if (existing != null) {
+        walletIds[oid] = existing;
+        continue;
+      }
+      final id = await db.insertWallet(w, txn: txn);
+      walletByName[w.name] = walletIds[oid] = id;
+      walletsAdded++;
+    }
+
     final ruleIds = <String, int>{};
     final existingRules = {
       for (final r in await db.recurringRules(txn: txn))
@@ -169,7 +254,18 @@ Future<ImportSummary> importOinkoinBackup(
     };
     var rulesAdded = 0;
     for (final (key, rule, patternId) in backup.rules) {
-      final r = rule.copyWith(categoryId: ids[key]);
+      final r = RecurringRule(
+        title: rule.title,
+        amount: rule.amount,
+        categoryId: ids[key]!,
+        note: rule.note,
+        startDate: rule.startDate,
+        interval: rule.interval,
+        unit: rule.unit,
+        endDate: rule.endDate,
+        lastGenerated: rule.lastGenerated,
+        walletId: walletIds[rule.walletId],
+      );
       final sig = (
         r.title,
         r.amount,
@@ -199,6 +295,7 @@ Future<ImportSummary> importOinkoinBackup(
         categoryId: ids[key]!,
         note: record.note,
         recurringId: patternId == null ? null : ruleIds[patternId],
+        walletId: walletIds[record.walletId],
       );
       final sig = (
         r.title,
@@ -214,7 +311,36 @@ Future<ImportSummary> importOinkoinBackup(
       added++;
     }
 
+    final existingTransfers = {
+      for (final t in await txn.query('transfers'))
+        (t['from_wallet_id'], t['to_wallet_id'], t['amount'], t['date']),
+    };
+    var transfersAdded = 0;
+    for (final t in backup.transfers) {
+      final from = walletIds[t.fromWalletId]!;
+      final to = walletIds[t.toWalletId]!;
+      if (from == to) continue;
+      final sig = (from, to, t.amount, t.date.millisecondsSinceEpoch);
+      if (!existingTransfers.add(sig)) {
+        skipped++;
+        continue;
+      }
+      await db.insertTransfer(
+        Transfer(
+          fromWalletId: from,
+          toWalletId: to,
+          amount: t.amount,
+          date: t.date,
+          note: t.note,
+        ),
+        txn: txn,
+      );
+      transfersAdded++;
+    }
+
     return ImportSummary(
+      walletsAdded: walletsAdded,
+      transfersAdded: transfersAdded,
       categoriesAdded: categoriesAdded,
       recordsAdded: added,
       recordsSkipped: skipped,
@@ -235,7 +361,7 @@ String? _nonEmpty(Object? v) {
 }
 
 /// Oinkoin stores colours as `"a:r:g:b"`.
-int _color(Object? v, CategoryType type) {
+int _color(Object? v, CategoryType type, {int? fallback}) {
   if (v is String) {
     final parts = v.split(':').map(int.tryParse).toList();
     if (parts.length == 4 && parts.every((p) => p != null)) {
@@ -243,7 +369,7 @@ int _color(Object? v, CategoryType type) {
       return (a & 0xFF) << 24 | (r & 0xFF) << 16 | (g & 0xFF) << 8 | (b & 0xFF);
     }
   }
-  return type == CategoryType.income ? 0xFF66BB6A : 0xFF90A4AE;
+  return fallback ?? (type == CategoryType.income ? 0xFF66BB6A : 0xFF90A4AE);
 }
 
 /// Maps an Oinkoin `RecurrentPeriod` index to an (interval, unit) pair.

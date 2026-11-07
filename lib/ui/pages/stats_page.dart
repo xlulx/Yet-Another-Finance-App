@@ -14,6 +14,7 @@ import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
+import '../widgets/wallet_filter_bar.dart';
 
 enum _Period { month, year }
 
@@ -57,7 +58,11 @@ class _StatsPageState extends State<StatsPage> {
   }
 
   Future<void> _load() async {
-    final records = await _state!.db.records(from: _from, to: _to);
+    final records = await _state!.db.records(
+      from: _from,
+      to: _to,
+      walletId: _state!.walletFilter,
+    );
     if (mounted) setState(() => _records = records);
   }
 
@@ -95,6 +100,12 @@ class _StatsPageState extends State<StatsPage> {
           onChanged: (m) => _update(() => _anchor = m),
         ),
         centerTitle: true,
+        bottom: state.wallets.length > 1
+            ? const PreferredSize(
+                preferredSize: Size.fromHeight(48),
+                child: WalletFilterBar(),
+              )
+            : null,
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
