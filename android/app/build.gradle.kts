@@ -13,6 +13,16 @@ android {
         resValues = true
     }
 
+    // Compress the native libraries (Flutter engine and app code) inside the
+    // APK. The APK is downloaded straight from GitHub Releases, so this
+    // roughly halves the download (about 19 MB -> 9 MB) at the cost of
+    // about 8 MB more space once installed, as Android extracts them.
+    packaging {
+        jniLibs {
+            useLegacyPackaging = true
+        }
+    }
+
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
