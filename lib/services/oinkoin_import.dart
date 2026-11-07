@@ -20,11 +20,13 @@ class OinkoinBackup {
 
 typedef CategoryKey = (String name, CategoryType type);
 
+enum OinkoinImportError { notJson, notOinkoinBackup }
+
 class OinkoinImportException implements Exception {
-  OinkoinImportException(this.message);
-  final String message;
+  OinkoinImportException(this.error);
+  final OinkoinImportError error;
   @override
-  String toString() => message;
+  String toString() => 'OinkoinImportException(${error.name})';
 }
 
 class ImportSummary {
@@ -46,12 +48,10 @@ OinkoinBackup parseOinkoinBackup(String source) {
   try {
     decoded = jsonDecode(source);
   } on FormatException {
-    throw OinkoinImportException('Dosya geçerli bir JSON değil.');
+    throw OinkoinImportException(OinkoinImportError.notJson);
   }
   if (decoded is! Map || decoded['categories'] is! List) {
-    throw OinkoinImportException(
-      'Bu dosya bir Oinkoin yedeği gibi görünmüyor.',
-    );
+    throw OinkoinImportException(OinkoinImportError.notOinkoinBackup);
   }
 
   final categories = <CategoryKey, Category>{};

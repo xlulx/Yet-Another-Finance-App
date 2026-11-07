@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -101,6 +102,9 @@ void main() {
     db = await AppDatabase.open(
       factory: databaseFactoryFfiNoIsolate,
       path: inMemoryDatabasePath,
+      // Turkish defaults, so the sample backup's "Market"/"Maaş" categories
+      // merge with existing ones.
+      language: 'tr',
     );
   });
   tearDown(() => db.close());
@@ -109,6 +113,22 @@ void main() {
     final cats = await db.categories();
     expect(cats.where((c) => c.type == CategoryType.expense), isNotEmpty);
     expect(cats.where((c) => c.type == CategoryType.income), isNotEmpty);
+    expect(cats.map((c) => c.name), contains('Maaş'));
+    expect(await db.getSetting('currency'), '₺');
+  });
+
+  test('default categories and currency follow the language', () async {
+    // A separate file: the in-memory database is shared within a process.
+    final dir = await Directory.systemTemp.createTemp('yafa');
+    final en = await AppDatabase.open(
+      factory: databaseFactoryFfiNoIsolate,
+      path: '${dir.path}/en.db',
+    );
+    final names = (await en.categories()).map((c) => c.name);
+    expect(names, containsAll(['Groceries', 'Salary']));
+    expect(await en.getSetting('currency'), r'$');
+    await en.close();
+    await dir.delete(recursive: true);
   });
 
   group('Oinkoin import', () {

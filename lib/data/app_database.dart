@@ -15,9 +15,13 @@ class AppDatabase {
 
   /// Opens the app database. Tests can pass a [factory] and [path]
   /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`).
+  ///
+  /// [language] picks the names of the default categories created on first
+  /// launch (`tr` or anything else for English).
   static Future<AppDatabase> open({
     DatabaseFactory? factory,
     String? path,
+    String language = 'en',
   }) async {
     final f = factory ?? databaseFactory;
     final dbPath = path ?? p.join(await f.getDatabasesPath(), 'yafa.db');
@@ -26,13 +30,17 @@ class AppDatabase {
       options: OpenDatabaseOptions(
         version: _version,
         onConfigure: (db) => db.execute('PRAGMA foreign_keys = ON'),
-        onCreate: _onCreate,
+        onCreate: (db, version) => _onCreate(db, version, language),
       ),
     );
     return AppDatabase._(db);
   }
 
-  static Future<void> _onCreate(Database db, int version) async {
+  static Future<void> _onCreate(
+    Database db,
+    int version,
+    String language,
+  ) async {
     await db.execute('''
       CREATE TABLE categories (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -74,21 +82,49 @@ class AppDatabase {
         key TEXT PRIMARY KEY,
         value TEXT
       )''');
-    await _seedDefaultCategories(db);
+    await _seedDefaultCategories(db, language);
+    await db.insert('settings', {
+      'key': 'currency',
+      'value': language == 'tr' ? '₺' : r'$',
+    });
   }
 
-  static Future<void> _seedDefaultCategories(DatabaseExecutor db) async {
-    const defaults = <(String, CategoryType, int, String)>[
-      ('Market', CategoryType.expense, 0xFF66BB6A, 'cart'),
-      ('Yeme-İçme', CategoryType.expense, 0xFFFFA726, 'restaurant'),
-      ('Ulaşım', CategoryType.expense, 0xFF42A5F5, 'car'),
-      ('Faturalar', CategoryType.expense, 0xFFEF5350, 'bill'),
-      ('Kira', CategoryType.expense, 0xFF8D6E63, 'home'),
-      ('Sağlık', CategoryType.expense, 0xFFEC407A, 'health'),
-      ('Eğlence', CategoryType.expense, 0xFFAB47BC, 'movie'),
-      ('Alışveriş', CategoryType.expense, 0xFF26A69A, 'shopping'),
-      ('Maaş', CategoryType.income, 0xFF43A047, 'work'),
-      ('Diğer Gelir', CategoryType.income, 0xFF7CB342, 'savings'),
+  static Future<void> _seedDefaultCategories(
+    DatabaseExecutor db,
+    String language,
+  ) async {
+    final tr = language == 'tr';
+    final defaults = <(String, CategoryType, int, String)>[
+      (tr ? 'Market' : 'Groceries', CategoryType.expense, 0xFF66BB6A, 'cart'),
+      (
+        tr ? 'Yeme-İçme' : 'Eating out',
+        CategoryType.expense,
+        0xFFFFA726,
+        'restaurant',
+      ),
+      (tr ? 'Ulaşım' : 'Transport', CategoryType.expense, 0xFF42A5F5, 'car'),
+      (tr ? 'Faturalar' : 'Bills', CategoryType.expense, 0xFFEF5350, 'bill'),
+      (tr ? 'Kira' : 'Rent', CategoryType.expense, 0xFF8D6E63, 'home'),
+      (tr ? 'Sağlık' : 'Health', CategoryType.expense, 0xFFEC407A, 'health'),
+      (
+        tr ? 'Eğlence' : 'Entertainment',
+        CategoryType.expense,
+        0xFFAB47BC,
+        'movie',
+      ),
+      (
+        tr ? 'Alışveriş' : 'Shopping',
+        CategoryType.expense,
+        0xFF26A69A,
+        'shopping',
+      ),
+      (tr ? 'Maaş' : 'Salary', CategoryType.income, 0xFF43A047, 'work'),
+      (
+        tr ? 'Diğer Gelir' : 'Other income',
+        CategoryType.income,
+        0xFF7CB342,
+        'savings',
+      ),
     ];
     for (var i = 0; i < defaults.length; i++) {
       final (name, type, color, icon) = defaults[i];

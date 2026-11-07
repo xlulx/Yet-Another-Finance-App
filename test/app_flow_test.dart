@@ -1,63 +1,104 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
-import 'package:intl/intl.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yafa/data/app_database.dart';
 import 'package:yafa/main.dart';
 import 'package:yafa/state/app_state.dart';
 
+/// Opens an in-memory app, adds an expense through the UI and checks it is
+/// listed. [strings] holds the UI texts for the language under test.
+Future<void> addRecordFlow(
+  WidgetTester tester, {
+  required String language,
+  required Map<String, String> strings,
+  required String category,
+  required String formattedAmount,
+}) async {
+  late AppState state;
+  await tester.runAsync(() async {
+    final db = await AppDatabase.open(
+      factory: databaseFactoryFfiNoIsolate,
+      path: inMemoryDatabasePath,
+      language: language,
+    );
+    state = AppState(db);
+    await state.load();
+    await state.setLanguage(language);
+  });
+
+  await tester.pumpWidget(YafaApp(state: state));
+  await tester.pumpAndSettle();
+  expect(find.text(strings['empty']!), findsOneWidget);
+
+  await tester.tap(find.text(strings['add']!));
+  await tester.pumpAndSettle();
+
+  await tester.enterText(find.byType(TextFormField).first, '250.75');
+  await tester.tap(find.text(category));
+  await tester.pump();
+  await tester.enterText(
+    find.widgetWithText(TextFormField, strings['title']!),
+    'Migros',
+  );
+
+  final save = find.text(strings['save']!);
+  await tester.ensureVisible(save);
+  await tester.pumpAndSettle();
+  await tester.tap(save);
+  // Database calls are real I/O; wait for them to finish.
+  for (var i = 0; i < 20 && state.monthRecords.isEmpty; i++) {
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
+    );
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+  expect(find.text(strings['newRecord']!), findsNothing);
+
+  expect(find.text('Migros'), findsOneWidget);
+  expect(state.monthExpense, 25075);
+  expect(find.textContaining(formattedAmount), findsWidgets);
+
+  // Close so the next test gets a fresh in-memory database.
+  await tester.runAsync(() => state.db.close());
+}
+
 void main() {
   setUpAll(() async {
     sqfliteFfiInit();
-    Intl.defaultLocale = 'tr_TR';
-    await initializeDateFormatting('tr_TR');
+    await initializeDateFormatting();
   });
 
-  testWidgets('add record flow', (tester) async {
-    late AppState state;
-    await tester.runAsync(() async {
-      final db = await AppDatabase.open(
-        factory: databaseFactoryFfiNoIsolate,
-        path: inMemoryDatabasePath,
-      );
-      state = AppState(db);
-      await state.load();
-    });
-
-    await tester.pumpWidget(YafaApp(state: state));
-    await tester.pumpAndSettle();
-    expect(find.text('Bu ay için kayıt yok.'), findsOneWidget);
-
-    await tester.tap(find.text('Kayıt ekle'));
-    await tester.pumpAndSettle();
-
-    await tester.enterText(find.byType(TextFormField).first, '250,75');
-    await tester.tap(find.text('Market'));
-    await tester.pump();
-    await tester.enterText(
-      find.widgetWithText(TextFormField, 'Başlık (isteğe bağlı)'),
-      'Migros',
+  testWidgets('add record flow in English', (tester) async {
+    await addRecordFlow(
+      tester,
+      language: 'en',
+      strings: const {
+        'empty': 'No records this month.',
+        'add': 'Add record',
+        'title': 'Title (optional)',
+        'save': 'Save',
+        'newRecord': 'New record',
+      },
+      category: 'Groceries',
+      formattedAmount: '250.75',
     );
+  });
 
-    final save = find.text('Kaydet');
-    await tester.ensureVisible(save);
-    await tester.pumpAndSettle();
-    await tester.tap(save);
-    // Database calls are real I/O; wait for them to finish.
-    for (var i = 0; i < 20 && state.monthRecords.isEmpty; i++) {
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 50)),
-      );
-      await tester.pump();
-    }
-    await tester.pumpAndSettle();
-    expect(find.text('Yeni kayıt'), findsNothing);
-
-    expect(find.text('Migros'), findsOneWidget);
-    expect(state.monthExpense, 25075);
-    expect(find.textContaining('250,75'), findsWidgets);
-
-    await tester.runAsync(() => state.db.close());
+  testWidgets('add record flow in Turkish', (tester) async {
+    await addRecordFlow(
+      tester,
+      language: 'tr',
+      strings: const {
+        'empty': 'Bu ay için kayıt yok.',
+        'add': 'Kayıt ekle',
+        'title': 'Başlık (isteğe bağlı)',
+        'save': 'Kaydet',
+        'newRecord': 'Yeni kayıt',
+      },
+      category: 'Market',
+      formattedAmount: '250,75',
+    );
   });
 }

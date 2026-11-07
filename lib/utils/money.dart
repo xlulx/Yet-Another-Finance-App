@@ -1,9 +1,15 @@
 import 'package:intl/intl.dart';
 
-/// Formats an amount in minor units: 123456 -> "1.234,56 ₺".
-String formatMoney(int cents, String symbol, {bool signed = false}) {
+/// Formats an amount in minor units for [locale] (defaults to the current
+/// Intl locale): 123456 -> "1.234,56 ₺" (tr) or "₺1,234.56" (en).
+String formatMoney(
+  int cents,
+  String symbol, {
+  bool signed = false,
+  String? locale,
+}) {
   final f = NumberFormat.currency(
-    locale: 'tr_TR',
+    locale: locale ?? Intl.getCurrentLocale(),
     symbol: symbol,
     decimalDigits: 2,
   );

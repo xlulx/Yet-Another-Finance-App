@@ -4,7 +4,8 @@ A privacy-friendly, fully offline income and expense tracker for Android and
 iOS, built with Flutter. All data lives in a SQLite database on the device and
 is never sent anywhere.
 
-> The app's user interface is currently in Turkish only.
+The app is available in **English** and **Turkish**. It follows the phone's
+language by default; you can also pick one in Settings.
 
 ## Features (v0.1)
 
@@ -69,12 +70,16 @@ lib/
   state/       AppState (ChangeNotifier, via provider)
   ui/          pages and shared widgets
   utils/       money formatting/parsing, icon and colour lists
+  l10n/        translations (app_en.arb, app_tr.arb) and generated code
 ```
 
 - Amounts are stored as **integers in minor units** (no rounding errors).
   An amount is always positive; the category type (income/expense) gives
   its sign.
 - Enum indexes are stored in the database: **only append** new values.
+- UI texts live in `lib/l10n/*.arb`. After editing them run `flutter gen-l10n`
+  (it also runs automatically on `flutter pub get` / `flutter run`). To add a
+  language, add `app_<code>.arb` next to the others.
 
 ## Roadmap (ideas)
 
@@ -83,4 +88,4 @@ lib/
 - Multiple wallets / transfers between accounts
 - Tags and search
 - Home screen widget, app lock (biometric)
-- English UI
+- More languages

@@ -1,3 +1,5 @@
+import 'dart:ui' show Locale;
+
 import 'package:flutter/foundation.dart' show ChangeNotifier;
 
 import '../data/app_database.dart';
@@ -21,11 +23,18 @@ class AppState extends ChangeNotifier {
   late DateTime month = DateTime(_clock().year, _clock().month);
   String currency = '₺';
 
+  /// Chosen UI language: `en`, `tr`, or empty to follow the system.
+  String language = '';
+
+  /// The locale forced by the user, or null to follow the system.
+  Locale? get locale => language.isEmpty ? null : Locale(language);
+
   Map<int, Category> _byId = {};
   Category? categoryById(int id) => _byId[id];
 
   Future<void> load() async {
     currency = await db.getSetting('currency') ?? '₺';
+    language = await db.getSetting('language') ?? '';
     await generateDueRecurringRecords(db, _clock());
     await _reloadAll();
   }
@@ -134,6 +143,12 @@ class AppState extends ChangeNotifier {
   }
 
   // ---- Settings / import ----
+
+  Future<void> setLanguage(String code) async {
+    language = code;
+    await db.setSetting('language', code);
+    notifyListeners();
+  }
 
   Future<void> setCurrency(String symbol) async {
     currency = symbol;

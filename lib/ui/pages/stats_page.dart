@@ -5,6 +5,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../models/category.dart';
 import '../../models/record.dart';
 import '../../services/stats.dart';
@@ -69,6 +71,7 @@ class _StatsPageState extends State<StatsPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
     final byId = {for (final c in state.categories) c.id!: c};
     final totals = totalsByCategory(_records, byId, _type);
@@ -100,9 +103,15 @@ class _StatsPageState extends State<StatsPage> {
             children: [
               Expanded(
                 child: SegmentedButton<_Period>(
-                  segments: const [
-                    ButtonSegment(value: _Period.month, label: Text('Ay')),
-                    ButtonSegment(value: _Period.year, label: Text('Yıl')),
+                  segments: [
+                    ButtonSegment(
+                      value: _Period.month,
+                      label: Text(l.periodMonth),
+                    ),
+                    ButtonSegment(
+                      value: _Period.year,
+                      label: Text(l.periodYear),
+                    ),
                   ],
                   selected: {_period},
                   onSelectionChanged: (s) => _update(() => _period = s.first),
@@ -111,14 +120,14 @@ class _StatsPageState extends State<StatsPage> {
               const SizedBox(width: 8),
               Expanded(
                 child: SegmentedButton<CategoryType>(
-                  segments: const [
+                  segments: [
                     ButtonSegment(
                       value: CategoryType.expense,
-                      label: Text('Gider'),
+                      label: Text(l.expense),
                     ),
                     ButtonSegment(
                       value: CategoryType.income,
-                      label: Text('Gelir'),
+                      label: Text(l.income),
                     ),
                   ],
                   selected: {_type},
@@ -129,9 +138,9 @@ class _StatsPageState extends State<StatsPage> {
           ),
           const SizedBox(height: 16),
           if (totals.isEmpty)
-            const Padding(
+            Padding(
               padding: EdgeInsets.all(48),
-              child: Center(child: Text('Bu dönem için veri yok.')),
+              child: Center(child: Text(l.noDataForPeriod)),
             )
           else ...[
             SizedBox(
@@ -168,7 +177,7 @@ class _StatsPageState extends State<StatsPage> {
                     children: [
                       Text(
                         _touched == null
-                            ? 'Toplam'
+                            ? l.total
                             : totals[_touched!].category.name,
                         style: Theme.of(context).textTheme.labelMedium,
                       ),
@@ -190,7 +199,7 @@ class _StatsPageState extends State<StatsPage> {
           ],
           const SizedBox(height: 24),
           Text(
-            _period == _Period.month ? 'Günlük' : 'Aylık',
+            _period == _Period.month ? l.daily : l.monthly,
             style: Theme.of(context).textTheme.titleSmall,
           ),
           const SizedBox(height: 8),
@@ -201,8 +210,7 @@ class _StatsPageState extends State<StatsPage> {
               type: _type,
               labelOf: _period == _Period.month
                   ? (i) => '${i + 1}'
-                  : (i) =>
-                        DateFormat.MMM('tr_TR').format(DateTime(2000, i + 1)),
+                  : (i) => DateFormat.MMM().format(DateTime(2000, i + 1)),
               labelEvery: _period == _Period.month ? 5 : 1,
               currency: state.currency,
             ),

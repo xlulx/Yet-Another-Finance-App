@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../models/record.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
@@ -14,6 +16,7 @@ class RecordsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
     final records = state.monthRecords;
 
@@ -31,7 +34,7 @@ class RecordsPage extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton.extended(
         icon: const Icon(Icons.add),
-        label: const Text('Kayıt ekle'),
+        label: Text(l.addRecord),
         onPressed: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => const EditRecordPage())),
       ),
@@ -47,9 +50,9 @@ class RecordsPage extends StatelessWidget {
           children: [
             _SummaryCard(state: state),
             if (records.isEmpty)
-              const Padding(
+              Padding(
                 padding: EdgeInsets.all(48),
-                child: Center(child: Text('Bu ay için kayıt yok.')),
+                child: Center(child: Text(l.noRecordsThisMonth)),
               ),
             for (final entry in groups.entries) ...[
               _DayHeader(day: entry.key, records: entry.value, state: state),
@@ -69,6 +72,7 @@ class _SummaryCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final income = state.monthIncome;
     final expense = state.monthExpense;
     final scheme = Theme.of(context).colorScheme;
@@ -93,10 +97,10 @@ class _SummaryCard extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
         child: Row(
           children: [
-            cell('Gelir', income, Colors.green.shade600),
-            cell('Gider', expense, scheme.error),
+            cell(l.income, income, Colors.green.shade600),
+            cell(l.expense, expense, scheme.error),
             cell(
-              'Bakiye',
+              l.balance,
               income - expense,
               income - expense >= 0 ? scheme.primary : scheme.error,
             ),
@@ -128,10 +132,7 @@ class _DayHeader extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: Text(
-              DateFormat('d MMMM, EEEE', 'tr_TR').format(day),
-              style: style,
-            ),
+            child: Text(DateFormat.MMMMEEEEd().format(day), style: style),
           ),
           Text(formatMoney(total, state.currency, signed: true), style: style),
         ],
@@ -147,6 +148,7 @@ class _RecordTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final state = context.read<AppState>();
     final category = state.categoryById(record.categoryId);
     final income = state.isIncome(record);
@@ -167,9 +169,9 @@ class _RecordTile extends StatelessWidget {
         await state.deleteRecord(record);
         messenger.showSnackBar(
           SnackBar(
-            content: const Text('Kayıt silindi'),
+            content: Text(l.recordDeleted),
             action: SnackBarAction(
-              label: 'Geri al',
+              label: l.undo,
               onPressed: () => state.restoreRecord(record),
             ),
           ),

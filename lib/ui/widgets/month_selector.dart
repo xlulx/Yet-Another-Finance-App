@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
+import '../../l10n/app_localizations.dart';
+
 class MonthSelector extends StatelessWidget {
   const MonthSelector({
     super.key,
@@ -15,9 +17,10 @@ class MonthSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final label = yearOnly
         ? '${month.year}'
-        : toBeginningOfSentenceCase(DateFormat.yMMMM('tr_TR').format(month));
+        : toBeginningOfSentenceCase(DateFormat.yMMMM().format(month));
     DateTime shift(int d) => yearOnly
         ? DateTime(month.year + d, month.month)
         : DateTime(month.year, month.month + d);
@@ -25,7 +28,7 @@ class MonthSelector extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         IconButton(
-          tooltip: 'Önceki',
+          tooltip: l.previous,
           icon: const Icon(Icons.chevron_left),
           onPressed: () => onChanged(shift(-1)),
         ),
@@ -38,7 +41,7 @@ class MonthSelector extends StatelessWidget {
           ),
         ),
         IconButton(
-          tooltip: 'Sonraki',
+          tooltip: l.next,
           icon: const Icon(Icons.chevron_right),
           onPressed: () => onChanged(shift(1)),
         ),

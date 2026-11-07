@@ -3,7 +3,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:yafa/utils/money.dart';
 
 void main() {
-  setUpAll(() => initializeDateFormatting('tr_TR'));
+  setUpAll(() => initializeDateFormatting());
 
   group('parseMoney', () {
     test('accepted formats', () {
@@ -24,9 +24,10 @@ void main() {
     });
   });
 
-  test('formatMoney', () {
-    expect(formatMoney(123456, '₺'), contains('1.234,56'));
-    expect(formatMoney(-500, '₺'), startsWith('-'));
-    expect(formatMoney(500, '₺', signed: true), startsWith('+'));
+  test('formatMoney follows the locale', () {
+    expect(formatMoney(123456, '₺', locale: 'tr'), contains('1.234,56'));
+    expect(formatMoney(123456, r'$', locale: 'en'), r'$1,234.56');
+    expect(formatMoney(-500, '₺', locale: 'tr'), startsWith('-'));
+    expect(formatMoney(500, '₺', signed: true, locale: 'tr'), startsWith('+'));
   });
 }

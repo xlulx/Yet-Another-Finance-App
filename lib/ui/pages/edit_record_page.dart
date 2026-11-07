@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../models/category.dart';
 import '../../models/record.dart';
 import '../../state/app_state.dart';
@@ -80,11 +82,11 @@ class _EditRecordPageState extends State<EditRecordPage> {
   }
 
   Future<void> _save() async {
+    final l = AppLocalizations.of(context);
     if (!_formKey.currentState!.validate()) return;
     if (_categoryId == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Lütfen bir kategori seçin')),
-      );
+      ScaffoldMessenger.of(context)
+          .showSnackBar(SnackBar(content: Text(l.pickCategory)));
       return;
     }
     final note = _note.text.trim();
@@ -102,18 +104,19 @@ class _EditRecordPageState extends State<EditRecordPage> {
   }
 
   Future<void> _delete() async {
+    final l = AppLocalizations.of(context);
     final ok = await showDialog<bool>(
       context: context,
       builder: (c) => AlertDialog(
-        title: const Text('Kayıt silinsin mi?'),
+        title: Text(l.deleteRecordQuestion),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(c, false),
-            child: const Text('Vazgeç'),
+            child: Text(l.cancel),
           ),
           FilledButton(
             onPressed: () => Navigator.pop(c, true),
-            child: const Text('Sil'),
+            child: Text(l.delete),
           ),
         ],
       ),
@@ -125,17 +128,18 @@ class _EditRecordPageState extends State<EditRecordPage> {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
     final categories = state.categories
         .where((c) => c.type == _type && (!c.archived || c.id == _categoryId))
         .toList();
     return Scaffold(
       appBar: AppBar(
-        title: Text(_isEdit ? 'Kaydı düzenle' : 'Yeni kayıt'),
+        title: Text(_isEdit ? l.editRecord : l.newRecord),
         actions: [
           if (_isEdit)
             IconButton(
-              tooltip: 'Sil',
+              tooltip: l.delete,
               icon: const Icon(Icons.delete_outline),
               onPressed: _delete,
             ),
@@ -147,15 +151,15 @@ class _EditRecordPageState extends State<EditRecordPage> {
           padding: const EdgeInsets.all(16),
           children: [
             SegmentedButton<CategoryType>(
-              segments: const [
+              segments: [
                 ButtonSegment(
                   value: CategoryType.expense,
-                  label: Text('Gider'),
+                  label: Text(l.expense),
                   icon: Icon(Icons.remove),
                 ),
                 ButtonSegment(
                   value: CategoryType.income,
-                  label: Text('Gelir'),
+                  label: Text(l.income),
                   icon: Icon(Icons.add),
                 ),
               ],
@@ -176,19 +180,17 @@ class _EditRecordPageState extends State<EditRecordPage> {
               ),
               style: Theme.of(context).textTheme.headlineSmall,
               decoration: InputDecoration(
-                labelText: 'Tutar',
+                labelText: l.amount,
                 suffixText: state.currency,
                 border: const OutlineInputBorder(),
               ),
               validator: (v) {
                 final cents = parseMoney(v ?? '');
-                return (cents == null || cents == 0)
-                    ? 'Geçerli bir tutar girin'
-                    : null;
+                return (cents == null || cents == 0) ? l.invalidAmount : null;
               },
             ),
             const SizedBox(height: 16),
-            Text('Kategori', style: Theme.of(context).textTheme.titleSmall),
+            Text(l.category, style: Theme.of(context).textTheme.titleSmall),
             const SizedBox(height: 8),
             CategoryPicker(
               categories: categories,
@@ -199,8 +201,8 @@ class _EditRecordPageState extends State<EditRecordPage> {
             TextFormField(
               controller: _title,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Başlık (isteğe bağlı)',
+              decoration: InputDecoration(
+                labelText: l.titleOptional,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -208,7 +210,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
             ListTile(
               contentPadding: EdgeInsets.zero,
               leading: const Icon(Icons.event),
-              title: Text(DateFormat('d MMMM y, EEEE', 'tr_TR').format(_date)),
+              title: Text(DateFormat.yMMMMEEEEd().format(_date)),
               trailing: const Icon(Icons.edit_calendar),
               onTap: _pickDate,
             ),
@@ -218,8 +220,8 @@ class _EditRecordPageState extends State<EditRecordPage> {
               maxLines: 3,
               minLines: 1,
               textCapitalization: TextCapitalization.sentences,
-              decoration: const InputDecoration(
-                labelText: 'Not (isteğe bağlı)',
+              decoration: InputDecoration(
+                labelText: l.noteOptional,
                 border: OutlineInputBorder(),
               ),
             ),
@@ -227,7 +229,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
             FilledButton.icon(
               onPressed: _save,
               icon: const Icon(Icons.check),
-              label: const Text('Kaydet'),
+              label: Text(l.save),
             ),
           ],
         ),

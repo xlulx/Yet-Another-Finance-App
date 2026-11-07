@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
+import '../../l10n/app_localizations.dart';
+
 import '../../models/category.dart';
 import '../../models/recurring_rule.dart';
 import '../../services/recurrence.dart';
@@ -10,47 +12,46 @@ import '../../utils/money.dart';
 import '../widgets/category_avatar.dart';
 import 'edit_recurring_page.dart';
 
-String describeInterval(RecurringRule r) {
-  const names = {
-    RecurrenceUnit.day: 'gün',
-    RecurrenceUnit.week: 'hafta',
-    RecurrenceUnit.month: 'ay',
-    RecurrenceUnit.year: 'yıl',
-  };
-  const single = {
-    RecurrenceUnit.day: 'Her gün',
-    RecurrenceUnit.week: 'Her hafta',
-    RecurrenceUnit.month: 'Her ay',
-    RecurrenceUnit.year: 'Her yıl',
-  };
-  return r.interval == 1
-      ? single[r.unit]!
-      : 'Her ${r.interval} ${names[r.unit]}';
+String describeInterval(AppLocalizations l, RecurringRule r) {
+  if (r.interval == 1) {
+    return switch (r.unit) {
+      RecurrenceUnit.day => l.everyDay,
+      RecurrenceUnit.week => l.everyWeek,
+      RecurrenceUnit.month => l.everyMonth,
+      RecurrenceUnit.year => l.everyYear,
+    };
+  }
+  return l.everyN(r.interval, unitName(l, r.unit, r.interval));
 }
+
+String unitName(AppLocalizations l, RecurrenceUnit unit, int count) =>
+    switch (unit) {
+      RecurrenceUnit.day => l.unitDay(count),
+      RecurrenceUnit.week => l.unitWeek(count),
+      RecurrenceUnit.month => l.unitMonth(count),
+      RecurrenceUnit.year => l.unitYear(count),
+    };
 
 class RecurringPage extends StatelessWidget {
   const RecurringPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
     return Scaffold(
-      appBar: AppBar(title: const Text('Tekrarlayan işlemler')),
+      appBar: AppBar(title: Text(l.recurringTransactions)),
       floatingActionButton: FloatingActionButton(
-        tooltip: 'Ekle',
+        tooltip: l.add,
         child: const Icon(Icons.add),
         onPressed: () => Navigator.of(context)
             .push(MaterialPageRoute(builder: (_) => const EditRecurringPage())),
       ),
       body: state.rules.isEmpty
-          ? const Center(
+          ? Center(
               child: Padding(
                 padding: EdgeInsets.all(32),
-                child: Text(
-                  'Kira, maaş, abonelik gibi düzenli işlemleri ekleyin; '
-                  'zamanı gelince otomatik kaydedilsin.',
-                  textAlign: TextAlign.center,
-                ),
+                child: Text(l.recurringEmpty, textAlign: TextAlign.center),
               ),
             )
           : ListView(
@@ -71,6 +72,7 @@ class _RuleTile extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
     final category = state.categoryById(rule.categoryId);
     final next = nextOccurrence(rule);
     final income = category?.type == CategoryType.income;
@@ -79,10 +81,8 @@ class _RuleTile extends StatelessWidget {
       title: Text(rule.title.isNotEmpty ? rule.title : (category?.name ?? '?')),
       subtitle: Text(
         [
-          describeInterval(rule),
-          next == null
-              ? 'Bitti'
-              : 'Sonraki: ${DateFormat('d MMM y', 'tr_TR').format(next)}',
+          describeInterval(l, rule),
+          next == null ? l.finished : l.nextOn(DateFormat.yMMMd().format(next)),
         ].join(' · '),
       ),
       trailing: Text(
