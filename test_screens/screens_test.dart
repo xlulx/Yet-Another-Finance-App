@@ -213,6 +213,30 @@ void main() {
       final state = await start(tester, lang);
       await shot(tester, '${lang}_1_records');
 
+      // The same month filtered to the cash wallet.
+      await tester.tap(
+        find.widgetWithText(ChoiceChip, lang == 'tr' ? 'Nakit' : 'Cash'),
+      );
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      await shot(tester, '${lang}_1b_records_one_wallet');
+      await tester.tap(
+        find.widgetWithText(
+          ChoiceChip,
+          lang == 'tr' ? 'Tüm cüzdanlar' : 'All wallets',
+        ),
+      );
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
       await shot(tester, '${lang}_2_add_record');

@@ -37,6 +37,8 @@ class WalletFilterBar extends StatelessWidget {
               padding: const EdgeInsets.only(right: 8),
               child: ChoiceChip(
                 avatar: WalletAvatar(wallet: w, radius: 12),
+                // Keep the wallet icon instead of a check mark.
+                showCheckmark: false,
                 label: Text(w.name),
                 selected: state.walletFilter == w.id,
                 onSelected: (_) => state.setWalletFilter(w.id),
