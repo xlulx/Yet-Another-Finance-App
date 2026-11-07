@@ -130,12 +130,7 @@ void main() {
     // Back on Records, filtered to the bank.
     expect(state.walletFilter, bank);
     expect(find.text('Add record'), findsOneWidget);
-    expect(
-      tester
-          .widget<ChoiceChip>(find.widgetWithText(ChoiceChip, 'Bank'))
-          .selected,
-      isTrue,
-    );
+    expect(find.widgetWithText(InputChip, 'Bank'), findsOneWidget);
 
     // "All wallets" on the Wallets page clears the filter.
     await tester.tap(find.text('Wallets').last);

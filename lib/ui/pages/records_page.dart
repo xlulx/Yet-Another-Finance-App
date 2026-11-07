@@ -9,7 +9,7 @@ import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
-import '../widgets/wallet_filter_bar.dart';
+import '../widgets/selected_wallet_chip.dart';
 import 'edit_record_page.dart';
 
 /// A record or a transfer, for the mixed list.
@@ -45,12 +45,7 @@ class RecordsPage extends StatelessWidget {
       appBar: AppBar(
         title: MonthSelector(month: state.month, onChanged: state.setMonth),
         centerTitle: true,
-        bottom: state.wallets.length > 1
-            ? const PreferredSize(
-                preferredSize: Size.fromHeight(48),
-                child: WalletFilterBar(),
-              )
-            : null,
+        bottom: SelectedWalletChip.bottomFor(state),
       ),
       floatingActionButton: FloatingActionButton.extended(
         // Root pages stay alive side by side in the bottom navigation;

@@ -132,8 +132,8 @@ void main() {
 
     await tester.pumpWidget(YafaApp(state: state));
     await tester.pumpAndSettle();
-    // With two wallets the filter bar is shown.
-    expect(find.text('All wallets'), findsOneWidget);
+    // No wallet selected: no wallet label on the records page.
+    expect(find.byType(InputChip), findsNothing);
 
     await tester.tap(find.text('Add record'));
     await tester.pumpAndSettle();
@@ -166,15 +166,26 @@ void main() {
     expect(find.text('Income'), findsOneWidget);
     expect(find.text('Net'), findsOneWidget);
 
-    // Filtering by the bank shows the transfer as money coming in.
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Bank'));
-    for (var i = 0; i < 10; i++) {
-      await tester.runAsync(
-        () => Future<void>.delayed(const Duration(milliseconds: 20)),
+    /// Chooses a wallet on the Wallets page, which goes back to Records.
+    Future<void> chooseWallet(String name) async {
+      await tester.tap(find.text('Wallets'));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(of: find.byType(ListTile), matching: find.text(name)),
       );
-      await tester.pump();
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future<void>.delayed(const Duration(milliseconds: 20)),
+        );
+        await tester.pump();
+      }
+      await tester.pumpAndSettle();
     }
+
+    // Choosing the bank shows the transfer as money coming in.
+    await chooseWallet('Bank');
     expect(state.walletFilter, bank);
+    expect(find.widgetWithText(InputChip, 'Bank'), findsOneWidget);
     expect(find.text(r'+$120.00'), findsWidgets);
     // One wallet: the summary works like a bank statement.
     expect(find.text('Money in'), findsOneWidget);
@@ -182,17 +193,28 @@ void main() {
     expect(state.monthTransfersOut, 0);
 
     // ...and for the cash wallet as money going out.
-    await tester.tap(find.widgetWithText(ChoiceChip, 'Cash'));
+    await chooseWallet('Cash');
+    expect(state.walletFilter, cash);
+    expect(find.text(r'-$120.00'), findsWidgets);
+    expect(find.text('Money out'), findsOneWidget);
+    expect((state.monthTransfersIn, state.monthTransfersOut), (0, 12000));
+
+    // The label's ✕ shows all wallets again.
+    await tester.tap(
+      find.descendant(
+        of: find.byType(InputChip),
+        matching: find.byTooltip('All wallets'),
+      ),
+    );
     for (var i = 0; i < 10; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 20)),
       );
       await tester.pump();
     }
-    expect(state.walletFilter, cash);
-    expect(find.text(r'-$120.00'), findsWidgets);
-    expect(find.text('Money out'), findsOneWidget);
-    expect((state.monthTransfersIn, state.monthTransfersOut), (0, 12000));
+    await tester.pumpAndSettle();
+    expect(state.walletFilter, isNull);
+    expect(find.byType(InputChip), findsNothing);
 
     await tester.runAsync(() => state.db.close());
   });

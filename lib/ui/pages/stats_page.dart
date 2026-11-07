@@ -16,7 +16,7 @@ import '../../utils/category_icons.dart';
 import '../../utils/money.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
-import '../widgets/wallet_filter_bar.dart';
+import '../widgets/selected_wallet_chip.dart';
 
 enum _Period { month, year }
 
@@ -143,12 +143,7 @@ class _StatsPageState extends State<StatsPage> {
           onChanged: (m) => _update(() => _anchor = m),
         ),
         centerTitle: true,
-        bottom: state.wallets.length > 1
-            ? const PreferredSize(
-                preferredSize: Size.fromHeight(48),
-                child: WalletFilterBar(),
-              )
-            : null,
+        bottom: SelectedWalletChip.bottomFor(state),
       ),
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
