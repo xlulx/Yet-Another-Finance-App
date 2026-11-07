@@ -247,5 +247,9 @@
         "type": "String"
       }
     }
-  }
+  },
+  "manage": "Manage",
+  "recurringShort": "Recurring",
+  "pickMonth": "Choose month",
+  "pickYear": "Choose year"
 }

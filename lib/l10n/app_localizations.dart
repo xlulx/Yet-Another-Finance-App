@@ -787,6 +787,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From {name}'**
   String transferFromWallet(String name);
+
+  /// No description provided for @manage.
+  ///
+  /// In en, this message translates to:
+  /// **'Manage'**
+  String get manage;
+
+  /// No description provided for @recurringShort.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring'**
+  String get recurringShort;
+
+  /// No description provided for @pickMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose month'**
+  String get pickMonth;
+
+  /// No description provided for @pickYear.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose year'**
+  String get pickYear;
 }
 
 class _AppLocalizationsDelegate

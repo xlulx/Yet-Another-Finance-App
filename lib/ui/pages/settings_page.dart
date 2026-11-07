@@ -8,9 +8,7 @@ import '../../l10n/app_localizations.dart';
 
 import '../../services/oinkoin_import.dart';
 import '../../state/app_state.dart';
-import 'categories_page.dart';
-import 'recurring_page.dart';
-import 'wallets_page.dart';
+import 'manage_page.dart';
 
 /// Set by the Release APK workflow (`--dart-define=APP_VERSION=1.2.3`);
 /// "dev" for local and test builds.
@@ -77,25 +75,35 @@ class SettingsPage extends StatelessWidget {
             title: Text(l.wallets),
             subtitle: Text(l.walletCount(state.wallets.length)),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const WalletsPage())),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) => const ManagePage(initialTab: ManageTab.wallets),
+              ),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.category),
             title: Text(l.categories),
             subtitle: Text(l.categoryCount(state.categories.length)),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(
-              context,
-            ).push(MaterialPageRoute(builder: (_) => const CategoriesPage())),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) =>
+                    const ManagePage(initialTab: ManageTab.categories),
+              ),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.repeat),
             title: Text(l.recurringTransactions),
             subtitle: Text(l.ruleCount(state.rules.length)),
             trailing: const Icon(Icons.chevron_right),
-            onTap: () => Navigator.of(context)
-                .push(MaterialPageRoute(builder: (_) => const RecurringPage())),
+            onTap: () => Navigator.of(context).push(
+              MaterialPageRoute(
+                builder: (_) =>
+                    const ManagePage(initialTab: ManageTab.recurring),
+              ),
+            ),
           ),
           ListTile(
             leading: const Icon(Icons.currency_exchange),

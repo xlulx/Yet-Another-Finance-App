@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 
 import '../../l10n/app_localizations.dart';
+import 'month_picker.dart';
 
 class MonthSelector extends StatelessWidget {
   const MonthSelector({
@@ -32,12 +33,36 @@ class MonthSelector extends StatelessWidget {
           icon: const Icon(Icons.chevron_left),
           onPressed: () => onChanged(shift(-1)),
         ),
-        SizedBox(
-          width: 160,
-          child: Text(
-            label,
-            textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.titleMedium,
+        // Tap the label to jump to any month (or year).
+        InkWell(
+          borderRadius: BorderRadius.circular(8),
+          onTap: () async {
+            final picked = await showMonthPicker(
+              context,
+              initial: month,
+              yearOnly: yearOnly,
+            );
+            if (picked != null) onChanged(picked);
+          },
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 6),
+            child: SizedBox(
+              width: 160,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Flexible(
+                    child: Text(
+                      label,
+                      textAlign: TextAlign.center,
+                      overflow: TextOverflow.ellipsis,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  const Icon(Icons.arrow_drop_down, size: 20),
+                ],
+              ),
+            ),
           ),
         ),
         IconButton(

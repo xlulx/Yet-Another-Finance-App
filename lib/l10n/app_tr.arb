@@ -113,5 +113,9 @@
   "moneyOut": "Çıkış",
   "net": "Net",
   "transferToWallet": "{name} cüzdanına",
-  "transferFromWallet": "{name} cüzdanından"
+  "transferFromWallet": "{name} cüzdanından",
+  "manage": "Yönet",
+  "recurringShort": "Tekrarlayan",
+  "pickMonth": "Ay seçin",
+  "pickYear": "Yıl seçin"
 }

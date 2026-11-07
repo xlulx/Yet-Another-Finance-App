@@ -401,4 +401,16 @@ class AppLocalizationsTr extends AppLocalizations {
   String transferFromWallet(String name) {
     return '$name cüzdanından';
   }
+
+  @override
+  String get manage => 'Yönet';
+
+  @override
+  String get recurringShort => 'Tekrarlayan';
+
+  @override
+  String get pickMonth => 'Ay seçin';
+
+  @override
+  String get pickYear => 'Yıl seçin';
 }
