@@ -95,35 +95,6 @@ void main() {
     await dir.delete(recursive: true);
   });
 
-  test('data from the old yafa.db is moved to yasba.db', () async {
-    final dir = await Directory.systemTemp.createTemp('yasba');
-    final old = await AppDatabase.open(
-      factory: databaseFactoryFfiNoIsolate,
-      path: '${dir.path}/yafa.db',
-      language: 'tr',
-    );
-    await old.insertWallet(const Wallet(name: 'Banka', color: 0xFF1E88E5));
-    await old.close();
-
-    final db = await AppDatabase.open(
-      factory: databaseFactoryFfiNoIsolate,
-      directory: dir.path,
-    );
-    expect((await db.wallets()).map((w) => w.name), ['Nakit', 'Banka']);
-    expect(File('${dir.path}/yafa.db').existsSync(), isFalse);
-    expect(File('${dir.path}/yasba.db').existsSync(), isTrue);
-    await db.close();
-
-    // Opening again finds the moved data and does not move anything.
-    final again = await AppDatabase.open(
-      factory: databaseFactoryFfiNoIsolate,
-      directory: dir.path,
-    );
-    expect(await again.wallets(), hasLength(2));
-    await again.close();
-    await dir.delete(recursive: true);
-  });
-
   group('wallets and transfers', () {
     late AppDatabase db;
     late int cash, bank;

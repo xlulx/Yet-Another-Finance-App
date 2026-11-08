@@ -46,7 +46,7 @@ abstract interface class BackupWriter {
   Future<String> save(String name, Uint8List bytes, {required int keep});
 }
 
-/// Android: Download/YASBA (or the app's own folder before Android 10).
+/// Android: Documents/YASBA (or the app's own folder before Android 10).
 class PlatformBackupWriter implements BackupWriter {
   const PlatformBackupWriter();
   static const _channel = MethodChannel('yasba/auto_backup');

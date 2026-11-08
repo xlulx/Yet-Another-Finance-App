@@ -540,7 +540,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get autoBackupOffHint =>
-      'When on, a backup is saved to Download/YASBA when you open the app; the last 5 are kept';
+      'When on, a backup is saved to Documents/YASBA when you open the app; the last 5 are kept';
 
   @override
   String autoBackupLast(String date) {

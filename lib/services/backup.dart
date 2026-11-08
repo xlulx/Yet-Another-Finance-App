@@ -12,6 +12,10 @@ import '../data/app_database.dart';
 /// ```
 const backupFormat = 'yasba-backup';
 
+/// Backups made before the app was renamed from YAFA (v0.4.0); still
+/// accepted so data can be moved to the renamed app.
+const _oldBackupFormats = {'yafa-backup'};
+
 /// Bump when the file layout changes in a way older apps cannot read.
 const backupVersion = 1;
 
@@ -78,7 +82,7 @@ YasbaBackup parseBackup(String source) {
     throw BackupException(BackupError.notJson);
   }
   if (decoded is! Map ||
-      decoded['format'] != backupFormat ||
+      !{backupFormat, ..._oldBackupFormats}.contains(decoded['format']) ||
       decoded['tables'] is! Map) {
     throw BackupException(BackupError.notBackup);
   }

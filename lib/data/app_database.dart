@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -36,7 +34,6 @@ class AppDatabase {
     if (dbPath == null) {
       final dir = directory ?? await f.getDatabasesPath();
       dbPath = p.join(dir, 'yasba.db');
-      await _moveOldDatabase(f, p.join(dir, 'yafa.db'), dbPath);
     }
     final db = await f.openDatabase(
       dbPath,
@@ -53,22 +50,6 @@ class AppDatabase {
       ),
     );
     return AppDatabase._(db);
-  }
-
-  /// The app was called YAFA and kept its data in `yafa.db`; move it to the
-  /// new name once, with SQLite's side files, so no data is lost.
-  static Future<void> _moveOldDatabase(
-    DatabaseFactory f,
-    String oldPath,
-    String newPath,
-  ) async {
-    if (!await f.databaseExists(oldPath) || await f.databaseExists(newPath)) {
-      return;
-    }
-    for (final suffix in ['', '-journal', '-wal', '-shm']) {
-      final file = File('$oldPath$suffix');
-      if (await file.exists()) await file.rename('$newPath$suffix');
-    }
   }
 
   static Future<void> _onCreate(

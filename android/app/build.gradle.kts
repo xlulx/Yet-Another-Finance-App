@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "io.github.xlulx.yafa"
+    namespace = "io.github.xlulx.yasba"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -30,7 +30,7 @@ android {
 
     defaultConfig {
         // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
-        applicationId = "io.github.xlulx.yafa"
+        applicationId = "io.github.xlulx.yasba"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -48,9 +48,9 @@ android {
         // everywhere lets test APKs update each other in place.
         create("dev") {
             storeFile = rootProject.file("keystores/dev.jks")
-            storePassword = "yafa-dev-public"
+            storePassword = "yasba-dev-public"
             keyAlias = "dev"
-            keyPassword = "yafa-dev-public"
+            keyPassword = "yasba-dev-public"
         }
         // Real releases: the keystore and its password only exist in CI, taken
         // from GitHub secrets (see .github/workflows/release.yml).

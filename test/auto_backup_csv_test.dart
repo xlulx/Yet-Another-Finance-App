@@ -22,7 +22,7 @@ class FakeWriter implements BackupWriter {
   Future<String> save(String name, Uint8List bytes, {required int keep}) async {
     if (error != null) throw error!;
     saved[name] = utf8.decode(bytes);
-    return 'Download/YASBA/$name';
+    return 'Documents/YASBA/$name';
   }
 }
 
@@ -66,7 +66,7 @@ void main() {
       await state.setAutoBackup(AutoBackupFrequency.weekly);
       expect(writer.saved, hasLength(1));
       expect(state.lastAutoBackup, now);
-      expect(state.autoBackupLocation, 'Download/YASBA');
+      expect(state.autoBackupLocation, 'Documents/YASBA');
       final backup = parseBackup(writer.saved.values.single);
       expect(backup.count('wallets'), 1);
       // Automatic backup settings belong to the device, not the backup.

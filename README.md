@@ -28,7 +28,7 @@ language by default; you can also pick one in Settings.
   Google Drive) and restore it later or on another phone. Restoring replaces
   all current data, after a confirmation.
 - **Automatic backups** (off by default) — daily, weekly or monthly, taken
-  when the app is opened and saved to Download/YASBA; the last 5 are kept.
+  when the app is opened and saved to Documents/YASBA; the last 5 are kept.
 - **CSV export** — all records and transfers as a spreadsheet for Excel or
   Google Sheets.
 - **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: wallets,
@@ -58,8 +58,8 @@ flutter run --flavor dev   # run on a connected device/emulator
 
 | Flavor | App name | Package | Built by |
 |---|---|---|---|
-| `dev`  | YASBA Dev | `io.github.xlulx.yafa.dev` | Locally, for testing |
-| `prod` | YASBA    | `io.github.xlulx.yafa`     | The Release APK workflow only |
+| `dev`  | YASBA Dev | `io.github.xlulx.yasba.dev` | Locally, for testing |
+| `prod` | YASBA    | `io.github.xlulx.yasba`    | The Release APK workflow only |
 
 Both can be installed side by side and keep separate data. Test builds are
 signed with the intentionally public `android/keystores/dev.jks`.

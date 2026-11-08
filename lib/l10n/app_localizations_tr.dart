@@ -485,7 +485,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get autoBackupOffHint =>
-      'Açıkken, uygulamayı açtığında İndirilenler/YASBA klasörüne yedek alınır; son 5 yedek tutulur';
+      'Açıkken, uygulamayı açtığında Belgeler/YASBA klasörüne yedek alınır; son 5 yedek tutulur';
 
   @override
   String autoBackupLast(String date) {

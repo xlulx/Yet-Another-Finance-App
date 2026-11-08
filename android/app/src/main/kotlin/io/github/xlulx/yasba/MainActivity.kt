@@ -1,4 +1,4 @@
-package io.github.xlulx.yafa
+package io.github.xlulx.yasba
 
 import android.content.ContentValues
 import android.os.Build
@@ -32,14 +32,15 @@ class MainActivity : FlutterActivity() {
      * Writes an automatic backup and keeps only the newest [keep] of them.
      * Returns where the file went, for display.
      *
-     * Android 10+: Download/YASBA through MediaStore (no permission needed,
+     * Android 10+: Documents/YASBA through MediaStore (no permission needed,
      * survives uninstalling the app). Older versions: the app's own folder,
-     * since the public Download folder would need a storage permission.
+     * since the public Documents folder would need a storage permission.
      */
     private fun save(name: String, bytes: ByteArray, keep: Int): String {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val relativePath = Environment.DIRECTORY_DOWNLOADS + "/YASBA/"
-            val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
+            val relativePath = Environment.DIRECTORY_DOCUMENTS + "/YASBA/"
+            // Non-media files outside Download go through the Files collection.
+            val collection = MediaStore.Files.getContentUri("external")
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, name)
                 put(MediaStore.MediaColumns.MIME_TYPE, "application/json")
@@ -81,7 +82,7 @@ class MainActivity : FlutterActivity() {
             }
             return relativePath + name
         }
-        val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "YASBA")
+        val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOCUMENTS), "YASBA")
         dir.mkdirs()
         File(dir, name).writeBytes(bytes)
         dir.listFiles { f -> f.name.startsWith("yasba-auto-backup-") }

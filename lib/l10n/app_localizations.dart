@@ -935,7 +935,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoBackupOffHint.
   ///
   /// In en, this message translates to:
-  /// **'When on, a backup is saved to Download/YASBA when you open the app; the last 5 are kept'**
+  /// **'When on, a backup is saved to Documents/YASBA when you open the app; the last 5 are kept'**
   String get autoBackupOffHint;
 
   /// No description provided for @autoBackupLast.

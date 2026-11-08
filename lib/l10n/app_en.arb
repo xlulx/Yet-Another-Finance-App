@@ -297,7 +297,7 @@
   "autoBackupDaily": "Daily",
   "autoBackupWeekly": "Weekly",
   "autoBackupMonthly": "Monthly",
-  "autoBackupOffHint": "When on, a backup is saved to Download/YASBA when you open the app; the last 5 are kept",
+  "autoBackupOffHint": "When on, a backup is saved to Documents/YASBA when you open the app; the last 5 are kept",
   "autoBackupLast": "Last: {date}",
   "@autoBackupLast": {
     "placeholders": {

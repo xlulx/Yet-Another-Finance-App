@@ -108,6 +108,17 @@ void main() {
     await target.close();
   });
 
+  test('backups from before the rename (YAFA) are accepted', () async {
+    final source = await filled();
+    final json = jsonDecode(await exportBackup(source, appVersion: '0.4.0'));
+    final old = jsonEncode({...json as Map, 'format': 'yafa-backup'});
+    final target = await open('target');
+    await restoreBackup(target, parseBackup(old));
+    expect(await dump(target), await dump(source));
+    await source.close();
+    await target.close();
+  });
+
   test('invalid files are rejected and change nothing', () async {
     final db = await open('db');
     final before = await dump(db);
