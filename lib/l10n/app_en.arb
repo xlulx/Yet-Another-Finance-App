@@ -321,5 +321,80 @@
   "csvToWallet": "To wallet",
   "csvTitle": "Title",
   "csvNote": "Note",
-  "tagline": "A simple, private budget tracker"
+  "tagline": "A simple, private budget tracker",
+  "debts": "Debts",
+  "owedToMe": "Owed to me",
+  "iOwe": "I owe",
+  "addDebt": "Add debt",
+  "newDebt": "New debt",
+  "editDebt": "Edit debt",
+  "debtLent": "I lent",
+  "debtBorrowed": "I borrowed",
+  "person": "Person",
+  "personRequired": "Enter a name",
+  "dueDateOptional": "Due date (optional)",
+  "noDueDate": "No due date",
+  "removeDueDate": "Remove due date",
+  "noWallet": "No wallet (don't change balances)",
+  "debtsEmpty": "Note money you lend or borrow, and record repayments as they come. Debts change wallet balances but are not income or expenses.",
+  "openDebts": "Open",
+  "settledDebts": "Settled",
+  "overdue": "Overdue",
+  "dueOn": "Due {date}",
+  "@dueOn": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "remainingOf": "{remaining} left of {total}",
+  "@remainingOf": {
+    "placeholders": {
+      "remaining": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "debtLentEvent": "Lent",
+  "debtBorrowedEvent": "Borrowed",
+  "repaymentReceived": "Repayment received",
+  "repaymentMade": "Repayment made",
+  "addPayment": "Add payment",
+  "payments": "Payments",
+  "noPayments": "No payments yet",
+  "paid": "Paid",
+  "remaining": "Remaining",
+  "closeDebt": "Mark as settled",
+  "reopenDebt": "Reopen",
+  "deleteDebtQuestion": "Delete this debt and its payments?",
+  "deletePaymentQuestion": "Delete this payment?",
+  "theyOweMe": "{name} owes you",
+  "@theyOweMe": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "iOweThem": "You owe {name}",
+  "@iOweThem": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "settled": "Settled",
+  "paymentTooBig": "At most {amount}",
+  "@paymentTooBig": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  }
 }

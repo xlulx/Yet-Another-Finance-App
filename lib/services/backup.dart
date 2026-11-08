@@ -17,7 +17,7 @@ const backupFormat = 'yasba-backup';
 const _oldBackupFormats = {'yafa-backup'};
 
 /// Bump when the file layout changes in a way older apps cannot read.
-const backupVersion = 1;
+const backupVersion = 2; // 2: debts
 
 /// Tables in insert order (parents before children). Settings that only
 /// make sense on one device (UI language, automatic backups) are not backed
@@ -28,6 +28,8 @@ const _tables = [
   'recurring_rules',
   'records',
   'transfers',
+  'debts',
+  'debt_payments',
   'settings',
 ];
 const _deviceSettings = {'language', 'auto_backup', 'auto_backup_last'};

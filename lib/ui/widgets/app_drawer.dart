@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../pages/categories_page.dart';
+import '../pages/debts_page.dart';
 import '../pages/recurring_page.dart';
 import '../pages/settings_page.dart';
 
@@ -44,6 +45,7 @@ class AppDrawer extends StatelessWidget {
             ),
             item(Icons.category_outlined, l.categories, const CategoriesPage()),
             item(Icons.repeat, l.recurringTransactions, const RecurringPage()),
+            item(Icons.handshake_outlined, l.debts, const DebtsPage()),
             const Divider(indent: 28, endIndent: 28),
             item(Icons.settings_outlined, l.settings, const SettingsPage()),
           ],

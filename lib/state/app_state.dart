@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show ChangeNotifier;
 
 import '../data/app_database.dart';
 import '../models/category.dart';
+import '../models/debt.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
 import '../models/transfer.dart';
@@ -38,6 +39,13 @@ class AppState extends ChangeNotifier {
 
   /// Current balance per wallet id.
   Map<int, int> balances = {};
+
+  List<Debt> debts = [];
+  Map<int, List<DebtPayment>> _payments = {};
+
+  /// Debt movements that touched a wallet in the selected month (and the
+  /// filtered wallet, if any), for the records page.
+  List<DebtEvent> monthDebtEvents = [];
 
   /// Wallet shown on the records and statistics pages; null for all.
   int? walletFilter;
@@ -148,6 +156,19 @@ class AppState extends ChangeNotifier {
       walletId: walletFilter,
     );
     balances = await db.walletBalances();
+    debts = await db.debts();
+    _payments = {};
+    for (final p in await db.debtPayments()) {
+      _payments.putIfAbsent(p.debtId, () => []).add(p);
+    }
+    monthDebtEvents = [
+      for (final e in _allDebtEvents())
+        if (!e.date.isBefore(month) &&
+            e.date.isBefore(to) &&
+            e.walletId != null &&
+            (walletFilter == null || e.walletId == walletFilter))
+          e,
+    ];
     if (notify) notifyListeners();
   }
 
@@ -247,6 +268,84 @@ class AppState extends ChangeNotifier {
       if (newRecord != null) await db.insertRecord(newRecord, txn: txn);
       if (newTransfer != null) await db.insertTransfer(newTransfer, txn: txn);
     });
+    await _reloadMonth();
+  }
+
+  // ---- Debts ----
+
+  List<DebtPayment> paymentsOf(Debt d) => _payments[d.id] ?? const [];
+  int paidOf(Debt d) => paymentsOf(d).fold(0, (s, p) => s + p.amount);
+  int remainingOf(Debt d) => d.amount - paidOf(d);
+
+  /// Fully repaid, or closed by hand.
+  bool isSettled(Debt d) => d.closed || remainingOf(d) <= 0;
+
+  /// What others still owe me, across open debts.
+  int get totalOwedToMe => debts
+      .where((d) => d.lent && !isSettled(d))
+      .fold(0, (s, d) => s + remainingOf(d));
+
+  /// What I still owe others, across open debts.
+  int get totalIOwe => debts
+      .where((d) => !d.lent && !isSettled(d))
+      .fold(0, (s, d) => s + remainingOf(d));
+
+  /// Names already used, for suggestions when adding a debt.
+  List<String> get debtPeople {
+    final seen = <String>{};
+    return [
+      for (final d in debts)
+        if (seen.add(d.person.toLowerCase())) d.person,
+    ];
+  }
+
+  Iterable<DebtEvent> _allDebtEvents() sync* {
+    for (final d in debts) {
+      yield DebtEvent(d, null);
+      for (final p in paymentsOf(d)) {
+        yield DebtEvent(d, p);
+      }
+    }
+  }
+
+  /// Debt money into the filtered wallet this month; 0 without a filter.
+  int get monthDebtIn => walletFilter == null
+      ? 0
+      : monthDebtEvents
+            .where((e) => e.effect > 0)
+            .fold(0, (s, e) => s + e.effect);
+
+  /// Debt money out of the filtered wallet this month; 0 without a filter.
+  int get monthDebtOut => walletFilter == null
+      ? 0
+      : monthDebtEvents
+            .where((e) => e.effect < 0)
+            .fold(0, (s, e) => s - e.effect);
+
+  Future<void> saveDebt(Debt d) async {
+    if (d.id == null) {
+      await db.insertDebt(d);
+    } else {
+      await db.updateDebt(d);
+    }
+    await _reloadMonth();
+  }
+
+  Future<void> deleteDebt(Debt d) async {
+    await db.deleteDebt(d.id!);
+    await _reloadMonth();
+  }
+
+  Future<void> setDebtClosed(Debt d, bool closed) =>
+      saveDebt(d.copyWith(closed: closed));
+
+  Future<void> addDebtPayment(DebtPayment p) async {
+    await db.insertDebtPayment(p);
+    await _reloadMonth();
+  }
+
+  Future<void> deleteDebtPayment(DebtPayment p) async {
+    await db.deleteDebtPayment(p.id!);
     await _reloadMonth();
   }
 
@@ -359,5 +458,26 @@ class AppState extends ChangeNotifier {
     await generateDueRecurringRecords(db, _clock());
     await _reloadAll();
     return summary;
+  }
+}
+
+/// A debt being opened, or one of its payments, as it affects a wallet.
+class DebtEvent {
+  DebtEvent(this.debt, this.payment);
+
+  final Debt debt;
+
+  /// Null for the debt itself.
+  final DebtPayment? payment;
+
+  DateTime get date => payment?.date ?? debt.date;
+  int? get walletId => payment == null ? debt.walletId : payment!.walletId;
+
+  /// Signed change to the wallet: lending takes money out and its
+  /// repayments bring it back; borrowing is the other way round.
+  int get effect {
+    final amount = payment?.amount ?? debt.amount;
+    final out = (payment == null) == debt.lent;
+    return out ? -amount : amount;
   }
 }

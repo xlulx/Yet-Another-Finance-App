@@ -9,6 +9,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yasba/data/app_database.dart';
 import 'package:yasba/main.dart';
+import 'package:yasba/models/debt.dart';
 import 'package:yasba/models/record.dart';
 import 'package:yasba/models/recurring_rule.dart';
 import 'package:yasba/models/transfer.dart';
@@ -124,6 +125,44 @@ Future<void> seed(AppDatabase db, String lang) async {
       amount: 200000,
       date: d(today.clamp(1, 28), 10),
       note: lang == 'tr' ? 'ATM' : 'ATM',
+    ),
+  );
+  final lent = await db.insertDebt(
+    Debt(
+      person: lang == 'tr' ? 'Ali' : 'Alex',
+      direction: DebtDirection.lent,
+      amount: 150000,
+      date: d((today - 6).clamp(1, 28)),
+      dueDate: DateTime(now.year, now.month + 1, 1),
+      walletId: bank,
+    ),
+  );
+  await db.insertDebtPayment(
+    DebtPayment(
+      debtId: lent,
+      amount: 50000,
+      date: d((today - 1).clamp(1, 28), 20),
+      walletId: cash,
+    ),
+  );
+  await db.insertDebt(
+    Debt(
+      person: lang == 'tr' ? 'Ayşe' : 'Emma',
+      direction: DebtDirection.borrowed,
+      amount: 300000,
+      date: DateTime(now.year, now.month - 1, 12),
+      dueDate: DateTime(now.year, now.month, 1),
+      note: lang == 'tr' ? 'Tatil' : 'Holiday',
+      walletId: cash,
+    ),
+  );
+  await db.insertDebt(
+    Debt(
+      person: lang == 'tr' ? 'Mert' : 'Sam',
+      direction: DebtDirection.lent,
+      amount: 20000,
+      date: DateTime(now.year, now.month - 1, 3),
+      closed: true,
     ),
   );
   await db.insertRecurringRule(
@@ -277,6 +316,34 @@ void main() {
         tester.state<NavigatorState>(find.byType(Navigator).first).pop();
         await tester.pumpAndSettle();
       }
+
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(Drawer),
+          matching: find.byIcon(Icons.handshake_outlined),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_8_debts');
+      await tester.tap(find.textContaining(lang == 'tr' ? 'Ali' : 'Alex'));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_8b_debt_detail');
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_8c_payment');
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      await tester.tap(find.byType(FloatingActionButton));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_8d_add_debt');
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
 
       await tapNav(tester, Icons.account_balance_wallet_outlined);
       await shot(tester, '${lang}_6_wallets');

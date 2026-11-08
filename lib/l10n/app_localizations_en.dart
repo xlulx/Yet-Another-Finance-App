@@ -576,4 +576,126 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get tagline => 'A simple, private budget tracker';
+
+  @override
+  String get debts => 'Debts';
+
+  @override
+  String get owedToMe => 'Owed to me';
+
+  @override
+  String get iOwe => 'I owe';
+
+  @override
+  String get addDebt => 'Add debt';
+
+  @override
+  String get newDebt => 'New debt';
+
+  @override
+  String get editDebt => 'Edit debt';
+
+  @override
+  String get debtLent => 'I lent';
+
+  @override
+  String get debtBorrowed => 'I borrowed';
+
+  @override
+  String get person => 'Person';
+
+  @override
+  String get personRequired => 'Enter a name';
+
+  @override
+  String get dueDateOptional => 'Due date (optional)';
+
+  @override
+  String get noDueDate => 'No due date';
+
+  @override
+  String get removeDueDate => 'Remove due date';
+
+  @override
+  String get noWallet => 'No wallet (don\'t change balances)';
+
+  @override
+  String get debtsEmpty =>
+      'Note money you lend or borrow, and record repayments as they come. Debts change wallet balances but are not income or expenses.';
+
+  @override
+  String get openDebts => 'Open';
+
+  @override
+  String get settledDebts => 'Settled';
+
+  @override
+  String get overdue => 'Overdue';
+
+  @override
+  String dueOn(String date) {
+    return 'Due $date';
+  }
+
+  @override
+  String remainingOf(String remaining, String total) {
+    return '$remaining left of $total';
+  }
+
+  @override
+  String get debtLentEvent => 'Lent';
+
+  @override
+  String get debtBorrowedEvent => 'Borrowed';
+
+  @override
+  String get repaymentReceived => 'Repayment received';
+
+  @override
+  String get repaymentMade => 'Repayment made';
+
+  @override
+  String get addPayment => 'Add payment';
+
+  @override
+  String get payments => 'Payments';
+
+  @override
+  String get noPayments => 'No payments yet';
+
+  @override
+  String get paid => 'Paid';
+
+  @override
+  String get remaining => 'Remaining';
+
+  @override
+  String get closeDebt => 'Mark as settled';
+
+  @override
+  String get reopenDebt => 'Reopen';
+
+  @override
+  String get deleteDebtQuestion => 'Delete this debt and its payments?';
+
+  @override
+  String get deletePaymentQuestion => 'Delete this payment?';
+
+  @override
+  String theyOweMe(String name) {
+    return '$name owes you';
+  }
+
+  @override
+  String iOweThem(String name) {
+    return 'You owe $name';
+  }
+
+  @override
+  String get settled => 'Settled';
+
+  @override
+  String paymentTooBig(String amount) {
+    return 'At most $amount';
+  }
 }

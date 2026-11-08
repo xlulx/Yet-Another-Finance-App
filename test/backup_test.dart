@@ -4,6 +4,7 @@ import 'dart:io';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yasba/data/app_database.dart';
+import 'package:yasba/models/debt.dart';
 import 'package:yasba/models/record.dart';
 import 'package:yasba/models/recurring_rule.dart';
 import 'package:yasba/models/transfer.dart';
@@ -17,6 +18,8 @@ const _tables = [
   'recurring_rules',
   'records',
   'transfers',
+  'debts',
+  'debt_payments',
 ];
 
 void main() {
@@ -68,6 +71,24 @@ void main() {
         amount: 200000,
         date: DateTime(2025, 3, 3),
         note: 'ATM',
+      ),
+    );
+    final debt = await db.insertDebt(
+      Debt(
+        person: 'Ali',
+        direction: DebtDirection.lent,
+        amount: 50000,
+        date: DateTime(2025, 3, 4),
+        dueDate: DateTime(2025, 4, 1),
+        walletId: bank,
+      ),
+    );
+    await db.insertDebtPayment(
+      DebtPayment(
+        debtId: debt,
+        amount: 20000,
+        date: DateTime(2025, 3, 10),
+        walletId: cash,
       ),
     );
     await db.setSetting('currency', '€');

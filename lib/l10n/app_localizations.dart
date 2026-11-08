@@ -997,6 +997,228 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'A simple, private budget tracker'**
   String get tagline;
+
+  /// No description provided for @debts.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts'**
+  String get debts;
+
+  /// No description provided for @owedToMe.
+  ///
+  /// In en, this message translates to:
+  /// **'Owed to me'**
+  String get owedToMe;
+
+  /// No description provided for @iOwe.
+  ///
+  /// In en, this message translates to:
+  /// **'I owe'**
+  String get iOwe;
+
+  /// No description provided for @addDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Add debt'**
+  String get addDebt;
+
+  /// No description provided for @newDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'New debt'**
+  String get newDebt;
+
+  /// No description provided for @editDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit debt'**
+  String get editDebt;
+
+  /// No description provided for @debtLent.
+  ///
+  /// In en, this message translates to:
+  /// **'I lent'**
+  String get debtLent;
+
+  /// No description provided for @debtBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'I borrowed'**
+  String get debtBorrowed;
+
+  /// No description provided for @person.
+  ///
+  /// In en, this message translates to:
+  /// **'Person'**
+  String get person;
+
+  /// No description provided for @personRequired.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a name'**
+  String get personRequired;
+
+  /// No description provided for @dueDateOptional.
+  ///
+  /// In en, this message translates to:
+  /// **'Due date (optional)'**
+  String get dueDateOptional;
+
+  /// No description provided for @noDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'No due date'**
+  String get noDueDate;
+
+  /// No description provided for @removeDueDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove due date'**
+  String get removeDueDate;
+
+  /// No description provided for @noWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'No wallet (don\'t change balances)'**
+  String get noWallet;
+
+  /// No description provided for @debtsEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'Note money you lend or borrow, and record repayments as they come. Debts change wallet balances but are not income or expenses.'**
+  String get debtsEmpty;
+
+  /// No description provided for @openDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get openDebts;
+
+  /// No description provided for @settledDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get settledDebts;
+
+  /// No description provided for @overdue.
+  ///
+  /// In en, this message translates to:
+  /// **'Overdue'**
+  String get overdue;
+
+  /// No description provided for @dueOn.
+  ///
+  /// In en, this message translates to:
+  /// **'Due {date}'**
+  String dueOn(String date);
+
+  /// No description provided for @remainingOf.
+  ///
+  /// In en, this message translates to:
+  /// **'{remaining} left of {total}'**
+  String remainingOf(String remaining, String total);
+
+  /// No description provided for @debtLentEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Lent'**
+  String get debtLentEvent;
+
+  /// No description provided for @debtBorrowedEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Borrowed'**
+  String get debtBorrowedEvent;
+
+  /// No description provided for @repaymentReceived.
+  ///
+  /// In en, this message translates to:
+  /// **'Repayment received'**
+  String get repaymentReceived;
+
+  /// No description provided for @repaymentMade.
+  ///
+  /// In en, this message translates to:
+  /// **'Repayment made'**
+  String get repaymentMade;
+
+  /// No description provided for @addPayment.
+  ///
+  /// In en, this message translates to:
+  /// **'Add payment'**
+  String get addPayment;
+
+  /// No description provided for @payments.
+  ///
+  /// In en, this message translates to:
+  /// **'Payments'**
+  String get payments;
+
+  /// No description provided for @noPayments.
+  ///
+  /// In en, this message translates to:
+  /// **'No payments yet'**
+  String get noPayments;
+
+  /// No description provided for @paid.
+  ///
+  /// In en, this message translates to:
+  /// **'Paid'**
+  String get paid;
+
+  /// No description provided for @remaining.
+  ///
+  /// In en, this message translates to:
+  /// **'Remaining'**
+  String get remaining;
+
+  /// No description provided for @closeDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark as settled'**
+  String get closeDebt;
+
+  /// No description provided for @reopenDebt.
+  ///
+  /// In en, this message translates to:
+  /// **'Reopen'**
+  String get reopenDebt;
+
+  /// No description provided for @deleteDebtQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this debt and its payments?'**
+  String get deleteDebtQuestion;
+
+  /// No description provided for @deletePaymentQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Delete this payment?'**
+  String get deletePaymentQuestion;
+
+  /// No description provided for @theyOweMe.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} owes you'**
+  String theyOweMe(String name);
+
+  /// No description provided for @iOweThem.
+  ///
+  /// In en, this message translates to:
+  /// **'You owe {name}'**
+  String iOweThem(String name);
+
+  /// No description provided for @settled.
+  ///
+  /// In en, this message translates to:
+  /// **'Settled'**
+  String get settled;
+
+  /// No description provided for @paymentTooBig.
+  ///
+  /// In en, this message translates to:
+  /// **'At most {amount}'**
+  String paymentTooBig(String amount);
 }
 
 class _AppLocalizationsDelegate
