@@ -85,7 +85,7 @@
   "importNotOinkoin": "Bu dosya bir Oinkoin yedeği gibi görünmüyor.",
   "importNotUtf8": "Dosya okunamadı (UTF-8 değil).",
   "importFailed": "İçe aktarma başarısız: {error}",
-  "aboutLegalese": "Yet Another Financial App\nTüm verileriniz cihazınızda kalır.",
+  "aboutLegalese": "Yet Another Finance App\nTüm verileriniz cihazınızda kalır.",
   "wallet": "Cüzdan",
   "wallets": "Cüzdanlar",
   "allWallets": "Tüm cüzdanlar",

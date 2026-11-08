@@ -1,4 +1,4 @@
-# YAFA — Yet Another Financial App
+# YAFA — Yet Another Finance App
 
 A privacy-friendly, fully offline income and expense tracker for Android and
 iOS, built with Flutter. All data lives in a SQLite database on the device and

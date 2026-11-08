@@ -353,7 +353,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutLegalese =>
-      'Yet Another Financial App\nAll your data stays on your device.';
+      'Yet Another Finance App\nAll your data stays on your device.';
 
   @override
   String get wallet => 'Wallet';

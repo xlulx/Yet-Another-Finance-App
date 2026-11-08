@@ -304,7 +304,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get aboutLegalese =>
-      'Yet Another Financial App\nTüm verileriniz cihazınızda kalır.';
+      'Yet Another Finance App\nTüm verileriniz cihazınızda kalır.';
 
   @override
   String get wallet => 'Cüzdan';

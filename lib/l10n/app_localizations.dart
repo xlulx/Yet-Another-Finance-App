@@ -617,7 +617,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutLegalese.
   ///
   /// In en, this message translates to:
-  /// **'Yet Another Financial App\nAll your data stays on your device.'**
+  /// **'Yet Another Finance App\nAll your data stays on your device.'**
   String get aboutLegalese;
 
   /// No description provided for @wallet.
