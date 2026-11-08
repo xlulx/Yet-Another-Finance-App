@@ -11,10 +11,16 @@ import '../widgets/menu_button.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/selected_wallet_chip.dart';
+import 'debts_page.dart';
 import 'edit_record_page.dart';
 
-/// A record or a transfer, for the mixed list.
-DateTime _dateOf(Object e) => e is Record ? e.date : (e as Transfer).date;
+/// A record, transfer or debt movement, for the mixed list.
+DateTime _dateOf(Object e) => switch (e) {
+  Record r => r.date,
+  Transfer t => t.date,
+  DebtEvent d => d.date,
+  _ => throw ArgumentError(e),
+};
 
 /// How a transfer changes the filtered wallet's balance; 0 without a filter.
 int _transferEffect(AppState state, Transfer t) {
@@ -25,6 +31,12 @@ int _transferEffect(AppState state, Transfer t) {
   return 0;
 }
 
+/// How a debt movement counts in a day's total: like transfers, only when
+/// looking at one wallet (across all wallets it is neither income nor
+/// expense).
+int _debtEffect(AppState state, DebtEvent e) =>
+    state.walletFilter == null ? 0 : e.effect;
+
 class RecordsPage extends StatelessWidget {
   const RecordsPage({super.key});
 
@@ -32,8 +44,11 @@ class RecordsPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
-    final entries = <Object>[...state.monthRecords, ...state.monthTransfers]
-      ..sort((a, b) => _dateOf(b).compareTo(_dateOf(a)));
+    final entries = <Object>[
+      ...state.monthRecords,
+      ...state.monthTransfers,
+      ...state.monthDebtEvents,
+    ]..sort((a, b) => _dateOf(b).compareTo(_dateOf(a)));
 
     // Group by day (entries are sorted newest first).
     final groups = <DateTime, List<Object>>{};
@@ -78,9 +93,11 @@ class RecordsPage extends StatelessWidget {
             for (final group in groups.entries) ...[
               _DayHeader(day: group.key, entries: group.value, state: state),
               for (final e in group.value)
-                e is Record
-                    ? _RecordTile(record: e)
-                    : _TransferTile(transfer: e as Transfer),
+                switch (e) {
+                  Record r => _RecordTile(record: r),
+                  Transfer t => _TransferTile(transfer: t),
+                  _ => _DebtEventTile(event: e as DebtEvent),
+                },
             ],
           ],
         ),
@@ -99,8 +116,10 @@ class _SummaryCard extends StatelessWidget {
     final l = AppLocalizations.of(context);
     // One wallet: a statement of money in and out, transfers included.
     // All wallets: real income and expenses (transfers cancel out).
-    final income = state.monthIncome + state.monthTransfersIn;
-    final expense = state.monthExpense + state.monthTransfersOut;
+    final income =
+        state.monthIncome + state.monthTransfersIn + state.monthDebtIn;
+    final expense =
+        state.monthExpense + state.monthTransfersOut + state.monthDebtOut;
     final oneWallet = state.walletFilter != null;
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;
@@ -194,9 +213,11 @@ class _DayHeader extends StatelessWidget {
       0,
       (s, e) =>
           s +
-          (e is Record
-              ? state.signedAmount(e)
-              : _transferEffect(state, e as Transfer)),
+          switch (e) {
+            Record r => state.signedAmount(r),
+            Transfer t => _transferEffect(state, t),
+            _ => _debtEffect(state, e as DebtEvent),
+          },
     );
     final style = Theme.of(context).textTheme.labelLarge
         ?.copyWith(color: Theme.of(context).colorScheme.onSurfaceVariant);
@@ -352,6 +373,51 @@ class _TransferTile extends StatelessWidget {
       ),
       onTap: () => Navigator.of(context).push(
         MaterialPageRoute(builder: (_) => EditRecordPage(transfer: transfer)),
+      ),
+    );
+  }
+}
+
+/// A debt being given or taken, or one of its repayments. Opens the debt.
+class _DebtEventTile extends StatelessWidget {
+  const _DebtEventTile({required this.event});
+
+  final DebtEvent event;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final state = context.read<AppState>();
+    final scheme = Theme.of(context).colorScheme;
+    final debt = event.debt;
+    final what = event.payment == null
+        ? (debt.lent ? l.debtLentEvent : l.debtBorrowedEvent)
+        : (debt.lent ? l.repaymentReceived : l.repaymentMade);
+    final wallet = state.walletFilter == null
+        ? state.walletById(event.walletId)
+        : null;
+    final effect = event.effect;
+    return ListTile(
+      leading: CircleAvatar(
+        backgroundColor: scheme.tertiaryContainer,
+        foregroundColor: scheme.onTertiaryContainer,
+        child: const Icon(Icons.handshake_outlined),
+      ),
+      title: Text(debt.person, maxLines: 1, overflow: TextOverflow.ellipsis),
+      subtitle: Text(
+        [what, if (wallet != null) wallet.name].join(' · '),
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+      ),
+      trailing: Text(
+        formatMoney(effect, state.currency, signed: true),
+        style: TextStyle(
+          fontWeight: FontWeight.w600,
+          color: effect > 0 ? Colors.green.shade600 : null,
+        ),
+      ),
+      onTap: () => Navigator.of(context).push(
+        MaterialPageRoute(builder: (_) => DebtDetailPage(debtId: debt.id!)),
       ),
     );
   }

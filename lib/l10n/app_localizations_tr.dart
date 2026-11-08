@@ -521,4 +521,126 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get tagline => 'Sade ve gizli bütçe takibi';
+
+  @override
+  String get debts => 'Borçlar';
+
+  @override
+  String get owedToMe => 'Alacaklarım';
+
+  @override
+  String get iOwe => 'Borçlarım';
+
+  @override
+  String get addDebt => 'Borç ekle';
+
+  @override
+  String get newDebt => 'Yeni borç';
+
+  @override
+  String get editDebt => 'Borcu düzenle';
+
+  @override
+  String get debtLent => 'Borç verdim';
+
+  @override
+  String get debtBorrowed => 'Borç aldım';
+
+  @override
+  String get person => 'Kişi';
+
+  @override
+  String get personRequired => 'Bir isim girin';
+
+  @override
+  String get dueDateOptional => 'Son ödeme tarihi (isteğe bağlı)';
+
+  @override
+  String get noDueDate => 'Son tarih yok';
+
+  @override
+  String get removeDueDate => 'Son tarihi kaldır';
+
+  @override
+  String get noWallet => 'Cüzdan yok (bakiyeyi etkilemesin)';
+
+  @override
+  String get debtsEmpty =>
+      'Verdiğin ya da aldığın borçları ve geri ödemelerini buraya yaz. Borçlar cüzdan bakiyesini değiştirir ama gelir ya da gider sayılmaz.';
+
+  @override
+  String get openDebts => 'Açık';
+
+  @override
+  String get settledDebts => 'Kapananlar';
+
+  @override
+  String get overdue => 'Gecikti';
+
+  @override
+  String dueOn(String date) {
+    return 'Son: $date';
+  }
+
+  @override
+  String remainingOf(String remaining, String total) {
+    return 'Kalan $remaining / $total';
+  }
+
+  @override
+  String get debtLentEvent => 'Borç verildi';
+
+  @override
+  String get debtBorrowedEvent => 'Borç alındı';
+
+  @override
+  String get repaymentReceived => 'Ödeme alındı';
+
+  @override
+  String get repaymentMade => 'Ödeme yapıldı';
+
+  @override
+  String get addPayment => 'Ödeme ekle';
+
+  @override
+  String get payments => 'Ödemeler';
+
+  @override
+  String get noPayments => 'Henüz ödeme yok';
+
+  @override
+  String get paid => 'Ödenen';
+
+  @override
+  String get remaining => 'Kalan';
+
+  @override
+  String get closeDebt => 'Kapat';
+
+  @override
+  String get reopenDebt => 'Yeniden aç';
+
+  @override
+  String get deleteDebtQuestion => 'Borç ve tüm ödemeleri silinsin mi?';
+
+  @override
+  String get deletePaymentQuestion => 'Ödeme silinsin mi?';
+
+  @override
+  String theyOweMe(String name) {
+    return '$name sana borçlu';
+  }
+
+  @override
+  String iOweThem(String name) {
+    return '$name kişisine borçlusun';
+  }
+
+  @override
+  String get settled => 'Kapandı';
+
+  @override
+  String paymentTooBig(String amount) {
+    return 'En fazla $amount';
+  }
 }

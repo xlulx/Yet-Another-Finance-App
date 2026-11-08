@@ -2,6 +2,7 @@ import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
 import '../models/category.dart';
+import '../models/debt.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
 import '../models/transfer.dart';
@@ -15,7 +16,8 @@ class AppDatabase {
 
   /// 1: categories, records, recurring rules, settings.
   /// 2: wallets and transfers.
-  static const _version = 2;
+  /// 3: debts and their payments.
+  static const _version = 3;
 
   /// Opens the app database. Tests can pass a [factory] and [path]
   /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`), or a
@@ -43,9 +45,11 @@ class AppDatabase {
         onCreate: (db, version) async {
           await _onCreate(db, version, language);
           await _upgradeToV2(db, language);
+          await _upgradeToV3(db);
         },
         onUpgrade: (db, from, to) async {
           if (from < 2) await _upgradeToV2(db, language);
+          if (from < 3) await _upgradeToV3(db);
         },
       ),
     );
@@ -149,6 +153,34 @@ class AppDatabase {
     );
     await db.update('records', {'wallet_id': id});
     await db.update('recurring_rules', {'wallet_id': id});
+  }
+
+  /// Adds debts (lent or borrowed) and their repayments.
+  static Future<void> _upgradeToV3(Database db) async {
+    await db.execute('''
+      CREATE TABLE debts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        person TEXT NOT NULL,
+        direction INTEGER NOT NULL,
+        amount INTEGER NOT NULL,
+        date INTEGER NOT NULL,
+        due_date INTEGER,
+        note TEXT,
+        wallet_id INTEGER REFERENCES wallets(id),
+        closed INTEGER NOT NULL DEFAULT 0
+      )''');
+    await db.execute('''
+      CREATE TABLE debt_payments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        debt_id INTEGER NOT NULL REFERENCES debts(id) ON DELETE CASCADE,
+        amount INTEGER NOT NULL,
+        date INTEGER NOT NULL,
+        wallet_id INTEGER REFERENCES wallets(id),
+        note TEXT
+      )''');
+    await db.execute(
+      'CREATE INDEX idx_debt_payments_debt ON debt_payments(debt_id)',
+    );
   }
 
   static Future<void> _seedDefaultCategories(
@@ -326,14 +358,17 @@ class AppDatabase {
   Future<void> updateWallet(Wallet w) =>
       db.update('wallets', w.toRow(), where: 'id = ?', whereArgs: [w.id]);
 
-  /// Number of records, recurring rules and transfers using the wallet.
+  /// Number of records, recurring rules, transfers, debts and debt payments
+  /// using the wallet.
   Future<int> walletUsage(int id) async {
     final rows = await db.rawQuery(
       '''SELECT
            (SELECT COUNT(*) FROM records WHERE wallet_id = ?1)
          + (SELECT COUNT(*) FROM recurring_rules WHERE wallet_id = ?1)
          + (SELECT COUNT(*) FROM transfers
-              WHERE from_wallet_id = ?1 OR to_wallet_id = ?1) AS n''',
+              WHERE from_wallet_id = ?1 OR to_wallet_id = ?1)
+         + (SELECT COUNT(*) FROM debts WHERE wallet_id = ?1)
+         + (SELECT COUNT(*) FROM debt_payments WHERE wallet_id = ?1) AS n''',
       [id],
     );
     return rows.first['n'] as int;
@@ -344,7 +379,9 @@ class AppDatabase {
       db.delete('wallets', where: 'id = ?', whereArgs: [id]);
 
   /// Current balance of every wallet: starting balance + income - expenses
-  /// + transfers in - transfers out.
+  /// + transfers in - transfers out, and debts: money lent leaves the wallet
+  /// and its repayments come back; money borrowed comes in and its
+  /// repayments go out.
   Future<Map<int, int>> walletBalances() async {
     final rows = await db.rawQuery('''
       SELECT w.id,
@@ -356,10 +393,44 @@ class AppDatabase {
         + COALESCE((SELECT SUM(amount) FROM transfers
                     WHERE to_wallet_id = w.id), 0)
         - COALESCE((SELECT SUM(amount) FROM transfers
-                    WHERE from_wallet_id = w.id), 0) AS balance
+                    WHERE from_wallet_id = w.id), 0)
+        + COALESCE((SELECT SUM(CASE WHEN direction = 0 THEN -amount
+                                    ELSE amount END)
+                    FROM debts WHERE wallet_id = w.id), 0)
+        + COALESCE((SELECT SUM(CASE WHEN d.direction = 0 THEN p.amount
+                                    ELSE -p.amount END)
+                    FROM debt_payments p JOIN debts d ON d.id = p.debt_id
+                    WHERE p.wallet_id = w.id), 0) AS balance
       FROM wallets w''');
     return {for (final r in rows) r['id'] as int: r['balance'] as int};
   }
+
+  // ---- Debts ----
+
+  Future<List<Debt>> debts() async {
+    final rows = await db.query('debts', orderBy: 'date DESC, id DESC');
+    return rows.map(Debt.fromRow).toList();
+  }
+
+  Future<List<DebtPayment>> debtPayments() async {
+    final rows = await db.query('debt_payments', orderBy: 'date, id');
+    return rows.map(DebtPayment.fromRow).toList();
+  }
+
+  Future<int> insertDebt(Debt d) => db.insert('debts', d.toRow()..remove('id'));
+
+  Future<void> updateDebt(Debt d) =>
+      db.update('debts', d.toRow(), where: 'id = ?', whereArgs: [d.id]);
+
+  /// Deletes the debt and its payments.
+  Future<void> deleteDebt(int id) =>
+      db.delete('debts', where: 'id = ?', whereArgs: [id]);
+
+  Future<int> insertDebtPayment(DebtPayment p) =>
+      db.insert('debt_payments', p.toRow()..remove('id'));
+
+  Future<void> deleteDebtPayment(int id) =>
+      db.delete('debt_payments', where: 'id = ?', whereArgs: [id]);
 
   // ---- Transfers ----
 

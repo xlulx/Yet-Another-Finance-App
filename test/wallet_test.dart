@@ -91,6 +91,8 @@ void main() {
     expect((await db.records()).single.walletId, cash);
     expect((await db.recurringRules()).single.walletId, cash);
     expect(await db.walletBalances(), {cash: 100000});
+    // Later upgrades ran too: debts exist and are empty.
+    expect(await db.debts(), isEmpty);
     await db.close();
     await dir.delete(recursive: true);
   });

@@ -18,6 +18,10 @@ language by default; you can also pick one in Settings.
   balance and the total, and filter records and statistics by wallet.
 - **Transfers between wallets** — move money from one wallet to another.
   Transfers change balances but count as neither income nor expense.
+- **Debts** — money you lent or borrowed, per person, with an optional due
+  date. Record partial repayments; a debt closes itself when fully paid (or
+  close it by hand). Debts move wallet balances but are not income or expense;
+  they can also be noted without touching any wallet.
 - **Categories** — name, colour, icon or emoji; archiving.
 - **Statistics** — monthly/yearly category breakdown (pie chart with
   percentages) and daily/monthly trend chart.
