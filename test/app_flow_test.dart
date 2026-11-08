@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:yafa/data/app_database.dart';
-import 'package:yafa/main.dart';
-import 'package:yafa/models/wallet.dart';
-import 'package:yafa/state/app_state.dart';
+import 'package:yasba/data/app_database.dart';
+import 'package:yasba/main.dart';
+import 'package:yasba/models/wallet.dart';
+import 'package:yasba/state/app_state.dart';
 
 /// Opens an in-memory app, adds an expense through the UI and checks it is
 /// listed. [strings] holds the UI texts for the language under test.
@@ -28,7 +28,7 @@ Future<void> addRecordFlow(
     await state.setLanguage(language);
   });
 
-  await tester.pumpWidget(YafaApp(state: state));
+  await tester.pumpWidget(YasbaApp(state: state));
   await tester.pumpAndSettle();
   expect(find.text(strings['empty']!), findsOneWidget);
 
@@ -130,7 +130,7 @@ void main() {
       await state.setLanguage('en');
     });
 
-    await tester.pumpWidget(YafaApp(state: state));
+    await tester.pumpWidget(YasbaApp(state: state));
     await tester.pumpAndSettle();
     // No wallet selected: no wallet label on the records page.
     expect(find.byType(InputChip), findsNothing);

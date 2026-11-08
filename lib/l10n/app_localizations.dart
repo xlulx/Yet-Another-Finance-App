@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'YAFA'**
+  /// **'YASBA'**
   String get appTitle;
 
   /// No description provided for @navRecords.
@@ -617,7 +617,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutLegalese.
   ///
   /// In en, this message translates to:
-  /// **'Yet Another Financial App\nAll your data stays on your device.'**
+  /// **'A simple, private budget tracker.\nAll your data stays on your device.'**
   String get aboutLegalese;
 
   /// No description provided for @wallet.
@@ -851,7 +851,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupPick.
   ///
   /// In en, this message translates to:
-  /// **'Choose a YAFA backup'**
+  /// **'Choose a YASBA backup'**
   String get backupPick;
 
   /// No description provided for @backupRestoreQuestion.
@@ -887,13 +887,13 @@ abstract class AppLocalizations {
   /// No description provided for @backupNotBackup.
   ///
   /// In en, this message translates to:
-  /// **'This file is not a YAFA backup.'**
+  /// **'This file is not a YASBA backup.'**
   String get backupNotBackup;
 
   /// No description provided for @backupNewer.
   ///
   /// In en, this message translates to:
-  /// **'This backup was made by a newer version of YAFA. Update the app first.'**
+  /// **'This backup was made by a newer version of YASBA. Update the app first.'**
   String get backupNewer;
 
   /// No description provided for @unknownDate.
@@ -901,6 +901,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'an unknown date'**
   String get unknownDate;
+
+  /// No description provided for @autoBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Automatic backup'**
+  String get autoBackup;
+
+  /// No description provided for @autoBackupOff.
+  ///
+  /// In en, this message translates to:
+  /// **'Off'**
+  String get autoBackupOff;
+
+  /// No description provided for @autoBackupDaily.
+  ///
+  /// In en, this message translates to:
+  /// **'Daily'**
+  String get autoBackupDaily;
+
+  /// No description provided for @autoBackupWeekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get autoBackupWeekly;
+
+  /// No description provided for @autoBackupMonthly.
+  ///
+  /// In en, this message translates to:
+  /// **'Monthly'**
+  String get autoBackupMonthly;
+
+  /// No description provided for @autoBackupOffHint.
+  ///
+  /// In en, this message translates to:
+  /// **'When on, a backup is saved to Documents/YASBA when you open the app; the last 5 are kept'**
+  String get autoBackupOffHint;
+
+  /// No description provided for @autoBackupLast.
+  ///
+  /// In en, this message translates to:
+  /// **'Last: {date}'**
+  String autoBackupLast(String date);
+
+  /// No description provided for @autoBackupNever.
+  ///
+  /// In en, this message translates to:
+  /// **'No automatic backup yet'**
+  String get autoBackupNever;
+
+  /// No description provided for @autoBackupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Last automatic backup failed: {error}'**
+  String autoBackupFailed(String error);
+
+  /// No description provided for @exportCsv.
+  ///
+  /// In en, this message translates to:
+  /// **'Export as CSV'**
+  String get exportCsv;
+
+  /// No description provided for @exportCsvHint.
+  ///
+  /// In en, this message translates to:
+  /// **'All records and transfers, for Excel or Google Sheets'**
+  String get exportCsvHint;
+
+  /// No description provided for @exportCsvSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'CSV saved'**
+  String get exportCsvSaved;
+
+  /// No description provided for @csvDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Date'**
+  String get csvDate;
+
+  /// No description provided for @csvType.
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get csvType;
+
+  /// No description provided for @csvToWallet.
+  ///
+  /// In en, this message translates to:
+  /// **'To wallet'**
+  String get csvToWallet;
+
+  /// No description provided for @csvTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get csvTitle;
+
+  /// No description provided for @csvNote.
+  ///
+  /// In en, this message translates to:
+  /// **'Note'**
+  String get csvNote;
 }
 
 class _AppLocalizationsDelegate

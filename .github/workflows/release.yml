@@ -81,7 +81,7 @@ jobs:
             --target-platform android-arm64 \
             --build-name="$NAME" --build-number="${{ github.run_number }}" \
             --dart-define=APP_VERSION="$NAME"
-          cp build/app/outputs/flutter-apk/app-prod-release.apk "YAFA-$NAME.apk"
+          cp build/app/outputs/flutter-apk/app-prod-release.apk "YASBA-$NAME.apk"
 
       - name: Create release and attach APK
         env:
@@ -89,9 +89,9 @@ jobs:
         run: |
           if ! gh release view "$TAG" >/dev/null 2>&1; then
             gh release create "$TAG" --target "$GITHUB_SHA" \
-              --title "YAFA $TAG" --generate-notes
+              --title "YASBA $TAG" --generate-notes
           fi
-          gh release upload "$TAG" YAFA-*.apk --clobber
+          gh release upload "$TAG" YASBA-*.apk --clobber
 
       - name: Remove signing key
         if: always()

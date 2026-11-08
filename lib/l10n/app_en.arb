@@ -1,6 +1,6 @@
 {
   "@@locale": "en",
-  "appTitle": "YAFA",
+  "appTitle": "YASBA",
   "navRecords": "Records",
   "navStats": "Statistics",
   "navSettings": "Settings",
@@ -191,7 +191,7 @@
       }
     }
   },
-  "aboutLegalese": "Yet Another Financial App\nAll your data stays on your device.",
+  "aboutLegalese": "A simple, private budget tracker.\nAll your data stays on your device.",
   "wallet": "Wallet",
   "wallets": "Wallets",
   "allWallets": "All wallets",
@@ -265,7 +265,7 @@
       }
     }
   },
-  "backupPick": "Choose a YAFA backup",
+  "backupPick": "Choose a YASBA backup",
   "backupRestoreQuestion": "Restore this backup?",
   "backupRestoreDetails": "Backup from {date}: {wallets} wallets, {records} records, {transfers} transfers, {rules} recurring transactions.\n\nAll current data will be replaced. This cannot be undone.",
   "@backupRestoreDetails": {
@@ -289,7 +289,38 @@
   },
   "backupRestoreConfirm": "Restore",
   "backupRestored": "Backup restored",
-  "backupNotBackup": "This file is not a YAFA backup.",
-  "backupNewer": "This backup was made by a newer version of YAFA. Update the app first.",
-  "unknownDate": "an unknown date"
+  "backupNotBackup": "This file is not a YASBA backup.",
+  "backupNewer": "This backup was made by a newer version of YASBA. Update the app first.",
+  "unknownDate": "an unknown date",
+  "autoBackup": "Automatic backup",
+  "autoBackupOff": "Off",
+  "autoBackupDaily": "Daily",
+  "autoBackupWeekly": "Weekly",
+  "autoBackupMonthly": "Monthly",
+  "autoBackupOffHint": "When on, a backup is saved to Documents/YASBA when you open the app; the last 5 are kept",
+  "autoBackupLast": "Last: {date}",
+  "@autoBackupLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupNever": "No automatic backup yet",
+  "autoBackupFailed": "Last automatic backup failed: {error}",
+  "@autoBackupFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exportCsv": "Export as CSV",
+  "exportCsvHint": "All records and transfers, for Excel or Google Sheets",
+  "exportCsvSaved": "CSV saved",
+  "csvDate": "Date",
+  "csvType": "Type",
+  "csvToWallet": "To wallet",
+  "csvTitle": "Title",
+  "csvNote": "Note"
 }

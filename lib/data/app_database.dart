@@ -18,17 +18,23 @@ class AppDatabase {
   static const _version = 2;
 
   /// Opens the app database. Tests can pass a [factory] and [path]
-  /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`).
+  /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`), or a
+  /// [directory] to use instead of the platform's database folder.
   ///
   /// [language] picks the names of the default categories created on first
   /// launch (`tr` or anything else for English).
   static Future<AppDatabase> open({
     DatabaseFactory? factory,
     String? path,
+    String? directory,
     String language = 'en',
   }) async {
     final f = factory ?? databaseFactory;
-    final dbPath = path ?? p.join(await f.getDatabasesPath(), 'yafa.db');
+    var dbPath = path;
+    if (dbPath == null) {
+      final dir = directory ?? await f.getDatabasesPath();
+      dbPath = p.join(dir, 'yasba.db');
+    }
     final db = await f.openDatabase(
       dbPath,
       options: OpenDatabaseOptions(

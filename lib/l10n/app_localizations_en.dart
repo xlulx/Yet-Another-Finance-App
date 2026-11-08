@@ -10,7 +10,7 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'YAFA';
+  String get appTitle => 'YASBA';
 
   @override
   String get navRecords => 'Records';
@@ -353,7 +353,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get aboutLegalese =>
-      'Yet Another Financial App\nAll your data stays on your device.';
+      'A simple, private budget tracker.\nAll your data stays on your device.';
 
   @override
   String get wallet => 'Wallet';
@@ -491,7 +491,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get backupPick => 'Choose a YAFA backup';
+  String get backupPick => 'Choose a YASBA backup';
 
   @override
   String get backupRestoreQuestion => 'Restore this backup?';
@@ -514,12 +514,69 @@ class AppLocalizationsEn extends AppLocalizations {
   String get backupRestored => 'Backup restored';
 
   @override
-  String get backupNotBackup => 'This file is not a YAFA backup.';
+  String get backupNotBackup => 'This file is not a YASBA backup.';
 
   @override
   String get backupNewer =>
-      'This backup was made by a newer version of YAFA. Update the app first.';
+      'This backup was made by a newer version of YASBA. Update the app first.';
 
   @override
   String get unknownDate => 'an unknown date';
+
+  @override
+  String get autoBackup => 'Automatic backup';
+
+  @override
+  String get autoBackupOff => 'Off';
+
+  @override
+  String get autoBackupDaily => 'Daily';
+
+  @override
+  String get autoBackupWeekly => 'Weekly';
+
+  @override
+  String get autoBackupMonthly => 'Monthly';
+
+  @override
+  String get autoBackupOffHint =>
+      'When on, a backup is saved to Documents/YASBA when you open the app; the last 5 are kept';
+
+  @override
+  String autoBackupLast(String date) {
+    return 'Last: $date';
+  }
+
+  @override
+  String get autoBackupNever => 'No automatic backup yet';
+
+  @override
+  String autoBackupFailed(String error) {
+    return 'Last automatic backup failed: $error';
+  }
+
+  @override
+  String get exportCsv => 'Export as CSV';
+
+  @override
+  String get exportCsvHint =>
+      'All records and transfers, for Excel or Google Sheets';
+
+  @override
+  String get exportCsvSaved => 'CSV saved';
+
+  @override
+  String get csvDate => 'Date';
+
+  @override
+  String get csvType => 'Type';
+
+  @override
+  String get csvToWallet => 'To wallet';
+
+  @override
+  String get csvTitle => 'Title';
+
+  @override
+  String get csvNote => 'Note';
 }

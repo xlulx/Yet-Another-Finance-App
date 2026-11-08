@@ -1,4 +1,6 @@
-# YAFA — Yet Another Financial App
+# YASBA
+
+*Yet Another Simple Budget App* — a simple, private budget tracker.
 
 A privacy-friendly, fully offline income and expense tracker for Android and
 iOS, built with Flutter. All data lives in a SQLite database on the device and
@@ -25,18 +27,22 @@ language by default; you can also pick one in Settings.
 - **Backup and restore** — save all data to a `.json` file anywhere (e.g.
   Google Drive) and restore it later or on another phone. Restoring replaces
   all current data, after a confirmation.
+- **Automatic backups** (off by default) — daily, weekly or monthly, taken
+  when the app is opened and saved to Documents/YASBA; the last 5 are kept.
+- **CSV export** — all records and transfers as a spreadsheet for Excel or
+  Google Sheets.
 - **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: wallets,
   categories (colour, emoji), records, transfers and recurring transactions
   (including custom intervals). Importing the same backup twice does not
-  duplicate anything. YAFA is not affiliated with Oinkoin; it only reads its
+  duplicate anything. YASBA is not affiliated with Oinkoin; it only reads its
   backup format.
 
 All wallets currently share one currency, chosen in Settings.
 
 ## Install
 
-Download the latest `YAFA-x.y.z.apk` from
-[Releases](https://github.com/xlulx/Yet-Another-Financial-App/releases) and
+Download the latest `YASBA-x.y.z.apk` from
+[Releases](https://github.com/xlulx/Yet-Another-Simple-Budget-App/releases) and
 install it on your Android phone (64-bit / arm64).
 
 ## Development
@@ -52,8 +58,8 @@ flutter run --flavor dev   # run on a connected device/emulator
 
 | Flavor | App name | Package | Built by |
 |---|---|---|---|
-| `dev`  | YAFA Dev | `io.github.xlulx.yafa.dev` | Locally, for testing |
-| `prod` | YAFA     | `io.github.xlulx.yafa`     | The Release APK workflow only |
+| `dev`  | YASBA Dev | `io.github.xlulx.yasba.dev` | Locally, for testing |
+| `prod` | YASBA    | `io.github.xlulx.yasba`    | The Release APK workflow only |
 
 Both can be installed side by side and keep separate data. Test builds are
 signed with the intentionally public `android/keystores/dev.jks`.
@@ -67,7 +73,7 @@ flutter build apk --release --flavor dev --target-platform android-arm64
 The only GitHub Actions workflow, `.github/workflows/release.yml`, runs when
 it is started manually (**Actions → Release APK → Run workflow**, with a
 version such as `0.1.0`) or when a `v*` tag is pushed. It runs the tests,
-creates the release if needed and attaches a signed `YAFA-x.y.z.apk`
+creates the release if needed and attaches a signed `YASBA-x.y.z.apk`
 (~8 minutes). It needs the `RELEASE_KEYSTORE_BASE64` and
 `RELEASE_KEYSTORE_PASSWORD` repository secrets; the release key is **not**
 stored in the repository.
@@ -98,7 +104,6 @@ lib/
 
 ## Roadmap (ideas)
 
-- Automatic backups and CSV export
 - Budgets and limit alerts
 - A currency per wallet, with exchange rates for transfers
 - Tags and search
@@ -116,5 +121,5 @@ version. See [LICENSE](LICENSE) for the full text.
 
 ---
 
-YAFA is developed with the help of [Claude](https://claude.ai), Anthropic's
+YASBA is developed with the help of [Claude](https://claude.ai), Anthropic's
 AI assistant.

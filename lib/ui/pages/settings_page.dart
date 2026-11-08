@@ -8,7 +8,9 @@ import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 
+import '../../services/auto_backup.dart';
 import '../../services/backup.dart';
+import '../../services/csv_export.dart';
 import '../../services/oinkoin_import.dart';
 import '../../state/app_state.dart';
 import '../../utils/app_version.dart';
@@ -70,13 +72,51 @@ class SettingsPage extends StatelessWidget {
       final day = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final uri = await FilePicker.saveFile(
         dialogTitle: l.backupCreate,
-        fileName: 'yafa-backup-$day.json',
+        fileName: 'yasba-backup-$day.json',
         bytes: Uint8List.fromList(utf8.encode(text)),
         mimeType: 'application/json',
       );
       // Null when the user cancelled the save dialog.
       if (uri != null) {
         messenger.showSnackBar(SnackBar(content: Text(l.backupSaved)));
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(l.backupFailed('$e'))));
+    }
+  }
+
+  Future<void> _exportCsv(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final state = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final text = await state.exportCsvText(
+        CsvLabels(
+          headers: [
+            l.csvDate,
+            l.csvType,
+            l.category,
+            l.wallet,
+            l.csvToWallet,
+            l.csvTitle,
+            l.csvNote,
+            l.amount,
+            l.currency,
+          ],
+          income: l.income,
+          expense: l.expense,
+          transfer: l.transfer,
+        ),
+      );
+      final day = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final uri = await FilePicker.saveFile(
+        dialogTitle: l.exportCsv,
+        fileName: 'yasba-$day.csv',
+        bytes: Uint8List.fromList(utf8.encode(text)),
+        mimeType: 'text/csv',
+      );
+      if (uri != null) {
+        messenger.showSnackBar(SnackBar(content: Text(l.exportCsvSaved)));
       }
     } catch (e) {
       messenger.showSnackBar(SnackBar(content: Text(l.backupFailed('$e'))));
@@ -93,7 +133,7 @@ class SettingsPage extends StatelessWidget {
     );
     if (file == null || !context.mounted) return;
 
-    final YafaBackup backup;
+    final YasbaBackup backup;
     try {
       backup = parseBackup(utf8.decode(await file.readAsBytes()));
     } on BackupException catch (e) {
@@ -161,6 +201,20 @@ class SettingsPage extends StatelessWidget {
     messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 
+  String _autoBackupStatus(AppLocalizations l, AppState state) {
+    if (state.autoBackup == AutoBackupFrequency.off) return l.autoBackupOffHint;
+    if (state.autoBackupError != null) {
+      return l.autoBackupFailed(state.autoBackupError!);
+    }
+    final last = state.lastAutoBackup;
+    if (last == null) return l.autoBackupNever;
+    final date = DateFormat.yMMMd().add_Hm().format(last);
+    final where = state.autoBackupLocation;
+    return where == null
+        ? l.autoBackupLast(date)
+        : '${l.autoBackupLast(date)}\n$where';
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -212,10 +266,41 @@ class SettingsPage extends StatelessWidget {
             onTap: () => _backup(context),
           ),
           ListTile(
+            leading: const Icon(Icons.schedule),
+            title: Text(l.autoBackup),
+            subtitle: Text(_autoBackupStatus(l, state)),
+            isThreeLine: true,
+            trailing: DropdownButton<AutoBackupFrequency>(
+              value: state.autoBackup,
+              underline: const SizedBox.shrink(),
+              items: [
+                for (final f in AutoBackupFrequency.values)
+                  DropdownMenuItem(
+                    value: f,
+                    child: Text(switch (f) {
+                      AutoBackupFrequency.off => l.autoBackupOff,
+                      AutoBackupFrequency.daily => l.autoBackupDaily,
+                      AutoBackupFrequency.weekly => l.autoBackupWeekly,
+                      AutoBackupFrequency.monthly => l.autoBackupMonthly,
+                    }),
+                  ),
+              ],
+              onChanged: (f) {
+                if (f != null) state.setAutoBackup(f);
+              },
+            ),
+          ),
+          ListTile(
             leading: const Icon(Icons.settings_backup_restore),
             title: Text(l.backupRestore),
             subtitle: Text(l.backupRestoreHint),
             onTap: () => _restore(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.table_view_outlined),
+            title: Text(l.exportCsv),
+            subtitle: Text(l.exportCsvHint),
+            onTap: () => _exportCsv(context),
           ),
           const Divider(),
           ListTile(
@@ -227,7 +312,7 @@ class SettingsPage extends StatelessWidget {
           const Divider(),
           AboutListTile(
             icon: const Icon(Icons.info_outline),
-            applicationName: 'YAFA',
+            applicationName: 'YASBA',
             applicationVersion: appVersion,
             applicationLegalese: l.aboutLegalese,
           ),

@@ -3,15 +3,15 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:yafa/data/app_database.dart';
-import 'package:yafa/models/category.dart';
-import 'package:yafa/models/record.dart';
-import 'package:yafa/models/recurring_rule.dart';
-import 'package:yafa/models/transfer.dart';
-import 'package:yafa/models/wallet.dart';
-import 'package:yafa/services/oinkoin_import.dart';
-import 'package:yafa/services/stats.dart';
-import 'package:yafa/state/app_state.dart';
+import 'package:yasba/data/app_database.dart';
+import 'package:yasba/models/category.dart';
+import 'package:yasba/models/record.dart';
+import 'package:yasba/models/recurring_rule.dart';
+import 'package:yasba/models/transfer.dart';
+import 'package:yasba/models/wallet.dart';
+import 'package:yasba/services/oinkoin_import.dart';
+import 'package:yasba/services/stats.dart';
+import 'package:yasba/state/app_state.dart';
 
 Future<AppDatabase> openMemory() => AppDatabase.open(
   factory: databaseFactoryFfiNoIsolate,
@@ -24,7 +24,7 @@ void main() {
 
   test('upgrading a version 1 database moves everything to a default '
       'wallet', () async {
-    final dir = await Directory.systemTemp.createTemp('yafa');
+    final dir = await Directory.systemTemp.createTemp('yasba');
     final path = '${dir.path}/v1.db';
     // The schema as shipped in v0.1/v0.2 (database version 1).
     final v1 = await databaseFactoryFfiNoIsolate.openDatabase(
@@ -115,7 +115,7 @@ void main() {
     test('a fresh database has one default wallet', () async {
       final fresh = await AppDatabase.open(
         factory: databaseFactoryFfiNoIsolate,
-        path: '${(await Directory.systemTemp.createTemp('yafa')).path}/f.db',
+        path: '${(await Directory.systemTemp.createTemp('yasba')).path}/f.db',
       );
       expect((await fresh.wallets()).map((w) => w.name), ['Cash']);
       await fresh.close();

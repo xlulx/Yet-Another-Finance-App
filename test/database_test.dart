@@ -3,12 +3,12 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:yafa/data/app_database.dart';
-import 'package:yafa/models/category.dart';
-import 'package:yafa/models/recurring_rule.dart';
-import 'package:yafa/services/oinkoin_import.dart';
-import 'package:yafa/services/recurring_service.dart';
-import 'package:yafa/services/stats.dart';
+import 'package:yasba/data/app_database.dart';
+import 'package:yasba/models/category.dart';
+import 'package:yasba/models/recurring_rule.dart';
+import 'package:yasba/services/oinkoin_import.dart';
+import 'package:yasba/services/recurring_service.dart';
+import 'package:yasba/services/stats.dart';
 
 /// A small sample mimicking Oinkoin's backup format.
 final _backup = jsonEncode({
@@ -119,7 +119,7 @@ void main() {
 
   test('default categories and currency follow the language', () async {
     // A separate file: the in-memory database is shared within a process.
-    final dir = await Directory.systemTemp.createTemp('yafa');
+    final dir = await Directory.systemTemp.createTemp('yasba');
     final en = await AppDatabase.open(
       factory: databaseFactoryFfiNoIsolate,
       path: '${dir.path}/en.db',

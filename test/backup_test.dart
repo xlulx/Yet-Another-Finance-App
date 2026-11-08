@@ -3,13 +3,13 @@ import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:yafa/data/app_database.dart';
-import 'package:yafa/models/record.dart';
-import 'package:yafa/models/recurring_rule.dart';
-import 'package:yafa/models/transfer.dart';
-import 'package:yafa/models/wallet.dart';
-import 'package:yafa/services/backup.dart';
-import 'package:yafa/services/recurring_service.dart';
+import 'package:yasba/data/app_database.dart';
+import 'package:yasba/models/record.dart';
+import 'package:yasba/models/recurring_rule.dart';
+import 'package:yasba/models/transfer.dart';
+import 'package:yasba/models/wallet.dart';
+import 'package:yasba/services/backup.dart';
+import 'package:yasba/services/recurring_service.dart';
 
 const _tables = [
   'wallets',
@@ -23,7 +23,7 @@ void main() {
   late Directory dir;
 
   setUpAll(sqfliteFfiInit);
-  setUp(() async => dir = await Directory.systemTemp.createTemp('yafa'));
+  setUp(() async => dir = await Directory.systemTemp.createTemp('yasba'));
   tearDown(() => dir.delete(recursive: true));
 
   Future<AppDatabase> open(String name, {String language = 'en'}) =>
@@ -83,7 +83,7 @@ void main() {
     final source = await filled();
     final text = await exportBackup(source, appVersion: '1.2.3');
     final json = jsonDecode(text) as Map;
-    expect(json['format'], 'yafa-backup');
+    expect(json['format'], 'yasba-backup');
     expect(json['app_version'], '1.2.3');
 
     // Restore into a database that already has other data.
@@ -108,6 +108,17 @@ void main() {
     await target.close();
   });
 
+  test('backups from before the rename (YAFA) are accepted', () async {
+    final source = await filled();
+    final json = jsonDecode(await exportBackup(source, appVersion: '0.4.0'));
+    final old = jsonEncode({...json as Map, 'format': 'yafa-backup'});
+    final target = await open('target');
+    await restoreBackup(target, parseBackup(old));
+    expect(await dump(target), await dump(source));
+    await source.close();
+    await target.close();
+  });
+
   test('invalid files are rejected and change nothing', () async {
     final db = await open('db');
     final before = await dump(db);
@@ -123,7 +134,7 @@ void main() {
     expect(errorOf('not json'), BackupError.notJson);
     expect(errorOf('{"categories": []}'), BackupError.notBackup);
     expect(
-      errorOf('{"format": "yafa-backup", "version": 1, "tables": {}}'),
+      errorOf('{"format": "yasba-backup", "version": 1, "tables": {}}'),
       BackupError.notBackup,
     );
     final good = jsonDecode(await exportBackup(db, appVersion: 'dev')) as Map;

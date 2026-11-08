@@ -10,7 +10,7 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
-  String get appTitle => 'YAFA';
+  String get appTitle => 'YASBA';
 
   @override
   String get navRecords => 'Kayıtlar';
@@ -304,7 +304,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get aboutLegalese =>
-      'Yet Another Financial App\nTüm verileriniz cihazınızda kalır.';
+      'Sade ve gizli bütçe takibi.\nTüm verileriniz cihazınızda kalır.';
 
   @override
   String get wallet => 'Cüzdan';
@@ -436,7 +436,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get backupPick => 'Bir YAFA yedeği seçin';
+  String get backupPick => 'Bir YASBA yedeği seçin';
 
   @override
   String get backupRestoreQuestion => 'Bu yedek geri yüklensin mi?';
@@ -459,12 +459,69 @@ class AppLocalizationsTr extends AppLocalizations {
   String get backupRestored => 'Yedek geri yüklendi';
 
   @override
-  String get backupNotBackup => 'Bu dosya bir YAFA yedeği değil.';
+  String get backupNotBackup => 'Bu dosya bir YASBA yedeği değil.';
 
   @override
   String get backupNewer =>
-      'Bu yedek YAFA\'nın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.';
+      'Bu yedek YASBA\'nın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.';
 
   @override
   String get unknownDate => 'bilinmeyen bir';
+
+  @override
+  String get autoBackup => 'Otomatik yedek';
+
+  @override
+  String get autoBackupOff => 'Kapalı';
+
+  @override
+  String get autoBackupDaily => 'Günlük';
+
+  @override
+  String get autoBackupWeekly => 'Haftalık';
+
+  @override
+  String get autoBackupMonthly => 'Aylık';
+
+  @override
+  String get autoBackupOffHint =>
+      'Açıkken, uygulamayı açtığında Belgeler/YASBA klasörüne yedek alınır; son 5 yedek tutulur';
+
+  @override
+  String autoBackupLast(String date) {
+    return 'Son yedek: $date';
+  }
+
+  @override
+  String get autoBackupNever => 'Henüz otomatik yedek alınmadı';
+
+  @override
+  String autoBackupFailed(String error) {
+    return 'Son otomatik yedek başarısız: $error';
+  }
+
+  @override
+  String get exportCsv => 'CSV olarak dışa aktar';
+
+  @override
+  String get exportCsvHint =>
+      'Tüm kayıtlar ve aktarımlar; Excel veya Google Sheets için';
+
+  @override
+  String get exportCsvSaved => 'CSV kaydedildi';
+
+  @override
+  String get csvDate => 'Tarih';
+
+  @override
+  String get csvType => 'Tür';
+
+  @override
+  String get csvToWallet => 'Hedef cüzdan';
+
+  @override
+  String get csvTitle => 'Başlık';
+
+  @override
+  String get csvNote => 'Not';
 }
