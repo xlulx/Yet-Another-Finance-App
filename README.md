@@ -36,7 +36,7 @@ All wallets currently share one currency, chosen in Settings.
 ## Install
 
 Download the latest `YAFA-x.y.z.apk` from
-[Releases](https://github.com/xlulx/Yet-Another-Financial-App/releases) and
+[Releases](https://github.com/xlulx/Yet-Another-Finance-App/releases) and
 install it on your Android phone (64-bit / arm64).
 
 ## Development
