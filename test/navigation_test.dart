@@ -67,38 +67,54 @@ void main() {
     await tester.runAsync(() => state.db.close());
   });
 
-  testWidgets('wallets and manage pages in the bottom navigation', (
-    tester,
-  ) async {
+  testWidgets('bottom navigation and side menu', (tester) async {
     final state = await openApp(tester);
 
+    // Three tabs; the app opens on Records, in the middle.
+    expect(find.byType(NavigationDestination), findsNWidgets(3));
+    expect(find.text('Add record'), findsOneWidget);
     await tester.tap(find.text('Wallets'));
     await tester.pumpAndSettle();
     expect(find.text('All wallets'), findsOneWidget);
-    expect(find.text('Cash'), findsOneWidget);
 
-    // Manage: categories and recurring transactions as swipeable tabs.
-    await tester.tap(find.text('Manage'));
-    await tester.pumpAndSettle();
+    /// Opens the side menu from the current page and picks [item].
+    Future<void> openFromMenu(String item) async {
+      await tester.tap(find.byIcon(Icons.menu));
+      await tester.pumpAndSettle();
+      expect(find.text('YASBA'), findsOneWidget);
+      await tester.tap(find.text(item));
+      await tester.pumpAndSettle();
+    }
+
+    // Categories: expense/income buttons, add button follows the type.
+    await openFromMenu('Categories');
     expect(find.text('Groceries'), findsOneWidget);
     await tester.tap(find.text('Income').last);
     await tester.pumpAndSettle();
     expect(find.text('Salary'), findsOneWidget);
     expect(find.text('Groceries'), findsNothing);
-
-    // The add button follows the tab: a new income category here.
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     expect(find.text('New category'), findsOneWidget);
     await tester.pageBack();
     await tester.pumpAndSettle();
-
-    await tester.fling(find.text('Salary'), const Offset(-250, 0), 1000);
+    await tester.pageBack();
     await tester.pumpAndSettle();
+
+    // Recurring transactions.
+    await openFromMenu('Recurring transactions');
     expect(find.textContaining('rent, salary'), findsOneWidget);
     await tester.tap(find.byType(FloatingActionButton));
     await tester.pumpAndSettle();
     expect(find.text('New recurring transaction'), findsOneWidget);
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+    await tester.pageBack();
+    await tester.pumpAndSettle();
+
+    // Settings.
+    await openFromMenu('Settings');
+    expect(find.text('Automatic backup'), findsOneWidget);
     await tester.runAsync(() => state.db.close());
   });
 

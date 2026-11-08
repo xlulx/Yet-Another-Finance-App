@@ -4,6 +4,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
+import '../widgets/menu_button.dart';
 import '../widgets/wallet_avatar.dart';
 import 'edit_wallet_page.dart';
 
@@ -39,7 +40,11 @@ class WalletsPage extends StatelessWidget {
     );
 
     return Scaffold(
-      appBar: AppBar(title: Text(l.wallets)),
+      appBar: AppBar(
+        // The page's own scaffold sits below the app's, which has the menu.
+        leading: const MenuButton(),
+        title: Text(l.wallets),
+      ),
       floatingActionButton: FloatingActionButton(
         // Root pages stay alive side by side in the bottom navigation;
         // shared hero tags would clash when a new screen opens.

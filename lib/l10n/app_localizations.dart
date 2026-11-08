@@ -788,18 +788,6 @@ abstract class AppLocalizations {
   /// **'From {name}'**
   String transferFromWallet(String name);
 
-  /// No description provided for @manage.
-  ///
-  /// In en, this message translates to:
-  /// **'Manage'**
-  String get manage;
-
-  /// No description provided for @recurringShort.
-  ///
-  /// In en, this message translates to:
-  /// **'Recurring'**
-  String get recurringShort;
-
   /// No description provided for @pickMonth.
   ///
   /// In en, this message translates to:
@@ -1003,6 +991,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Note'**
   String get csvNote;
+
+  /// No description provided for @tagline.
+  ///
+  /// In en, this message translates to:
+  /// **'A simple, private budget tracker'**
+  String get tagline;
 }
 
 class _AppLocalizationsDelegate

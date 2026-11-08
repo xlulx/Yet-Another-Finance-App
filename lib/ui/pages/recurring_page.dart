@@ -32,7 +32,27 @@ String unitName(AppLocalizations l, RecurrenceUnit unit, int count) =>
       RecurrenceUnit.year => l.unitYear(count),
     };
 
-/// Recurring transactions list; a tab of [ManagePage].
+/// Recurring transactions page, opened from the side menu.
+class RecurringPage extends StatelessWidget {
+  const RecurringPage({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l.recurringTransactions)),
+      floatingActionButton: FloatingActionButton(
+        tooltip: l.add,
+        child: const Icon(Icons.add),
+        onPressed: () => Navigator.of(context)
+            .push(MaterialPageRoute(builder: (_) => const EditRecurringPage())),
+      ),
+      body: const RecurringTab(),
+    );
+  }
+}
+
+/// Recurring transactions list.
 class RecurringTab extends StatelessWidget {
   const RecurringTab({super.key});
 

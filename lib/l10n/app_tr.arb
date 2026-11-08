@@ -114,8 +114,6 @@
   "net": "Net",
   "transferToWallet": "{name} cüzdanına",
   "transferFromWallet": "{name} cüzdanından",
-  "manage": "Yönet",
-  "recurringShort": "Tekrarlayan",
   "pickMonth": "Ay seçin",
   "pickYear": "Yıl seçin",
   "backupCreate": "Yedekle",
@@ -148,5 +146,6 @@
   "csvType": "Tür",
   "csvToWallet": "Hedef cüzdan",
   "csvTitle": "Başlık",
-  "csvNote": "Not"
+  "csvNote": "Not",
+  "tagline": "Sade ve gizli bütçe takibi"
 }

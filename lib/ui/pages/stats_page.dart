@@ -14,6 +14,7 @@ import '../../services/stats.dart';
 import '../../state/app_state.dart';
 import '../../utils/category_icons.dart';
 import '../../utils/money.dart';
+import '../widgets/menu_button.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/selected_wallet_chip.dart';
@@ -137,6 +138,8 @@ class _StatsPageState extends State<StatsPage> {
 
     return Scaffold(
       appBar: AppBar(
+        // The page's own scaffold sits below the app's, which has the menu.
+        leading: const MenuButton(),
         title: MonthSelector(
           month: _anchor,
           yearOnly: _period == _Period.year,
