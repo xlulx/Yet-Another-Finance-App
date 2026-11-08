@@ -46,3 +46,14 @@ app.*.map.json
 
 # Widget Preview related
 .widget_preview/
+
+# Signing keys and service account keys must never be committed. The real
+# release key lives only in GitHub secrets; the public dev key is the one
+# exception.
+*.jks
+*.keystore
+*.p12
+key.properties
+*service-account*.json
+play-*.json
+!android/keystores/dev.jks
