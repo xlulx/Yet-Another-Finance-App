@@ -1,4 +1,5 @@
 import '../models/category.dart';
+import '../models/debt.dart';
 import '../models/record.dart';
 import '../models/transfer.dart';
 
@@ -56,9 +57,27 @@ List<(int otherWalletId, int total, int count)> transferTotals(
   ]..sort((a, b) => b.$2.compareTo(a.$2));
 }
 
+/// Debt movements summed per person: money out for
+/// [CategoryType.expense], money in for [CategoryType.income]. Largest first.
+List<(String person, int total, int count)> debtTotals(
+  Iterable<DebtEvent> events,
+  CategoryType type,
+) {
+  final totals = <String, (String, int, int)>{};
+  for (final e in events) {
+    final effect = e.effect;
+    if ((type == CategoryType.income) != (effect > 0)) continue;
+    final key = e.debt.person.toLowerCase();
+    final (name, sum, n) = totals[key] ?? (e.debt.person, 0, 0);
+    totals[key] = (name, sum + effect.abs(), n + 1);
+  }
+  return totals.values.toList()..sort((a, b) => b.$2.compareTo(a.$2));
+}
+
 /// Splits records into buckets; [bucketOf] maps a record date to a bucket
 /// index. Returns `(income, expense)` pairs. With [walletId], [transfers]
-/// into that wallet count as income and out of it as expense.
+/// into that wallet count as income and out of it as expense, and so do
+/// [debtEvents] (which should be that wallet's).
 List<(int income, int expense)> bucketTotals(
   Iterable<Record> records,
   Map<int, Category> categories,
@@ -66,6 +85,7 @@ List<(int income, int expense)> bucketTotals(
   int Function(DateTime) bucketOf, {
   Iterable<Transfer> transfers = const [],
   int? walletId,
+  Iterable<DebtEvent> debtEvents = const [],
 }) {
   final income = List.filled(bucketCount, 0);
   final expense = List.filled(bucketCount, 0);
@@ -84,6 +104,15 @@ List<(int income, int expense)> bucketTotals(
       if (i < 0 || i >= bucketCount) continue;
       if (t.toWalletId == walletId) income[i] += t.amount;
       if (t.fromWalletId == walletId) expense[i] += t.amount;
+    }
+    for (final e in debtEvents) {
+      final i = bucketOf(e.date);
+      if (i < 0 || i >= bucketCount) continue;
+      if (e.effect > 0) {
+        income[i] += e.effect;
+      } else {
+        expense[i] -= e.effect;
+      }
     }
   }
   return [for (var i = 0; i < bucketCount; i++) (income[i], expense[i])];

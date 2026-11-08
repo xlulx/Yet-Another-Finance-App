@@ -314,7 +314,7 @@
     }
   },
   "exportCsv": "Export as CSV",
-  "exportCsvHint": "All records and transfers, for Excel or Google Sheets",
+  "exportCsvHint": "All records, transfers and debts, for Excel or Google Sheets",
   "exportCsvSaved": "CSV saved",
   "csvDate": "Date",
   "csvType": "Type",
@@ -393,6 +393,14 @@
   "@paymentTooBig": {
     "placeholders": {
       "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "debtSlice": "Debt: {name}",
+  "@debtSlice": {
+    "placeholders": {
+      "name": {
         "type": "String"
       }
     }

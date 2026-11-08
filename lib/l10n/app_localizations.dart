@@ -953,7 +953,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportCsvHint.
   ///
   /// In en, this message translates to:
-  /// **'All records and transfers, for Excel or Google Sheets'**
+  /// **'All records, transfers and debts, for Excel or Google Sheets'**
   String get exportCsvHint;
 
   /// No description provided for @exportCsvSaved.
@@ -1219,6 +1219,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'At most {amount}'**
   String paymentTooBig(String amount);
+
+  /// No description provided for @debtSlice.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt: {name}'**
+  String debtSlice(String name);
 }
 
 class _AppLocalizationsDelegate

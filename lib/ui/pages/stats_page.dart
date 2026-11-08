@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 
 import '../../models/category.dart';
+import '../../models/debt.dart';
 import '../../models/record.dart';
 import '../../models/transfer.dart';
 import '../../services/stats.dart';
@@ -18,6 +19,7 @@ import '../widgets/menu_button.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/selected_wallet_chip.dart';
+import 'debts_page.dart';
 
 enum _Period { month, year }
 
@@ -95,6 +97,16 @@ class _StatsPageState extends State<StatsPage> {
     final state = context.watch<AppState>();
     final byId = {for (final c in state.categories) c.id!: c};
     final wallet = state.walletFilter;
+    // Debt movements in the period that touched a wallet (the filtered one,
+    // if any).
+    final debtEvents = [
+      for (final e in state.allDebtEvents())
+        if (!e.date.isBefore(_from) &&
+            e.date.isBefore(_to) &&
+            e.walletId != null &&
+            (wallet == null || e.walletId == wallet))
+          e,
+    ];
     final totals = totalsByCategory(_records, byId, _type);
     if (wallet != null) {
       // One slice per other wallet, shown like a category.
@@ -120,6 +132,24 @@ class _StatsPageState extends State<StatsPage> {
           ),
         );
       }
+      // Like transfers, one wallet's debt money in and out; one slice per
+      // person.
+      for (final (person, total, count) in debtTotals(debtEvents, _type)) {
+        totals.add(
+          CategoryTotal(
+            Category(
+              name: l.debtSlice(person),
+              type: _type,
+              color:
+                  categoryColors[person.toLowerCase().hashCode.abs() %
+                      categoryColors.length],
+              icon: debtIconKey,
+            ),
+            total,
+            count,
+          ),
+        );
+      }
       totals.sort((a, b) => b.total.compareTo(a.total));
     }
     final sum = totals.fold(0, (s, t) => s + t.total);
@@ -134,6 +164,7 @@ class _StatsPageState extends State<StatsPage> {
       _period == _Period.month ? (d) => d.day - 1 : (d) => d.month - 1,
       transfers: _transfers,
       walletId: wallet,
+      debtEvents: debtEvents,
     );
 
     return Scaffold(
@@ -271,7 +302,82 @@ class _StatsPageState extends State<StatsPage> {
               currency: state.currency,
             ),
           ),
+          if (state.debts.isNotEmpty) ...[
+            const SizedBox(height: 24),
+            _DebtSummary(events: debtEvents, showOpen: wallet == null),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// The period's debt movements by kind and, across all wallets, what is
+/// still open. Debts are not income or expense, so they get their own card.
+class _DebtSummary extends StatelessWidget {
+  const _DebtSummary({required this.events, required this.showOpen});
+
+  final List<DebtEvent> events;
+  final bool showOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final state = context.watch<AppState>();
+    int sum(bool payment, bool lent) => events
+        .where((e) => (e.payment != null) == payment && e.debt.lent == lent)
+        .fold(0, (s, e) => s + e.effect.abs());
+    final rows = [
+      (l.debtLentEvent, -sum(false, true)),
+      (l.debtBorrowedEvent, sum(false, false)),
+      (l.repaymentReceived, sum(true, true)),
+      (l.repaymentMade, -sum(true, false)),
+    ];
+    final theme = Theme.of(context);
+    Widget line(String label, int amount, {bool signed = true}) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 3),
+      child: Row(
+        children: [
+          Expanded(child: Text(label)),
+          Text(
+            formatMoney(amount, state.currency, signed: signed && amount != 0),
+            style: TextStyle(
+              color: signed && amount > 0 ? Colors.green.shade600 : null,
+            ),
+          ),
+        ],
+      ),
+    );
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () =>
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const DebtsPage())),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(l.debts, style: theme.textTheme.titleSmall),
+                  ),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+              const SizedBox(height: 4),
+              for (final (label, amount) in rows) line(label, amount),
+              if (showOpen) ...[
+                const Divider(height: 16),
+                line(l.owedToMe, state.totalOwedToMe, signed: false),
+                line(l.iOwe, state.totalIOwe, signed: false),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }

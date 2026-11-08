@@ -119,3 +119,24 @@ class DebtPayment {
     note: row['note'] as String?,
   );
 }
+
+/// A debt being opened, or one of its payments, as it affects a wallet.
+class DebtEvent {
+  DebtEvent(this.debt, this.payment);
+
+  final Debt debt;
+
+  /// Null for the debt itself.
+  final DebtPayment? payment;
+
+  DateTime get date => payment?.date ?? debt.date;
+  int? get walletId => payment == null ? debt.walletId : payment!.walletId;
+
+  /// Signed change to the wallet: lending takes money out and its
+  /// repayments bring it back; borrowing is the other way round.
+  int get effect {
+    final amount = payment?.amount ?? debt.amount;
+    final out = (payment == null) == debt.lent;
+    return out ? -amount : amount;
+  }
+}

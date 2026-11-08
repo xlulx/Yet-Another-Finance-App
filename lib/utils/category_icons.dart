@@ -68,6 +68,11 @@ const List<int> categoryColors = [
 /// Icon key for transfer slices in statistics; not offered in the picker.
 const transferIconKey = 'transfer';
 
-IconData iconFor(String key) => key == transferIconKey
-    ? Icons.swap_horiz
-    : categoryIcons[key] ?? Icons.category;
+/// Icon key for debt slices in statistics; not offered in the picker.
+const debtIconKey = 'debt';
+
+IconData iconFor(String key) => switch (key) {
+  transferIconKey => Icons.swap_horiz,
+  debtIconKey => Icons.handshake_outlined,
+  _ => categoryIcons[key] ?? Icons.category,
+};

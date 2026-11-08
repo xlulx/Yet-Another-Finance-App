@@ -499,7 +499,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get exportCsvHint =>
-      'Tüm kayıtlar ve aktarımlar; Excel veya Google Sheets için';
+      'Tüm kayıtlar, aktarımlar ve borçlar; Excel veya Google Sheets için';
 
   @override
   String get exportCsvSaved => 'CSV kaydedildi';
@@ -642,5 +642,10 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String paymentTooBig(String amount) {
     return 'En fazla $amount';
+  }
+
+  @override
+  String debtSlice(String name) {
+    return 'Borç: $name';
   }
 }

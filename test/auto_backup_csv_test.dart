@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yasba/data/app_database.dart';
 import 'package:yasba/models/category.dart';
+import 'package:yasba/models/debt.dart';
 import 'package:yasba/models/record.dart';
 import 'package:yasba/models/transfer.dart';
 import 'package:yasba/models/wallet.dart';
@@ -143,6 +144,23 @@ void main() {
           date: DateTime(2025, 3, 3),
         ),
       ],
+      debtEvents: () {
+        final debt = Debt(
+          person: 'Ali',
+          direction: DebtDirection.lent,
+          amount: 30000,
+          date: DateTime(2025, 3, 4),
+          walletId: 2,
+          note: 'kira',
+        );
+        return [
+          DebtEvent(debt, null),
+          DebtEvent(
+            debt,
+            DebtPayment(debtId: 1, amount: 10000, date: DateTime(2025, 3, 5)),
+          ),
+        ];
+      }(),
       categories: {1: market, 2: salary},
       wallets: {1: cash, 2: bank},
       currency: '₺',
@@ -161,6 +179,10 @@ void main() {
         income: 'Gelir',
         expense: 'Gider',
         transfer: 'Aktarım',
+        debtLent: 'Borç verildi',
+        debtBorrowed: 'Borç alındı',
+        repaymentReceived: 'Ödeme alındı',
+        repaymentMade: 'Ödeme yapıldı',
       ),
     );
     expect(csv, startsWith('﻿'));
@@ -170,6 +192,8 @@ void main() {
       '2025-03-02 18:05,Gider,Market,Nakit,,"Migros, ""büyük""","iki',
       'satır",-842.50,₺',
       '2025-03-03 00:00,Aktarım,,Banka,Nakit,,,2000.00,₺',
+      '2025-03-04 00:00,Borç verildi,,Banka,,Ali,kira,-300.00,₺',
+      '2025-03-05 00:00,Ödeme alındı,,,,Ali,,100.00,₺',
       '',
     ]);
   });

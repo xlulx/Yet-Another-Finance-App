@@ -554,7 +554,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportCsvHint =>
-      'All records and transfers, for Excel or Google Sheets';
+      'All records, transfers and debts, for Excel or Google Sheets';
 
   @override
   String get exportCsvSaved => 'CSV saved';
@@ -697,5 +697,10 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String paymentTooBig(String amount) {
     return 'At most $amount';
+  }
+
+  @override
+  String debtSlice(String name) {
+    return 'Debt: $name';
   }
 }

@@ -162,7 +162,7 @@ class AppState extends ChangeNotifier {
       _payments.putIfAbsent(p.debtId, () => []).add(p);
     }
     monthDebtEvents = [
-      for (final e in _allDebtEvents())
+      for (final e in allDebtEvents())
         if (!e.date.isBefore(month) &&
             e.date.isBefore(to) &&
             e.walletId != null &&
@@ -299,7 +299,8 @@ class AppState extends ChangeNotifier {
     ];
   }
 
-  Iterable<DebtEvent> _allDebtEvents() sync* {
+  /// Every debt and payment, with or without a wallet.
+  Iterable<DebtEvent> allDebtEvents() sync* {
     for (final d in debts) {
       yield DebtEvent(d, null);
       for (final p in paymentsOf(d)) {
@@ -430,10 +431,11 @@ class AppState extends ChangeNotifier {
     notifyListeners();
   }
 
-  /// All records and transfers as CSV text.
+  /// All records, transfers and debt movements as CSV text.
   Future<String> exportCsvText(CsvLabels labels) async => exportCsv(
     records: await db.records(),
     transfers: await db.transfers(),
+    debtEvents: allDebtEvents(),
     categories: _byId,
     wallets: _walletsById,
     currency: currency,
@@ -458,26 +460,5 @@ class AppState extends ChangeNotifier {
     await generateDueRecurringRecords(db, _clock());
     await _reloadAll();
     return summary;
-  }
-}
-
-/// A debt being opened, or one of its payments, as it affects a wallet.
-class DebtEvent {
-  DebtEvent(this.debt, this.payment);
-
-  final Debt debt;
-
-  /// Null for the debt itself.
-  final DebtPayment? payment;
-
-  DateTime get date => payment?.date ?? debt.date;
-  int? get walletId => payment == null ? debt.walletId : payment!.walletId;
-
-  /// Signed change to the wallet: lending takes money out and its
-  /// repayments bring it back; borrowing is the other way round.
-  int get effect {
-    final amount = payment?.amount ?? debt.amount;
-    final out = (payment == null) == debt.lent;
-    return out ? -amount : amount;
   }
 }

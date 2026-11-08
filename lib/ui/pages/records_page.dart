@@ -3,6 +3,7 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
+import '../../models/debt.dart';
 import '../../models/record.dart';
 import '../../models/transfer.dart';
 import '../../state/app_state.dart';

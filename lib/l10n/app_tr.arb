@@ -140,7 +140,7 @@
   "autoBackupNever": "Henüz otomatik yedek alınmadı",
   "autoBackupFailed": "Son otomatik yedek başarısız: {error}",
   "exportCsv": "CSV olarak dışa aktar",
-  "exportCsvHint": "Tüm kayıtlar ve aktarımlar; Excel veya Google Sheets için",
+  "exportCsvHint": "Tüm kayıtlar, aktarımlar ve borçlar; Excel veya Google Sheets için",
   "exportCsvSaved": "CSV kaydedildi",
   "csvDate": "Tarih",
   "csvType": "Tür",
@@ -184,5 +184,6 @@
   "theyOweMe": "{name} sana borçlu",
   "iOweThem": "{name} kişisine borçlusun",
   "settled": "Kapandı",
-  "paymentTooBig": "En fazla {amount}"
+  "paymentTooBig": "En fazla {amount}",
+  "debtSlice": "Borç: {name}"
 }

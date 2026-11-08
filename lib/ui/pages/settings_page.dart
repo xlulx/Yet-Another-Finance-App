@@ -106,6 +106,10 @@ class SettingsPage extends StatelessWidget {
           income: l.income,
           expense: l.expense,
           transfer: l.transfer,
+          debtLent: l.debtLentEvent,
+          debtBorrowed: l.debtBorrowedEvent,
+          repaymentReceived: l.repaymentReceived,
+          repaymentMade: l.repaymentMade,
         ),
       );
       final day = DateFormat('yyyy-MM-dd').format(DateTime.now());

@@ -5,7 +5,9 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yasba/data/app_database.dart';
 import 'package:yasba/main.dart';
 import 'package:yasba/models/debt.dart';
+import 'package:yasba/models/category.dart';
 import 'package:yasba/models/wallet.dart';
+import 'package:yasba/services/stats.dart';
 import 'package:yasba/state/app_state.dart';
 
 void main() {
@@ -149,6 +151,46 @@ void main() {
     await state.deleteDebt(debtOf('Ali'));
     expect(await db.debtPayments(), isEmpty);
     expect(state.debtPeople, ['Bora']);
+  });
+
+  test('statistics count one wallet\'s debt money per person', () {
+    final ali = Debt(
+      person: 'Ali',
+      direction: DebtDirection.lent,
+      amount: 30000,
+      date: DateTime(2025, 3, 2),
+      walletId: 1,
+    );
+    final ayse = Debt(
+      person: 'Ayşe',
+      direction: DebtDirection.borrowed,
+      amount: 50000,
+      date: DateTime(2025, 3, 3),
+      walletId: 1,
+    );
+    final events = [
+      DebtEvent(ali, null),
+      DebtEvent(
+        ali,
+        DebtPayment(debtId: 1, amount: 10000, date: DateTime(2025, 3, 3)),
+      ),
+      DebtEvent(ayse, null),
+    ];
+    expect(debtTotals(events, CategoryType.expense), [('Ali', 30000, 1)]);
+    expect(debtTotals(events, CategoryType.income), [
+      ('Ayşe', 50000, 1),
+      ('Ali', 10000, 1),
+    ]);
+    final buckets = bucketTotals(
+      const [],
+      const {},
+      31,
+      (d) => d.day - 1,
+      walletId: 1,
+      debtEvents: events,
+    );
+    expect(buckets[1], (0, 30000));
+    expect(buckets[2], (60000, 0));
   });
 
   testWidgets('add a debt and a repayment from the side menu', (tester) async {
