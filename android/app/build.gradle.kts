@@ -17,9 +17,11 @@ android {
     // APK. The APK is downloaded straight from GitHub Releases, so this
     // roughly halves the download (about 19 MB -> 9 MB) at the cost of
     // about 8 MB more space once installed, as Android extracts them.
+    // Not for the Play bundle: Play compresses downloads itself.
+    val buildingBundle = gradle.startParameter.taskNames.any { it.contains("bundle", ignoreCase = true) }
     packaging {
         jniLibs {
-            useLegacyPackaging = true
+            useLegacyPackaging = !buildingBundle
         }
     }
 
@@ -31,16 +33,10 @@ android {
     }
 
     defaultConfig {
-        // TODO: Specify your own unique Application ID (https://developer.android.com/studio/build/application-id.html).
         applicationId = "io.github.xlulx.yasba"
-        // You can update the following values to match your application needs.
-        // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
         targetSdk = flutter.targetSdkVersion
-        // Uses the version code from pubspec.yaml. When using split APKs, 1000 * ABI_VERSION
-        // is added automatically by Flutter. (https://developer.android.com/studio/build/configure-apk-splits#configure-APK-versions)
-        // You can force using the value of versionCode by specifying the `-P force-version-code-ignoring-abi=true`
-        // flag during build.
+        // Set by the release workflow from the version (see release.yml).
         versionCode = flutter.versionCode
         versionName = flutter.versionName
     }
