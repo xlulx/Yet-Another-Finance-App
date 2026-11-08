@@ -103,7 +103,7 @@ class _StatsPageState extends State<StatsPage> {
       for (final e in state.allDebtEvents())
         if (!e.date.isBefore(_from) &&
             e.date.isBefore(_to) &&
-            e.walletId != null &&
+            (e.walletId != null || (e.isClosing && wallet == null)) &&
             (wallet == null || e.walletId == wallet))
           e,
     ];
@@ -132,26 +132,25 @@ class _StatsPageState extends State<StatsPage> {
           ),
         );
       }
-      // Like transfers, one wallet's debt money in and out; one slice per
-      // person.
-      for (final (person, total, count) in debtTotals(debtEvents, _type)) {
-        totals.add(
-          CategoryTotal(
-            Category(
-              name: l.debtSlice(person),
-              type: _type,
-              color:
-                  categoryColors[person.toLowerCase().hashCode.abs() %
-                      categoryColors.length],
-              icon: debtIconKey,
-            ),
-            total,
-            count,
-          ),
-        );
-      }
-      totals.sort((a, b) => b.total.compareTo(a.total));
     }
+    // Debts closed with money still owed: a loss or gain, one slice per
+    // person. Other debt movements are not income or expense.
+    for (final (person, total, count) in debtTotals(debtEvents, _type)) {
+      final hash = person.toLowerCase().codeUnits.fold(0, (h, c) => h + c);
+      totals.add(
+        CategoryTotal(
+          Category(
+            name: l.debtSlice(person),
+            type: _type,
+            color: categoryColors[hash % categoryColors.length],
+            icon: debtIconKey,
+          ),
+          total,
+          count,
+        ),
+      );
+    }
+    totals.sort((a, b) => b.total.compareTo(a.total));
     final sum = totals.fold(0, (s, t) => s + t.total);
 
     final bucketCount = _period == _Period.month
@@ -313,8 +312,9 @@ class _StatsPageState extends State<StatsPage> {
   }
 }
 
-/// The period's debt movements by kind and, across all wallets, what is
-/// still open. Debts are not income or expense, so they get their own card.
+/// The period's debt movements, each kind next to its repayments, and
+/// what was written off when debts were closed with money still owed.
+/// Only the latter counts as income or expense elsewhere.
 class _DebtSummary extends StatelessWidget {
   const _DebtSummary({required this.events, required this.showOpen});
 
@@ -325,30 +325,31 @@ class _DebtSummary extends StatelessWidget {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
-    int sum(bool payment, bool lent) => events
-        .where((e) => (e.payment != null) == payment && e.debt.lent == lent)
-        .fold(0, (s, e) => s + e.effect.abs());
-    final rows = [
-      (l.debtLentEvent, -sum(false, true)),
-      (l.debtBorrowedEvent, sum(false, false)),
-      (l.repaymentReceived, sum(true, true)),
-      (l.repaymentMade, -sum(true, false)),
-    ];
     final theme = Theme.of(context);
-    Widget line(String label, int amount, {bool signed = true}) => Padding(
-      padding: const EdgeInsets.symmetric(vertical: 3),
-      child: Row(
+    int sum(bool Function(DebtEvent) test) =>
+        events.where(test).fold(0, (s, e) => s + e.effect.abs());
+    bool opened(DebtEvent e) => e.payment == null && !e.isClosing;
+    final lost = sum((e) => e.isClosing && e.debt.lent);
+    final gained = sum((e) => e.isClosing && !e.debt.lent);
+
+    Widget cell(String label, int amount, {Color? color}) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Expanded(child: Text(label)),
+          Text(label, style: theme.textTheme.labelMedium),
+          const SizedBox(height: 2),
           Text(
-            formatMoney(amount, state.currency, signed: signed && amount != 0),
-            style: TextStyle(
-              color: signed && amount > 0 ? Colors.green.shade600 : null,
-            ),
+            formatMoney(amount, state.currency),
+            style: theme.textTheme.titleSmall?.copyWith(color: color),
           ),
         ],
       ),
     );
+    Widget pair(Widget a, Widget b) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(children: [a, const SizedBox(width: 12), b]),
+    );
+
     return Card(
       margin: EdgeInsets.zero,
       clipBehavior: Clip.antiAlias,
@@ -369,13 +370,42 @@ class _DebtSummary extends StatelessWidget {
                   const Icon(Icons.chevron_right),
                 ],
               ),
-              const SizedBox(height: 4),
-              for (final (label, amount) in rows)
-                if (amount != 0) line(label, amount),
+              pair(
+                cell(l.debtLentEvent, sum((e) => opened(e) && e.debt.lent)),
+                cell(
+                  l.repaymentReceived,
+                  sum((e) => e.payment != null && e.debt.lent),
+                ),
+              ),
+              pair(
+                cell(
+                  l.debtBorrowedEvent,
+                  sum((e) => opened(e) && !e.debt.lent),
+                ),
+                cell(
+                  l.repaymentMade,
+                  sum((e) => e.payment != null && !e.debt.lent),
+                ),
+              ),
+              if (lost > 0 || gained > 0)
+                pair(
+                  cell(
+                    l.closedUncollected,
+                    lost,
+                    color: lost > 0 ? theme.colorScheme.error : null,
+                  ),
+                  cell(
+                    l.closedUnpaid,
+                    gained,
+                    color: gained > 0 ? Colors.green.shade600 : null,
+                  ),
+                ),
               if (showOpen) ...[
                 const Divider(height: 16),
-                line(l.owedToMe, state.totalOwedToMe, signed: false),
-                line(l.iOwe, state.totalIOwe, signed: false),
+                pair(
+                  cell(l.owedToMe, state.totalOwedToMe),
+                  cell(l.iOwe, state.totalIOwe),
+                ),
               ],
             ],
           ),

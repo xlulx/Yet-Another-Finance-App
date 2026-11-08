@@ -391,7 +391,9 @@ class _DebtEventTile extends StatelessWidget {
     final state = context.read<AppState>();
     final scheme = Theme.of(context).colorScheme;
     final debt = event.debt;
-    final what = event.payment == null
+    final what = event.isClosing
+        ? (debt.lent ? l.closedUncollectedEvent : l.closedUnpaidEvent)
+        : event.payment == null
         ? (debt.lent ? l.debtLentEvent : l.debtBorrowedEvent)
         : (debt.lent ? l.repaymentReceived : l.repaymentMade);
     final wallet = state.walletFilter == null
@@ -412,9 +414,15 @@ class _DebtEventTile extends StatelessWidget {
       ),
       trailing: Text(
         formatMoney(effect, state.currency, signed: true),
+        // Only closing with money owed counts as income or expense; other
+        // movements are shown muted.
         style: TextStyle(
           fontWeight: FontWeight.w600,
-          color: effect > 0 ? Colors.green.shade600 : null,
+          color: !event.counts
+              ? scheme.onSurfaceVariant
+              : effect > 0
+              ? Colors.green.shade600
+              : scheme.error,
         ),
       ),
       onTap: () => Navigator.of(context).push(

@@ -195,5 +195,13 @@
   "reminderRecurring": "{name} {amount} · tekrarlayan",
   "reminderDebtLent": "{name} bugün sana {amount} ödeyecek",
   "reminderDebtBorrowed": "Bugün {name} kişisine {amount} ödeyeceksin",
-  "reminderCount": "Bugün için {count} hatırlatma"
+  "reminderCount": "Bugün için {count} hatırlatma",
+  "closedUncollected": "Tahsil edilmeyen",
+  "closedUnpaid": "Ödenmeyen",
+  "closedUncollectedEvent": "Tahsil edilmeden kapatıldı",
+  "closedUnpaidEvent": "Ödenmeden kapatıldı",
+  "closeDebtQuestion": "Borç kapatılsın mı?",
+  "closeDebtLossHint": "Kalan {amount} geri gelmeyecek sayılır ve gider olarak eklenir.",
+  "closeDebtGainHint": "Kalan {amount} ödenmeyecek sayılır ve gelir olarak eklenir.",
+  "closedDifference": "Kapatılan fark"
 }

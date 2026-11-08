@@ -163,6 +163,26 @@ Future<void> seed(AppDatabase db, String lang) async {
       amount: 20000,
       date: DateTime(now.year, now.month - 1, 3),
       closed: true,
+      closedAt: d((today - 2).clamp(1, 28), 11),
+    ),
+  );
+  final kept = await db.insertDebt(
+    Debt(
+      person: lang == 'tr' ? 'Zeynep' : 'Mia',
+      direction: DebtDirection.borrowed,
+      amount: 40000,
+      date: DateTime(now.year, now.month - 1, 20),
+      walletId: cash,
+      closed: true,
+      closedAt: d((today - 3).clamp(1, 28), 12),
+    ),
+  );
+  await db.insertDebtPayment(
+    DebtPayment(
+      debtId: kept,
+      amount: 25000,
+      date: DateTime(now.year, now.month - 1, 28),
+      walletId: cash,
     ),
   );
   await db.insertRecurringRule(

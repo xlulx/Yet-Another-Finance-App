@@ -255,7 +255,8 @@ class AppState extends ChangeNotifier {
       for (final e in allDebtEvents())
         if (!e.date.isBefore(month) &&
             e.date.isBefore(to) &&
-            e.walletId != null &&
+            // Closing without a wallet still counts across all wallets.
+            (e.walletId != null || (e.isClosing && walletFilter == null)) &&
             (walletFilter == null || e.walletId == walletFilter))
           e,
     ];
@@ -390,29 +391,36 @@ class AppState extends ChangeNotifier {
     ];
   }
 
-  /// Every debt and payment, with or without a wallet.
+  /// Every debt and payment, with or without a wallet, and debts closed
+  /// by hand with money still owed.
   Iterable<DebtEvent> allDebtEvents() sync* {
     for (final d in debts) {
       yield DebtEvent(d, null);
-      for (final p in paymentsOf(d)) {
+      final payments = paymentsOf(d);
+      for (final p in payments) {
         yield DebtEvent(d, p);
+      }
+      final remaining = remainingOf(d);
+      if (d.closed && remaining > 0) {
+        // Debts closed before the date was kept: the last movement.
+        final on =
+            d.closedAt ?? (payments.isEmpty ? d.date : payments.last.date);
+        yield DebtEvent.closed(d, remaining, on);
       }
     }
   }
 
-  /// Debt money into the filtered wallet this month; 0 without a filter.
-  int get monthDebtIn => walletFilter == null
-      ? 0
-      : monthDebtEvents
-            .where((e) => e.effect > 0)
-            .fold(0, (s, e) => s + e.effect);
+  /// Money borrowed that will not be paid back, closed this month (in the
+  /// filtered wallet, if any): counts as income.
+  int get monthDebtIn => monthDebtEvents
+      .where((e) => e.counts && e.effect > 0)
+      .fold(0, (s, e) => s + e.effect);
 
-  /// Debt money out of the filtered wallet this month; 0 without a filter.
-  int get monthDebtOut => walletFilter == null
-      ? 0
-      : monthDebtEvents
-            .where((e) => e.effect < 0)
-            .fold(0, (s, e) => s - e.effect);
+  /// Money lent that will not come back, closed this month: counts as an
+  /// expense.
+  int get monthDebtOut => monthDebtEvents
+      .where((e) => e.counts && e.effect < 0)
+      .fold(0, (s, e) => s - e.effect);
 
   Future<void> saveDebt(Debt d) async {
     if (d.id == null) {
@@ -429,7 +437,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> setDebtClosed(Debt d, bool closed) =>
-      saveDebt(d.copyWith(closed: closed));
+      saveDebt(d.copyWith(closed: closed, at: _clock()));
 
   Future<void> addDebtPayment(DebtPayment p) async {
     await db.insertDebtPayment(p);

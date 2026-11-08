@@ -451,5 +451,27 @@
         "type": "int"
       }
     }
-  }
+  },
+  "closedUncollected": "Not collected",
+  "closedUnpaid": "Not paid back",
+  "closedUncollectedEvent": "Closed, not collected",
+  "closedUnpaidEvent": "Closed, not paid back",
+  "closeDebtQuestion": "Close this debt?",
+  "closeDebtLossHint": "The remaining {amount} will not come back and counts as an expense.",
+  "@closeDebtLossHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closeDebtGainHint": "The remaining {amount} will not be paid and counts as income.",
+  "@closeDebtGainHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closedDifference": "Written off"
 }

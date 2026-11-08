@@ -101,16 +101,35 @@ void main() {
     expect(state.monthDebtEvents, hasLength(4));
     expect(state.monthDebtIn + state.monthDebtOut, 0); // no wallet filter
 
-    // Seen from the bank: 30000 lent and 20000 repaid went out.
+    // Seen from the bank: 30000 lent and 20000 repaid went out, but
+    // neither is income or expense.
     await state.setWalletFilter(bank);
     expect(
       state.monthDebtEvents.map((e) => e.effect),
       unorderedEquals([-30000, -20000]),
     );
-    expect((state.monthDebtIn, state.monthDebtOut), (0, 50000));
-    // Seen from cash: borrowed 50000 and got 10000 back.
-    await state.setWalletFilter(cash);
-    expect((state.monthDebtIn, state.monthDebtOut), (60000, 0));
+    expect((state.monthDebtIn, state.monthDebtOut), (0, 0));
+    await state.setWalletFilter(null);
+
+    // Closing with money still owed: what Ali never paid back is an
+    // expense, what I never paid Ayşe is income, on the closing day.
+    await state.setDebtClosed(debtOf('Ali'), true);
+    await state.setDebtClosed(debtOf('Ayşe'), true);
+    expect(debtOf('Ali').closedAt, now);
+    expect((state.monthDebtIn, state.monthDebtOut), (30000, 20000));
+    final closing = state.monthDebtEvents.where((e) => e.isClosing);
+    expect(closing.map((e) => e.date).toSet(), {now});
+    // Wallet balances do not change.
+    expect(state.balances[bank], 100000 - 30000 - 20000);
+    expect(state.balances[cash], 50000 + 10000);
+    // Seen from the bank, only Ali's loss.
+    await state.setWalletFilter(bank);
+    expect((state.monthDebtIn, state.monthDebtOut), (0, 20000));
+    await state.setWalletFilter(null);
+    // Reopening takes it back.
+    await state.setDebtClosed(debtOf('Ali'), false);
+    expect(debtOf('Ali').closedAt, isNull);
+    expect((state.monthDebtIn, state.monthDebtOut), (30000, 0));
 
     // A wallet used by a debt cannot be deleted.
     expect(await state.deleteWallet(state.walletById(bank)!), isFalse);
@@ -153,20 +172,21 @@ void main() {
     expect(state.debtPeople, ['Bora']);
   });
 
-  test('statistics count one wallet\'s debt money per person', () {
+  test('statistics count only what was written off', () {
     final ali = Debt(
       person: 'Ali',
       direction: DebtDirection.lent,
       amount: 30000,
       date: DateTime(2025, 3, 2),
       walletId: 1,
+      closed: true,
     );
     final ayse = Debt(
       person: 'Ayşe',
       direction: DebtDirection.borrowed,
       amount: 50000,
       date: DateTime(2025, 3, 3),
-      walletId: 1,
+      closed: true,
     );
     final events = [
       DebtEvent(ali, null),
@@ -174,23 +194,20 @@ void main() {
         ali,
         DebtPayment(debtId: 1, amount: 10000, date: DateTime(2025, 3, 3)),
       ),
+      DebtEvent.closed(ali, 20000, DateTime(2025, 3, 4)),
       DebtEvent(ayse, null),
+      DebtEvent.closed(ayse, 50000, DateTime(2025, 3, 5)),
     ];
-    expect(debtTotals(events, CategoryType.expense), [('Ali', 30000, 1)]);
-    expect(debtTotals(events, CategoryType.income), [
-      ('Ayşe', 50000, 1),
-      ('Ali', 10000, 1),
-    ]);
+    expect(debtTotals(events, CategoryType.expense), [('Ali', 20000, 1)]);
+    expect(debtTotals(events, CategoryType.income), [('Ayşe', 50000, 1)]);
     final buckets = bucketTotals(
       const [],
       const {},
       31,
       (d) => d.day - 1,
-      walletId: 1,
       debtEvents: events,
     );
-    expect(buckets[1], (0, 30000));
-    expect(buckets[2], (60000, 0));
+    expect(buckets.sublist(1, 5), [(0, 0), (0, 0), (0, 20000), (50000, 0)]);
   });
 
   testWidgets('add a debt and a repayment from the side menu', (tester) async {

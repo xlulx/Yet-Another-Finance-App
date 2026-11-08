@@ -687,4 +687,32 @@ class AppLocalizationsTr extends AppLocalizations {
   String reminderCount(int count) {
     return 'Bugün için $count hatırlatma';
   }
+
+  @override
+  String get closedUncollected => 'Tahsil edilmeyen';
+
+  @override
+  String get closedUnpaid => 'Ödenmeyen';
+
+  @override
+  String get closedUncollectedEvent => 'Tahsil edilmeden kapatıldı';
+
+  @override
+  String get closedUnpaidEvent => 'Ödenmeden kapatıldı';
+
+  @override
+  String get closeDebtQuestion => 'Borç kapatılsın mı?';
+
+  @override
+  String closeDebtLossHint(String amount) {
+    return 'Kalan $amount geri gelmeyecek sayılır ve gider olarak eklenir.';
+  }
+
+  @override
+  String closeDebtGainHint(String amount) {
+    return 'Kalan $amount ödenmeyecek sayılır ve gelir olarak eklenir.';
+  }
+
+  @override
+  String get closedDifference => 'Kapatılan fark';
 }

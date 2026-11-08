@@ -159,6 +159,7 @@ void main() {
             debt,
             DebtPayment(debtId: 1, amount: 10000, date: DateTime(2025, 3, 5)),
           ),
+          DebtEvent.closed(debt, 20000, DateTime(2025, 3, 6)),
         ];
       }(),
       categories: {1: market, 2: salary},
@@ -183,6 +184,8 @@ void main() {
         debtBorrowed: 'Borç alındı',
         repaymentReceived: 'Ödeme alındı',
         repaymentMade: 'Ödeme yapıldı',
+        closedUncollected: 'Tahsil edilmeden kapatıldı',
+        closedUnpaid: 'Ödenmeden kapatıldı',
       ),
     );
     expect(csv, startsWith('﻿'));
@@ -194,6 +197,7 @@ void main() {
       '2025-03-03 00:00,Aktarım,,Banka,Nakit,,,2000.00,₺',
       '2025-03-04 00:00,Borç verildi,,Banka,,Ali,kira,-300.00,₺',
       '2025-03-05 00:00,Ödeme alındı,,,,Ali,,100.00,₺',
+      '2025-03-06 00:00,Tahsil edilmeden kapatıldı,,Banka,,Ali,kira,-200.00,₺',
       '',
     ]);
   });

@@ -743,4 +743,32 @@ class AppLocalizationsEn extends AppLocalizations {
   String reminderCount(int count) {
     return '$count reminders for today';
   }
+
+  @override
+  String get closedUncollected => 'Not collected';
+
+  @override
+  String get closedUnpaid => 'Not paid back';
+
+  @override
+  String get closedUncollectedEvent => 'Closed, not collected';
+
+  @override
+  String get closedUnpaidEvent => 'Closed, not paid back';
+
+  @override
+  String get closeDebtQuestion => 'Close this debt?';
+
+  @override
+  String closeDebtLossHint(String amount) {
+    return 'The remaining $amount will not come back and counts as an expense.';
+  }
+
+  @override
+  String closeDebtGainHint(String amount) {
+    return 'The remaining $amount will not be paid and counts as income.';
+  }
+
+  @override
+  String get closedDifference => 'Written off';
 }

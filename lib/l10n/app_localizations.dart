@@ -1285,6 +1285,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} reminders for today'**
   String reminderCount(int count);
+
+  /// No description provided for @closedUncollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not collected'**
+  String get closedUncollected;
+
+  /// No description provided for @closedUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid back'**
+  String get closedUnpaid;
+
+  /// No description provided for @closedUncollectedEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed, not collected'**
+  String get closedUncollectedEvent;
+
+  /// No description provided for @closedUnpaidEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed, not paid back'**
+  String get closedUnpaidEvent;
+
+  /// No description provided for @closeDebtQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Close this debt?'**
+  String get closeDebtQuestion;
+
+  /// No description provided for @closeDebtLossHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining {amount} will not come back and counts as an expense.'**
+  String closeDebtLossHint(String amount);
+
+  /// No description provided for @closeDebtGainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining {amount} will not be paid and counts as income.'**
+  String closeDebtGainHint(String amount);
+
+  /// No description provided for @closedDifference.
+  ///
+  /// In en, this message translates to:
+  /// **'Written off'**
+  String get closedDifference;
 }
 
 class _AppLocalizationsDelegate
