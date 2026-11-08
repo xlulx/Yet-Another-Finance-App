@@ -404,5 +404,52 @@
         "type": "String"
       }
     }
+  },
+  "reminders": "Reminders",
+  "remindersHint": "A notification on the day, even when the app is closed",
+  "remindRecurring": "Recurring records",
+  "remindDebts": "Debt due dates",
+  "remindTime": "Reminder time",
+  "notificationsDenied": "Notifications are turned off for YASBA in Android settings",
+  "reminderRecurring": "{name} {amount} · recurring",
+  "@reminderRecurring": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderDebtLent": "{name} is due to pay you {amount}",
+  "@reminderDebtLent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderDebtBorrowed": "You are due to pay {name} {amount}",
+  "@reminderDebtBorrowed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderCount": "{count} reminders for today",
+  "@reminderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
   }
 }

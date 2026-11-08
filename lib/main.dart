@@ -7,6 +7,7 @@ import 'package:provider/provider.dart';
 
 import 'data/app_database.dart';
 import 'l10n/app_localizations.dart';
+import 'services/reminders.dart';
 import 'state/app_state.dart';
 import 'ui/home_shell.dart';
 
@@ -16,7 +17,7 @@ Future<void> main() async {
   // Only used to name the default categories on first launch.
   final systemLanguage = PlatformDispatcher.instance.locale.languageCode;
   final db = await AppDatabase.open(language: systemLanguage);
-  final state = AppState(db);
+  final state = AppState(db, reminderScheduler: PlatformReminderScheduler());
   await state.load();
   runApp(YasbaApp(state: state));
 }

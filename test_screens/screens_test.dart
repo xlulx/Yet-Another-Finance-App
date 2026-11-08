@@ -292,6 +292,11 @@ void main() {
         await tester.pump();
       }
       await shot(tester, '${lang}_3_stats');
+      await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3c_stats_debts');
+      await tester.drag(find.byType(ListView).last, const Offset(0, 2000));
+      await tester.pumpAndSettle();
       await pickWallet(tester, state, lang == 'tr' ? 'Banka' : 'Bank');
       await shot(tester, '${lang}_3b_stats_one_wallet');
       await pickWallet(tester, state, null);

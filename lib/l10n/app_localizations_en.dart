@@ -703,4 +703,44 @@ class AppLocalizationsEn extends AppLocalizations {
   String debtSlice(String name) {
     return 'Debt: $name';
   }
+
+  @override
+  String get reminders => 'Reminders';
+
+  @override
+  String get remindersHint =>
+      'A notification on the day, even when the app is closed';
+
+  @override
+  String get remindRecurring => 'Recurring records';
+
+  @override
+  String get remindDebts => 'Debt due dates';
+
+  @override
+  String get remindTime => 'Reminder time';
+
+  @override
+  String get notificationsDenied =>
+      'Notifications are turned off for YASBA in Android settings';
+
+  @override
+  String reminderRecurring(String name, String amount) {
+    return '$name $amount · recurring';
+  }
+
+  @override
+  String reminderDebtLent(String name, String amount) {
+    return '$name is due to pay you $amount';
+  }
+
+  @override
+  String reminderDebtBorrowed(String name, String amount) {
+    return 'You are due to pay $name $amount';
+  }
+
+  @override
+  String reminderCount(int count) {
+    return '$count reminders for today';
+  }
 }

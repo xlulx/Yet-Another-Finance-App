@@ -302,7 +302,8 @@ class _StatsPageState extends State<StatsPage> {
               currency: state.currency,
             ),
           ),
-          if (state.debts.isNotEmpty) ...[
+          if (state.debts.isNotEmpty &&
+              (wallet == null || debtEvents.isNotEmpty)) ...[
             const SizedBox(height: 24),
             _DebtSummary(events: debtEvents, showOpen: wallet == null),
           ],
@@ -369,7 +370,8 @@ class _DebtSummary extends StatelessWidget {
                 ],
               ),
               const SizedBox(height: 4),
-              for (final (label, amount) in rows) line(label, amount),
+              for (final (label, amount) in rows)
+                if (amount != 0) line(label, amount),
               if (showOpen) ...[
                 const Divider(height: 16),
                 line(l.owedToMe, state.totalOwedToMe, signed: false),

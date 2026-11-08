@@ -648,4 +648,43 @@ class AppLocalizationsTr extends AppLocalizations {
   String debtSlice(String name) {
     return 'Borç: $name';
   }
+
+  @override
+  String get reminders => 'Hatırlatmalar';
+
+  @override
+  String get remindersHint => 'O gün bildirim gelir, uygulama kapalıyken bile';
+
+  @override
+  String get remindRecurring => 'Tekrarlayan işlemler';
+
+  @override
+  String get remindDebts => 'Borç son ödeme tarihleri';
+
+  @override
+  String get remindTime => 'Hatırlatma saati';
+
+  @override
+  String get notificationsDenied =>
+      'YASBA için bildirimler Android ayarlarında kapalı';
+
+  @override
+  String reminderRecurring(String name, String amount) {
+    return '$name $amount · tekrarlayan';
+  }
+
+  @override
+  String reminderDebtLent(String name, String amount) {
+    return '$name bugün sana $amount ödeyecek';
+  }
+
+  @override
+  String reminderDebtBorrowed(String name, String amount) {
+    return 'Bugün $name kişisine $amount ödeyeceksin';
+  }
+
+  @override
+  String reminderCount(int count) {
+    return 'Bugün için $count hatırlatma';
+  }
 }

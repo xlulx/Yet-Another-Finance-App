@@ -85,6 +85,22 @@ class SettingsPage extends StatelessWidget {
     }
   }
 
+  Future<void> _setReminders(
+    BuildContext context, {
+    bool? recurring,
+    bool? debts,
+  }) async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final ok = await context.read<AppState>().setReminders(
+      recurring: recurring,
+      debts: debts,
+    );
+    if (!ok) {
+      messenger.showSnackBar(SnackBar(content: Text(l.notificationsDenied)));
+    }
+  }
+
   Future<void> _exportCsv(BuildContext context) async {
     final l = AppLocalizations.of(context);
     final state = context.read<AppState>();
@@ -261,6 +277,49 @@ class SettingsPage extends StatelessWidget {
                 if (v != null) state.setLanguage(v);
               },
             ),
+          ),
+          const Divider(),
+          Padding(
+            padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+            child: Text(
+              l.reminders,
+              style: Theme.of(context).textTheme.titleSmall
+                  ?.copyWith(color: Theme.of(context).colorScheme.primary),
+            ),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.repeat),
+            title: Text(l.remindRecurring),
+            subtitle: Text(l.remindersHint),
+            value: state.remindRecurring,
+            onChanged: (v) => _setReminders(context, recurring: v),
+          ),
+          SwitchListTile(
+            secondary: const Icon(Icons.event_outlined),
+            title: Text(l.remindDebts),
+            value: state.remindDebts,
+            onChanged: (v) => _setReminders(context, debts: v),
+          ),
+          ListTile(
+            leading: const Icon(Icons.alarm),
+            title: Text(l.remindTime),
+            enabled: state.remindRecurring || state.remindDebts,
+            trailing: Text(
+              MaterialLocalizations.of(context).formatTimeOfDay(
+                TimeOfDay(hour: state.remindHour, minute: state.remindMinute),
+                alwaysUse24HourFormat: true,
+              ),
+            ),
+            onTap: () async {
+              final t = await showTimePicker(
+                context: context,
+                initialTime: TimeOfDay(
+                  hour: state.remindHour,
+                  minute: state.remindMinute,
+                ),
+              );
+              if (t != null) await state.setReminderTime(t.hour, t.minute);
+            },
           ),
           const Divider(),
           ListTile(

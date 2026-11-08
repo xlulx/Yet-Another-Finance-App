@@ -185,5 +185,15 @@
   "iOweThem": "{name} kişisine borçlusun",
   "settled": "Kapandı",
   "paymentTooBig": "En fazla {amount}",
-  "debtSlice": "Borç: {name}"
+  "debtSlice": "Borç: {name}",
+  "reminders": "Hatırlatmalar",
+  "remindersHint": "O gün bildirim gelir, uygulama kapalıyken bile",
+  "remindRecurring": "Tekrarlayan işlemler",
+  "remindDebts": "Borç son ödeme tarihleri",
+  "remindTime": "Hatırlatma saati",
+  "notificationsDenied": "YASBA için bildirimler Android ayarlarında kapalı",
+  "reminderRecurring": "{name} {amount} · tekrarlayan",
+  "reminderDebtLent": "{name} bugün sana {amount} ödeyecek",
+  "reminderDebtBorrowed": "Bugün {name} kişisine {amount} ödeyeceksin",
+  "reminderCount": "Bugün için {count} hatırlatma"
 }
