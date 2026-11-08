@@ -248,14 +248,18 @@ class AppState extends ChangeNotifier {
     balances = await db.walletBalances();
     debts = await db.debts();
     _payments = {};
+    forgivenRecords = {};
     for (final p in await db.debtPayments()) {
       _payments.putIfAbsent(p.debtId, () => []).add(p);
+      if (p.recordId != null) forgivenRecords[p.recordId!] = p.debtId;
     }
     monthDebtEvents = [
       for (final e in allDebtEvents())
         if (!e.date.isBefore(month) &&
             e.date.isBefore(to) &&
             e.walletId != null &&
+            // The forgiveness record is listed instead.
+            !e.forgiven &&
             (walletFilter == null || e.walletId == walletFilter))
           e,
     ];
@@ -365,8 +369,58 @@ class AppState extends ChangeNotifier {
   // ---- Debts ----
 
   List<DebtPayment> paymentsOf(Debt d) => _payments[d.id] ?? const [];
-  int paidOf(Debt d) => paymentsOf(d).fold(0, (s, p) => s + p.amount);
-  int remainingOf(Debt d) => d.amount - paidOf(d);
+
+  /// Repaid, not counting what was forgiven.
+  int paidOf(Debt d) =>
+      paymentsOf(d).where((p) => !p.forgiven).fold(0, (s, p) => s + p.amount);
+  int forgivenOf(Debt d) =>
+      paymentsOf(d).where((p) => p.forgiven).fold(0, (s, p) => s + p.amount);
+  int remainingOf(Debt d) => d.amount - paidOf(d) - forgivenOf(d);
+
+  /// Records written for forgiven debts, by record id: the debt's id.
+  Map<int, int> forgivenRecords = {};
+
+  /// The category last used for forgiving debts of this kind (expense for
+  /// money lent, income for money borrowed), if it still exists.
+  Future<int?> forgiveCategoryId(CategoryType type) async {
+    final id = int.tryParse(
+      await db.getSetting('$_forgiveCategoryKey${type.index}') ?? '',
+    );
+    return _byId[id]?.type == type ? id : null;
+  }
+
+  static const _forgiveCategoryKey = 'forgive_category_';
+
+  /// Forgives [amount] of [debt] (see [AppDatabase.forgiveDebt]). Without
+  /// a [categoryId], a category named [newCategoryName] is created.
+  Future<void> forgiveDebt(
+    Debt debt, {
+    required int amount,
+    required int walletId,
+    required DateTime date,
+    int? categoryId,
+    required String newCategoryName,
+  }) async {
+    final type = debt.lent ? CategoryType.expense : CategoryType.income;
+    categoryId ??= await db.insertCategory(
+      Category(
+        name: newCategoryName,
+        type: type,
+        color: 0xFF78909C,
+        icon: 'handshake',
+        sortOrder: categories.where((c) => c.type == type).length,
+      ),
+    );
+    await db.setSetting('$_forgiveCategoryKey${type.index}', '$categoryId');
+    await db.forgiveDebt(
+      debt,
+      amount: amount,
+      categoryId: categoryId,
+      walletId: walletId,
+      date: date,
+    );
+    await _reloadAll();
+  }
 
   /// Fully repaid, or closed by hand.
   bool isSettled(Debt d) => d.closed || remainingOf(d) <= 0;

@@ -183,6 +183,7 @@ void main() {
         debtBorrowed: 'Borç alındı',
         repaymentReceived: 'Ödeme alındı',
         repaymentMade: 'Ödeme yapıldı',
+        forgiven: 'Borç affı',
       ),
     );
     expect(csv, startsWith('﻿'));

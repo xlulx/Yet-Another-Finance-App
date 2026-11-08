@@ -687,4 +687,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String reminderCount(int count) {
     return 'Bugün için $count hatırlatma';
   }
+
+  @override
+  String get forgiveDebt => 'Affet';
+
+  @override
+  String get forgiveDebtBorrowed => 'Affedildi';
+
+  @override
+  String get forgiveDebtTitle => 'Borcu affet';
+
+  @override
+  String get forgiveLentHint =>
+      'Gider olarak kaydedilir; cüzdan bakiyesi değişmez.';
+
+  @override
+  String get forgiveBorrowedHint =>
+      'Gelir olarak kaydedilir; cüzdan bakiyesi değişmez.';
+
+  @override
+  String get debtForgiven => 'Borç affı';
+
+  @override
+  String get forgivenFigure => 'Affedilen';
 }

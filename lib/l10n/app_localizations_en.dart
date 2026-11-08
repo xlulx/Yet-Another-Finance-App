@@ -743,4 +743,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String reminderCount(int count) {
     return '$count reminders for today';
   }
+
+  @override
+  String get forgiveDebt => 'Forgive';
+
+  @override
+  String get forgiveDebtBorrowed => 'Forgiven';
+
+  @override
+  String get forgiveDebtTitle => 'Forgive the debt';
+
+  @override
+  String get forgiveLentHint =>
+      'Recorded as an expense; the wallet balance does not change.';
+
+  @override
+  String get forgiveBorrowedHint =>
+      'Recorded as income; the wallet balance does not change.';
+
+  @override
+  String get debtForgiven => 'Debt forgiven';
+
+  @override
+  String get forgivenFigure => 'Forgiven';
 }

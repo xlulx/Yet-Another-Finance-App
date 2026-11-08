@@ -36,6 +36,7 @@ const Map<String, IconData> categoryIcons = {
   'tax': Icons.account_balance,
   'work': Icons.work,
   'savings': Icons.savings,
+  'handshake': Icons.handshake,
   'invest': Icons.trending_up,
   'cash': Icons.payments,
   'bank': Icons.account_balance_wallet,

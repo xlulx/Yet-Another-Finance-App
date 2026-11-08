@@ -195,5 +195,12 @@
   "reminderRecurring": "{name} {amount} · tekrarlayan",
   "reminderDebtLent": "{name} bugün sana {amount} ödeyecek",
   "reminderDebtBorrowed": "Bugün {name} kişisine {amount} ödeyeceksin",
-  "reminderCount": "Bugün için {count} hatırlatma"
+  "reminderCount": "Bugün için {count} hatırlatma",
+  "forgiveDebt": "Affet",
+  "forgiveDebtBorrowed": "Affedildi",
+  "forgiveDebtTitle": "Borcu affet",
+  "forgiveLentHint": "Gider olarak kaydedilir; cüzdan bakiyesi değişmez.",
+  "forgiveBorrowedHint": "Gelir olarak kaydedilir; cüzdan bakiyesi değişmez.",
+  "debtForgiven": "Borç affı",
+  "forgivenFigure": "Affedilen"
 }

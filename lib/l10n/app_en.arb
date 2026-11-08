@@ -451,5 +451,12 @@
         "type": "int"
       }
     }
-  }
+  },
+  "forgiveDebt": "Forgive",
+  "forgiveDebtBorrowed": "Forgiven",
+  "forgiveDebtTitle": "Forgive the debt",
+  "forgiveLentHint": "Recorded as an expense; the wallet balance does not change.",
+  "forgiveBorrowedHint": "Recorded as income; the wallet balance does not change.",
+  "debtForgiven": "Debt forgiven",
+  "forgivenFigure": "Forgiven"
 }

@@ -17,7 +17,7 @@ class AppDatabase {
   /// 1: categories, records, recurring rules, settings.
   /// 2: wallets and transfers.
   /// 3: debts and their payments.
-  static const _version = 3;
+  static const _version = 4;
 
   /// Opens the app database. Tests can pass a [factory] and [path]
   /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`), or a
@@ -46,10 +46,12 @@ class AppDatabase {
           await _onCreate(db, version, language);
           await _upgradeToV2(db, language);
           await _upgradeToV3(db);
+          await _upgradeToV4(db);
         },
         onUpgrade: (db, from, to) async {
           if (from < 2) await _upgradeToV2(db, language);
           if (from < 3) await _upgradeToV3(db);
+          if (from < 4) await _upgradeToV4(db);
         },
       ),
     );
@@ -182,6 +184,13 @@ class AppDatabase {
       'CREATE INDEX idx_debt_payments_debt ON debt_payments(debt_id)',
     );
   }
+
+  /// A forgiven debt is a payment paired with an expense (or income)
+  /// record in the same wallet; deleting the record deletes the payment.
+  static Future<void> _upgradeToV4(Database db) => db.execute(
+    'ALTER TABLE debt_payments ADD COLUMN record_id INTEGER '
+    'REFERENCES records(id) ON DELETE CASCADE',
+  );
 
   static Future<void> _seedDefaultCategories(
     DatabaseExecutor db,
@@ -422,15 +431,60 @@ class AppDatabase {
   Future<void> updateDebt(Debt d) =>
       db.update('debts', d.toRow(), where: 'id = ?', whereArgs: [d.id]);
 
-  /// Deletes the debt and its payments.
-  Future<void> deleteDebt(int id) =>
-      db.delete('debts', where: 'id = ?', whereArgs: [id]);
+  /// Deletes the debt, its payments and the records of its forgiveness.
+  Future<void> deleteDebt(int id) => db.transaction((txn) async {
+    await txn.delete(
+      'records',
+      where: 'id IN (SELECT record_id FROM debt_payments WHERE debt_id = ?)',
+      whereArgs: [id],
+    );
+    await txn.delete('debts', where: 'id = ?', whereArgs: [id]);
+  });
 
-  Future<int> insertDebtPayment(DebtPayment p) =>
-      db.insert('debt_payments', p.toRow()..remove('id'));
+  Future<int> insertDebtPayment(DebtPayment p, {DatabaseExecutor? txn}) =>
+      (txn ?? db).insert('debt_payments', p.toRow()..remove('id'));
 
-  Future<void> deleteDebtPayment(int id) =>
-      db.delete('debt_payments', where: 'id = ?', whereArgs: [id]);
+  /// Deletes the payment, and its record if it was a forgiveness.
+  Future<void> deleteDebtPayment(int id) => db.transaction((txn) async {
+    await txn.delete(
+      'records',
+      where: 'id IN (SELECT record_id FROM debt_payments WHERE id = ?)',
+      whereArgs: [id],
+    );
+    await txn.delete('debt_payments', where: 'id = ?', whereArgs: [id]);
+  });
+
+  /// Forgives [amount] of a debt: records it as an expense (money lent) or
+  /// income (money borrowed) in [walletId], and pays the debt off by the
+  /// same amount in the same wallet, so the balance does not change.
+  Future<void> forgiveDebt(
+    Debt debt, {
+    required int amount,
+    required int categoryId,
+    required int walletId,
+    required DateTime date,
+  }) => db.transaction((txn) async {
+    final recordId = await insertRecord(
+      Record(
+        title: debt.person,
+        amount: amount,
+        date: date,
+        categoryId: categoryId,
+        walletId: walletId,
+      ),
+      txn: txn,
+    );
+    await insertDebtPayment(
+      DebtPayment(
+        debtId: debt.id!,
+        amount: amount,
+        date: date,
+        walletId: walletId,
+        recordId: recordId,
+      ),
+      txn: txn,
+    );
+  });
 
   // ---- Transfers ----
 
