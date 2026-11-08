@@ -24,7 +24,11 @@ import 'debts_page.dart';
 enum _Period { month, year }
 
 class StatsPage extends StatefulWidget {
-  const StatsPage({super.key});
+  const StatsPage({super.key, this.active = true});
+
+  /// Whether the page is on screen. It stays alive in the bottom
+  /// navigation; while hidden, changes are only loaded once it is shown.
+  final bool active;
 
   @override
   State<StatsPage> createState() => _StatsPageState();
@@ -39,6 +43,12 @@ class _StatsPageState extends State<StatsPage> {
   int? _touched;
   AppState? _state;
 
+  /// Data changed while the page was hidden.
+  bool _stale = false;
+
+  /// Bumped per load, so a slow earlier load cannot overwrite a newer one.
+  int _loadId = 0;
+
   DateTime get _from => _period == _Period.month
       ? DateTime(_anchor.year, _anchor.month)
       : DateTime(_anchor.year);
@@ -51,19 +61,35 @@ class _StatsPageState extends State<StatsPage> {
     super.didChangeDependencies();
     final state = context.read<AppState>();
     if (_state != state) {
-      _state?.removeListener(_load);
-      _state = state..addListener(_load);
-      _load();
+      _state?.removeListener(_onStateChanged);
+      _state = state..addListener(_onStateChanged);
+      _onStateChanged();
     }
   }
 
   @override
+  void didUpdateWidget(StatsPage old) {
+    super.didUpdateWidget(old);
+    if (widget.active && _stale) _load();
+  }
+
+  @override
   void dispose() {
-    _state?.removeListener(_load);
+    _state?.removeListener(_onStateChanged);
     super.dispose();
   }
 
+  void _onStateChanged() {
+    if (widget.active) {
+      _load();
+    } else {
+      _stale = true;
+    }
+  }
+
   Future<void> _load() async {
+    _stale = false;
+    final id = ++_loadId;
     final wallet = _state!.walletFilter;
     final records = await _state!.db.records(
       from: _from,
@@ -75,7 +101,7 @@ class _StatsPageState extends State<StatsPage> {
     final transfers = wallet == null
         ? <Transfer>[]
         : await _state!.db.transfers(from: _from, to: _to, walletId: wallet);
-    if (mounted) {
+    if (mounted && id == _loadId) {
       setState(() {
         _records = records;
         _transfers = transfers;

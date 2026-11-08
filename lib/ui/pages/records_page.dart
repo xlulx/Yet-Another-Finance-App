@@ -32,11 +32,9 @@ int _transferEffect(AppState state, Transfer t) {
   return 0;
 }
 
-/// How a debt movement counts in a day's total: like transfers, only when
-/// looking at one wallet (across all wallets it is neither income nor
-/// expense).
-int _debtEffect(AppState state, DebtEvent e) =>
-    state.walletFilter == null ? 0 : e.effect;
+/// How a debt movement counts in a day's total: only closing a debt with
+/// money still owed is a loss or gain.
+int _debtEffect(DebtEvent e) => e.counts ? e.effect : 0;
 
 class RecordsPage extends StatelessWidget {
   const RecordsPage({super.key});
@@ -57,6 +55,10 @@ class RecordsPage extends StatelessWidget {
       final d = _dateOf(e);
       groups.putIfAbsent(DateTime(d.year, d.month, d.day), () => []).add(e);
     }
+    // One row per day header and entry, built only when scrolled into view.
+    final rows = <Object>[
+      for (final group in groups.entries) ...[group, ...group.value],
+    ];
 
     return Scaffold(
       appBar: AppBar(
@@ -82,25 +84,28 @@ class RecordsPage extends StatelessWidget {
           if (v.abs() < 300) return;
           state.shiftMonth(v < 0 ? 1 : -1);
         },
-        child: ListView(
+        child: ListView.builder(
           padding: const EdgeInsets.only(bottom: 96),
-          children: [
-            _SummaryCard(state: state),
-            if (entries.isEmpty)
-              Padding(
+          itemCount: 1 + (rows.isEmpty ? 1 : rows.length),
+          itemBuilder: (context, i) {
+            if (i == 0) return _SummaryCard(state: state);
+            if (rows.isEmpty) {
+              return Padding(
                 padding: const EdgeInsets.all(48),
                 child: Center(child: Text(l.noRecordsThisMonth)),
+              );
+            }
+            return switch (rows[i - 1]) {
+              MapEntry<DateTime, List<Object>> g => _DayHeader(
+                day: g.key,
+                entries: g.value,
+                state: state,
               ),
-            for (final group in groups.entries) ...[
-              _DayHeader(day: group.key, entries: group.value, state: state),
-              for (final e in group.value)
-                switch (e) {
-                  Record r => _RecordTile(record: r),
-                  Transfer t => _TransferTile(transfer: t),
-                  _ => _DebtEventTile(event: e as DebtEvent),
-                },
-            ],
-          ],
+              Record r => _RecordTile(record: r),
+              Transfer t => _TransferTile(transfer: t),
+              final e => _DebtEventTile(event: e as DebtEvent),
+            };
+          },
         ),
       ),
     );
@@ -217,7 +222,7 @@ class _DayHeader extends StatelessWidget {
           switch (e) {
             Record r => state.signedAmount(r),
             Transfer t => _transferEffect(state, t),
-            _ => _debtEffect(state, e as DebtEvent),
+            _ => _debtEffect(e as DebtEvent),
           },
     );
     final style = Theme.of(context).textTheme.labelLarge

@@ -10,16 +10,10 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
-  String get appTitle => 'YASBA';
-
-  @override
   String get navRecords => 'Kayıtlar';
 
   @override
   String get navStats => 'İstatistik';
-
-  @override
-  String get navSettings => 'Ayarlar';
 
   @override
   String get expense => 'Gider';
@@ -244,16 +238,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settings => 'Ayarlar';
 
   @override
-  String categoryCount(int count) {
-    return '$count kategori';
-  }
-
-  @override
-  String ruleCount(int count) {
-    return '$count kural';
-  }
-
-  @override
   String get currency => 'Para birimi';
 
   @override
@@ -325,11 +309,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get editWallet => 'Cüzdanı düzenle';
 
   @override
-  String walletCount(int count) {
-    return '$count cüzdan';
-  }
-
-  @override
   String get startingBalance => 'Başlangıç bakiyesi';
 
   @override
@@ -378,10 +357,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get deleteTransferQuestion => 'Aktarım silinsin mi?';
-
-  @override
-  String get needTwoWallets =>
-      'Aktarım yapmak için Ayarlar > Cüzdanlar\'dan ikinci bir cüzdan ekleyin.';
 
   @override
   String get moneyIn => 'Giriş';

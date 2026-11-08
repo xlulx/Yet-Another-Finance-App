@@ -7,6 +7,7 @@ import '../../models/category.dart';
 import '../../state/app_state.dart';
 import '../../utils/category_icons.dart';
 import '../widgets/category_avatar.dart';
+import '../widgets/dialogs.dart';
 
 class EditCategoryPage extends StatefulWidget {
   const EditCategoryPage({super.key, this.category, this.initialType});
@@ -72,27 +73,13 @@ class _EditCategoryPageState extends State<EditCategoryPage> {
     final l = AppLocalizations.of(context);
     final state = context.read<AppState>();
     final c = widget.category!;
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.deleteCategoryQuestion(c.name)),
-        content: Text(l.deleteCategoryWarning),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.cancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.delete),
-          ),
-        ],
-      ),
+    final ok = await confirm(
+      context,
+      title: l.deleteCategoryQuestion(c.name),
+      message: l.deleteCategoryWarning,
+      action: l.delete,
     );
-    if (ok != true) return;
+    if (!ok) return;
     await state.deleteCategory(c);
     if (mounted) Navigator.of(context).pop();
   }

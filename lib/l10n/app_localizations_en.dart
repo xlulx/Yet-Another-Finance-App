@@ -10,16 +10,10 @@ class AppLocalizationsEn extends AppLocalizations {
   AppLocalizationsEn([String locale = 'en']) : super(locale);
 
   @override
-  String get appTitle => 'YASBA';
-
-  @override
   String get navRecords => 'Records';
 
   @override
   String get navStats => 'Statistics';
-
-  @override
-  String get navSettings => 'Settings';
 
   @override
   String get expense => 'Expense';
@@ -274,28 +268,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get settings => 'Settings';
 
   @override
-  String categoryCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count categories',
-      one: '1 category',
-    );
-    return '$_temp0';
-  }
-
-  @override
-  String ruleCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count rules',
-      one: '1 rule',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get currency => 'Currency';
 
   @override
@@ -374,17 +346,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get editWallet => 'Edit wallet';
 
   @override
-  String walletCount(int count) {
-    String _temp0 = intl.Intl.pluralLogic(
-      count,
-      locale: localeName,
-      other: '$count wallets',
-      one: '1 wallet',
-    );
-    return '$_temp0';
-  }
-
-  @override
   String get startingBalance => 'Starting balance';
 
   @override
@@ -433,10 +394,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get deleteTransferQuestion => 'Delete this transfer?';
-
-  @override
-  String get needTwoWallets =>
-      'Add a second wallet in Settings > Wallets to make transfers.';
 
   @override
   String get moneyIn => 'Money in';

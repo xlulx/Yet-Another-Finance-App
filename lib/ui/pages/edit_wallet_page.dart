@@ -7,6 +7,7 @@ import '../../state/app_state.dart';
 import '../../utils/category_icons.dart';
 import '../../utils/money.dart';
 import '../widgets/wallet_avatar.dart';
+import '../widgets/dialogs.dart';
 
 class EditWalletPage extends StatefulWidget {
   const EditWalletPage({super.key, this.wallet});
@@ -88,23 +89,12 @@ class _EditWalletPageState extends State<EditWalletPage> {
       messenger.showSnackBar(SnackBar(content: Text(l.lastWallet)));
       return;
     }
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.deleteWalletQuestion(w.name)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.delete),
-          ),
-        ],
-      ),
+    final ok = await confirm(
+      context,
+      title: l.deleteWalletQuestion(w.name),
+      action: l.delete,
     );
-    if (ok != true) return;
+    if (!ok) return;
     if (!await state.deleteWallet(w)) {
       messenger.showSnackBar(SnackBar(content: Text(l.walletInUse)));
       return;

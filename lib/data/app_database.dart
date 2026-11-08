@@ -484,6 +484,12 @@ class AppDatabase {
 
   // ---- Settings ----
 
+  /// Every setting, read at once on start.
+  Future<Map<String, String?>> settings() async => {
+    for (final r in await db.query('settings'))
+      r['key'] as String: r['value'] as String?,
+  };
+
   Future<String?> getSetting(String key) async {
     final rows = await db.query('settings', where: 'key = ?', whereArgs: [key]);
     return rows.isEmpty ? null : rows.first['value'] as String?;

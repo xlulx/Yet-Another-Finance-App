@@ -1,9 +1,7 @@
 {
   "@@locale": "en",
-  "appTitle": "YASBA",
   "navRecords": "Records",
   "navStats": "Statistics",
-  "navSettings": "Settings",
   "expense": "Expense",
   "income": "Income",
   "save": "Save",
@@ -130,22 +128,6 @@
   "daily": "Daily",
   "monthly": "Monthly",
   "settings": "Settings",
-  "categoryCount": "{count, plural, =1{1 category} other{{count} categories}}",
-  "@categoryCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
-  "ruleCount": "{count, plural, =1{1 rule} other{{count} rules}}",
-  "@ruleCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "currency": "Currency",
   "language": "Language",
   "languageSystem": "System",
@@ -198,14 +180,6 @@
   "addWallet": "Add wallet",
   "newWallet": "New wallet",
   "editWallet": "Edit wallet",
-  "walletCount": "{count, plural, =1{1 wallet} other{{count} wallets}}",
-  "@walletCount": {
-    "placeholders": {
-      "count": {
-        "type": "int"
-      }
-    }
-  },
   "startingBalance": "Starting balance",
   "startingBalanceHint": "Use a minus sign for debt, e.g. a credit card",
   "invalidBalance": "Enter a valid balance",
@@ -228,7 +202,6 @@
   "newTransfer": "New transfer",
   "editTransfer": "Edit transfer",
   "deleteTransferQuestion": "Delete this transfer?",
-  "needTwoWallets": "Add a second wallet in Settings > Wallets to make transfers.",
   "moneyIn": "Money in",
   "moneyOut": "Money out",
   "net": "Net",

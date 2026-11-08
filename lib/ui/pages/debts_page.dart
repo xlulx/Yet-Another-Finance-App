@@ -4,10 +4,10 @@ import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 import '../../models/debt.dart';
-import '../../models/wallet.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
-import '../widgets/wallet_avatar.dart';
+import '../widgets/wallet_dropdown.dart';
+import '../widgets/dialogs.dart';
 
 /// Colour for money owed to me (green) or by me (red).
 Color _debtColor(BuildContext context, Debt d) =>
@@ -192,52 +192,6 @@ class _DebtTile extends StatelessWidget {
   }
 }
 
-/// Picks a wallet or none ("doesn't change balances").
-class _OptionalWalletDropdown extends StatelessWidget {
-  const _OptionalWalletDropdown({
-    required this.label,
-    required this.wallets,
-    required this.value,
-    required this.onChanged,
-  });
-
-  final String label;
-  final List<Wallet> wallets;
-  final int? value;
-  final ValueChanged<int?> onChanged;
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    return DropdownButtonFormField<int?>(
-      initialValue: value,
-      isExpanded: true,
-      decoration: InputDecoration(
-        labelText: label,
-        border: const OutlineInputBorder(),
-      ),
-      items: [
-        DropdownMenuItem(
-          value: null,
-          child: Text(l.noWallet, overflow: TextOverflow.ellipsis),
-        ),
-        for (final w in wallets.where((w) => !w.archived || w.id == value))
-          DropdownMenuItem(
-            value: w.id,
-            child: Row(
-              children: [
-                WalletAvatar(wallet: w, radius: 12),
-                const SizedBox(width: 12),
-                Flexible(child: Text(w.name, overflow: TextOverflow.ellipsis)),
-              ],
-            ),
-          ),
-      ],
-      onChanged: onChanged,
-    );
-  }
-}
-
 /// Adds or edits a debt.
 class EditDebtPage extends StatefulWidget {
   const EditDebtPage({super.key, this.debt});
@@ -285,12 +239,7 @@ class _EditDebtPageState extends State<EditDebtPage> {
     super.dispose();
   }
 
-  Future<DateTime?> _pick(DateTime initial) => showDatePicker(
-    context: context,
-    initialDate: initial,
-    firstDate: DateTime(1990),
-    lastDate: DateTime(2100),
-  );
+  Future<DateTime?> _pick(DateTime initial) => pickDate(context, initial);
 
   Future<void> _save() async {
     if (!_formKey.currentState!.validate()) return;
@@ -404,11 +353,12 @@ class _EditDebtPageState extends State<EditDebtPage> {
               },
             ),
             const SizedBox(height: 16),
-            _OptionalWalletDropdown(
+            WalletDropdown.optional(
               label: l.wallet,
+              noneLabel: l.noWallet,
               wallets: state.wallets,
               value: _walletId,
-              onChanged: (v) => setState(() => _walletId = v),
+              onSelected: (v) => setState(() => _walletId = v),
             ),
             const SizedBox(height: 8),
             ListTile(
@@ -467,27 +417,6 @@ class DebtDetailPage extends StatelessWidget {
   const DebtDetailPage({super.key, required this.debtId});
   final int debtId;
 
-  Future<bool> _confirm(BuildContext context, String title) async {
-    final l = AppLocalizations.of(context);
-    return await showDialog<bool>(
-          context: context,
-          builder: (c) => AlertDialog(
-            title: Text(title),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(c, false),
-                child: Text(l.cancel),
-              ),
-              FilledButton(
-                onPressed: () => Navigator.pop(c, true),
-                child: Text(l.delete),
-              ),
-            ],
-          ),
-        ) ==
-        true;
-  }
-
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -536,7 +465,12 @@ class DebtDetailPage extends StatelessWidget {
             icon: const Icon(Icons.delete_outline),
             onPressed: () async {
               final navigator = Navigator.of(context);
-              if (!await _confirm(context, l.deleteDebtQuestion)) return;
+              final ok = await confirm(
+                context,
+                title: l.deleteDebtQuestion,
+                action: l.delete,
+              );
+              if (!ok) return;
               await state.deleteDebt(debt);
               navigator.pop();
             },
@@ -606,28 +540,16 @@ class DebtDetailPage extends StatelessWidget {
                   // Closing with money owed makes it an expense or income.
                   if (!settled && remaining > 0) {
                     final amount = formatMoney(remaining, state.currency);
-                    final ok = await showDialog<bool>(
-                      context: context,
-                      builder: (c) => AlertDialog(
-                        title: Text(l.closeDebtQuestion),
-                        content: Text(
-                          debt.lent
-                              ? l.closeDebtLossHint(amount)
-                              : l.closeDebtGainHint(amount),
-                        ),
-                        actions: [
-                          TextButton(
-                            onPressed: () => Navigator.pop(c, false),
-                            child: Text(l.cancel),
-                          ),
-                          FilledButton(
-                            onPressed: () => Navigator.pop(c, true),
-                            child: Text(l.closeDebt),
-                          ),
-                        ],
-                      ),
+                    final ok = await confirm(
+                      context,
+                      title: l.closeDebtQuestion,
+                      message: debt.lent
+                          ? l.closeDebtLossHint(amount)
+                          : l.closeDebtGainHint(amount),
+                      action: l.closeDebt,
+                      destructive: false,
                     );
-                    if (ok != true) return;
+                    if (!ok) return;
                   }
                   await state.setDebtClosed(debt, !settled);
                 },
@@ -659,7 +581,11 @@ class DebtDetailPage extends StatelessWidget {
                 tooltip: l.delete,
                 icon: const Icon(Icons.delete_outline),
                 onPressed: () async {
-                  if (!await _confirm(context, l.deletePaymentQuestion)) {
+                  if (!await confirm(
+                    context,
+                    title: l.deletePaymentQuestion,
+                    action: l.delete,
+                  )) {
                     return;
                   }
                   await state.deleteDebtPayment(p);
@@ -754,23 +680,19 @@ class _PaymentDialogState extends State<_PaymentDialog> {
                 },
               ),
               const SizedBox(height: 16),
-              _OptionalWalletDropdown(
+              WalletDropdown.optional(
                 label: l.wallet,
+                noneLabel: l.noWallet,
                 wallets: state.wallets,
                 value: _walletId,
-                onChanged: (v) => setState(() => _walletId = v),
+                onSelected: (v) => setState(() => _walletId = v),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,
                 leading: const Icon(Icons.event),
                 title: Text(DateFormat.yMMMMd().format(_date)),
                 onTap: () async {
-                  final d = await showDatePicker(
-                    context: context,
-                    initialDate: _date,
-                    firstDate: DateTime(1990),
-                    lastDate: DateTime(2100),
-                  );
+                  final d = await pickDate(context, _date);
                   if (d != null) setState(() => _date = d);
                 },
               ),

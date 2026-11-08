@@ -49,7 +49,7 @@ class _HomeShellState extends State<HomeShell> {
           // Choosing a wallet shows its records.
           WalletsPage(onWalletChosen: () => setState(() => _index = 1)),
           const RecordsPage(),
-          const StatsPage(),
+          StatsPage(active: _index == 2),
         ],
       ),
       bottomNavigationBar: NavigationBar(
