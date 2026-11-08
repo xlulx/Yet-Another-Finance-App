@@ -403,12 +403,6 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get manage => 'Yönet';
-
-  @override
-  String get recurringShort => 'Tekrarlayan';
-
-  @override
   String get pickMonth => 'Ay seçin';
 
   @override
@@ -524,4 +518,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get csvNote => 'Not';
+
+  @override
+  String get tagline => 'Sade ve gizli bütçe takibi';
 }

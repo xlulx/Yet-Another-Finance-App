@@ -4,11 +4,10 @@ import 'package:provider/provider.dart';
 import '../l10n/app_localizations.dart';
 import '../state/app_state.dart';
 
-import 'pages/manage_page.dart';
 import 'pages/records_page.dart';
-import 'pages/settings_page.dart';
 import 'pages/stats_page.dart';
 import 'pages/wallets_page.dart';
+import 'widgets/app_drawer.dart';
 
 class HomeShell extends StatefulWidget {
   const HomeShell({super.key});
@@ -18,7 +17,8 @@ class HomeShell extends StatefulWidget {
 }
 
 class _HomeShellState extends State<HomeShell> {
-  int _index = 0;
+  /// Records, in the middle, is where the app opens.
+  int _index = 1;
 
   late final AppLifecycleListener _lifecycle;
 
@@ -41,15 +41,15 @@ class _HomeShellState extends State<HomeShell> {
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     return Scaffold(
+      // Here rather than on each page, so it also covers the bottom bar.
+      drawer: const AppDrawer(),
       body: IndexedStack(
         index: _index,
         children: [
+          // Choosing a wallet shows its records.
+          WalletsPage(onWalletChosen: () => setState(() => _index = 1)),
           const RecordsPage(),
           const StatsPage(),
-          // Choosing a wallet shows its records.
-          WalletsPage(onWalletChosen: () => setState(() => _index = 0)),
-          const ManagePage(),
-          const SettingsPage(),
         ],
       ),
       bottomNavigationBar: NavigationBar(
@@ -57,29 +57,19 @@ class _HomeShellState extends State<HomeShell> {
         onDestinationSelected: (i) => setState(() => _index = i),
         destinations: [
           NavigationDestination(
-            icon: Icon(Icons.receipt_long_outlined),
-            selectedIcon: Icon(Icons.receipt_long),
-            label: l.navRecords,
-          ),
-          NavigationDestination(
-            icon: Icon(Icons.pie_chart_outline),
-            selectedIcon: Icon(Icons.pie_chart),
-            label: l.navStats,
-          ),
-          NavigationDestination(
             icon: const Icon(Icons.account_balance_wallet_outlined),
             selectedIcon: const Icon(Icons.account_balance_wallet),
             label: l.wallets,
           ),
           NavigationDestination(
-            icon: const Icon(Icons.tune_outlined),
-            selectedIcon: const Icon(Icons.tune),
-            label: l.manage,
+            icon: const Icon(Icons.receipt_long_outlined),
+            selectedIcon: const Icon(Icons.receipt_long),
+            label: l.navRecords,
           ),
           NavigationDestination(
-            icon: Icon(Icons.settings_outlined),
-            selectedIcon: Icon(Icons.settings),
-            label: l.settings,
+            icon: const Icon(Icons.pie_chart_outline),
+            selectedIcon: const Icon(Icons.pie_chart),
+            label: l.navStats,
           ),
         ],
       ),

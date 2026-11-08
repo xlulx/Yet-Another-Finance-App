@@ -7,6 +7,7 @@ import '../../models/record.dart';
 import '../../models/transfer.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
+import '../widgets/menu_button.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/selected_wallet_chip.dart';
@@ -43,6 +44,8 @@ class RecordsPage extends StatelessWidget {
 
     return Scaffold(
       appBar: AppBar(
+        // The page's own scaffold sits below the app's, which has the menu.
+        leading: const MenuButton(),
         title: MonthSelector(month: state.month, onChanged: state.setMonth),
         centerTitle: true,
         bottom: SelectedWalletChip.bottomFor(state),

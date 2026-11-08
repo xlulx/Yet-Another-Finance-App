@@ -8,9 +8,45 @@ import '../../state/app_state.dart';
 import '../widgets/category_avatar.dart';
 import 'edit_category_page.dart';
 
-/// Categories of one type, chosen with buttons rather than nested tabs
-/// (those would fight with [ManagePage]'s swipeable tabs). [type] is shared
-/// with the page's add button.
+/// Categories page, opened from the side menu. The add button creates a
+/// category of the type being shown.
+class CategoriesPage extends StatefulWidget {
+  const CategoriesPage({super.key});
+
+  @override
+  State<CategoriesPage> createState() => _CategoriesPageState();
+}
+
+class _CategoriesPageState extends State<CategoriesPage> {
+  final _type = ValueNotifier(CategoryType.expense);
+
+  @override
+  void dispose() {
+    _type.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    return Scaffold(
+      appBar: AppBar(title: Text(l.categories)),
+      floatingActionButton: FloatingActionButton(
+        tooltip: l.addCategory,
+        child: const Icon(Icons.add),
+        onPressed: () => Navigator.of(context).push(
+          MaterialPageRoute(
+            builder: (_) => EditCategoryPage(initialType: _type.value),
+          ),
+        ),
+      ),
+      body: CategoriesTab(type: _type),
+    );
+  }
+}
+
+/// Categories of one type, chosen with buttons above the list. [type] is
+/// shared with the page's add button.
 class CategoriesTab extends StatelessWidget {
   const CategoriesTab({super.key, required this.type});
 

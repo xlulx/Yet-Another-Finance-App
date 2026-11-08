@@ -257,14 +257,26 @@ void main() {
       await shot(tester, '${lang}_3b_stats_one_wallet');
       await pickWallet(tester, state, null);
 
-      await tapNav(tester, Icons.settings_outlined);
-      await shot(tester, '${lang}_4_settings');
-
-      await tapNav(tester, Icons.tune_outlined);
-      await shot(tester, '${lang}_5_manage_categories');
-      await tester.fling(find.byType(TabBarView), const Offset(-250, 0), 1000);
+      await tester.tap(find.byIcon(Icons.menu));
       await tester.pumpAndSettle();
-      await shot(tester, '${lang}_5b_manage_recurring');
+      await shot(tester, '${lang}_4_menu');
+      for (final (icon, name) in [
+        (Icons.settings_outlined, '4b_settings'),
+        (Icons.category_outlined, '5_categories'),
+        (Icons.repeat, '5b_recurring'),
+      ]) {
+        if (find.byType(Drawer).evaluate().isEmpty) {
+          await tester.tap(find.byIcon(Icons.menu));
+          await tester.pumpAndSettle();
+        }
+        await tester.tap(
+          find.descendant(of: find.byType(Drawer), matching: find.byIcon(icon)),
+        );
+        await tester.pumpAndSettle();
+        await shot(tester, '${lang}_$name');
+        tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+        await tester.pumpAndSettle();
+      }
 
       await tapNav(tester, Icons.account_balance_wallet_outlined);
       await shot(tester, '${lang}_6_wallets');

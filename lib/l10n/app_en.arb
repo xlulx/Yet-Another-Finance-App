@@ -248,8 +248,6 @@
       }
     }
   },
-  "manage": "Manage",
-  "recurringShort": "Recurring",
   "pickMonth": "Choose month",
   "pickYear": "Choose year",
   "backupCreate": "Back up",
@@ -322,5 +320,6 @@
   "csvType": "Type",
   "csvToWallet": "To wallet",
   "csvTitle": "Title",
-  "csvNote": "Note"
+  "csvNote": "Note",
+  "tagline": "A simple, private budget tracker"
 }

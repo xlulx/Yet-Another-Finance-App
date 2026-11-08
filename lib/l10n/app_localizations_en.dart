@@ -458,12 +458,6 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get manage => 'Manage';
-
-  @override
-  String get recurringShort => 'Recurring';
-
-  @override
   String get pickMonth => 'Choose month';
 
   @override
@@ -579,4 +573,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get csvNote => 'Note';
+
+  @override
+  String get tagline => 'A simple, private budget tracker';
 }
