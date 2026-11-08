@@ -468,4 +468,58 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get pickYear => 'Choose year';
+
+  @override
+  String get backupCreate => 'Back up';
+
+  @override
+  String get backupCreateHint =>
+      'Save all your data to a file, e.g. on Google Drive';
+
+  @override
+  String get backupRestore => 'Restore from backup';
+
+  @override
+  String get backupRestoreHint => 'Replaces all current data';
+
+  @override
+  String get backupSaved => 'Backup saved';
+
+  @override
+  String backupFailed(String error) {
+    return 'Backup failed: $error';
+  }
+
+  @override
+  String get backupPick => 'Choose a YAFA backup';
+
+  @override
+  String get backupRestoreQuestion => 'Restore this backup?';
+
+  @override
+  String backupRestoreDetails(
+    String date,
+    int wallets,
+    int records,
+    int transfers,
+    int rules,
+  ) {
+    return 'Backup from $date: $wallets wallets, $records records, $transfers transfers, $rules recurring transactions.\n\nAll current data will be replaced. This cannot be undone.';
+  }
+
+  @override
+  String get backupRestoreConfirm => 'Restore';
+
+  @override
+  String get backupRestored => 'Backup restored';
+
+  @override
+  String get backupNotBackup => 'This file is not a YAFA backup.';
+
+  @override
+  String get backupNewer =>
+      'This backup was made by a newer version of YAFA. Update the app first.';
+
+  @override
+  String get unknownDate => 'an unknown date';
 }

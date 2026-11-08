@@ -413,4 +413,58 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get pickYear => 'Yıl seçin';
+
+  @override
+  String get backupCreate => 'Yedekle';
+
+  @override
+  String get backupCreateHint =>
+      'Tüm verilerini bir dosyaya kaydet (ör. Google Drive\'a)';
+
+  @override
+  String get backupRestore => 'Yedekten geri yükle';
+
+  @override
+  String get backupRestoreHint => 'Mevcut tüm verilerin yerini alır';
+
+  @override
+  String get backupSaved => 'Yedek kaydedildi';
+
+  @override
+  String backupFailed(String error) {
+    return 'Yedekleme başarısız: $error';
+  }
+
+  @override
+  String get backupPick => 'Bir YAFA yedeği seçin';
+
+  @override
+  String get backupRestoreQuestion => 'Bu yedek geri yüklensin mi?';
+
+  @override
+  String backupRestoreDetails(
+    String date,
+    int wallets,
+    int records,
+    int transfers,
+    int rules,
+  ) {
+    return '$date tarihli yedek: $wallets cüzdan, $records kayıt, $transfers aktarım, $rules tekrarlayan.\n\nMevcut tüm veriler bununla değiştirilecek. Bu işlem geri alınamaz.';
+  }
+
+  @override
+  String get backupRestoreConfirm => 'Geri yükle';
+
+  @override
+  String get backupRestored => 'Yedek geri yüklendi';
+
+  @override
+  String get backupNotBackup => 'Bu dosya bir YAFA yedeği değil.';
+
+  @override
+  String get backupNewer =>
+      'Bu yedek YAFA\'nın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.';
+
+  @override
+  String get unknownDate => 'bilinmeyen bir';
 }

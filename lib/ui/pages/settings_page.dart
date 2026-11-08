@@ -2,16 +2,16 @@ import 'dart:convert';
 
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart' show Uint8List;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
 
+import '../../services/backup.dart';
 import '../../services/oinkoin_import.dart';
 import '../../state/app_state.dart';
-
-/// Set by the Release APK workflow (`--dart-define=APP_VERSION=1.2.3`);
-/// "dev" for local and test builds.
-const appVersion = String.fromEnvironment('APP_VERSION', defaultValue: 'dev');
+import '../../utils/app_version.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -61,6 +61,106 @@ class SettingsPage extends StatelessWidget {
     messenger.showSnackBar(SnackBar(content: Text(message)));
   }
 
+  Future<void> _backup(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final state = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
+    try {
+      final text = await state.exportBackupText();
+      final day = DateFormat('yyyy-MM-dd').format(DateTime.now());
+      final uri = await FilePicker.saveFile(
+        dialogTitle: l.backupCreate,
+        fileName: 'yafa-backup-$day.json',
+        bytes: Uint8List.fromList(utf8.encode(text)),
+        mimeType: 'application/json',
+      );
+      // Null when the user cancelled the save dialog.
+      if (uri != null) {
+        messenger.showSnackBar(SnackBar(content: Text(l.backupSaved)));
+      }
+    } catch (e) {
+      messenger.showSnackBar(SnackBar(content: Text(l.backupFailed('$e'))));
+    }
+  }
+
+  Future<void> _restore(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final state = context.read<AppState>();
+    final messenger = ScaffoldMessenger.of(context);
+    final file = await FilePicker.pickFile(
+      dialogTitle: l.backupPick,
+      type: FileType.any,
+    );
+    if (file == null || !context.mounted) return;
+
+    final YafaBackup backup;
+    try {
+      backup = parseBackup(utf8.decode(await file.readAsBytes()));
+    } on BackupException catch (e) {
+      messenger.showSnackBar(
+        SnackBar(
+          content: Text(switch (e.error) {
+            BackupError.notJson || BackupError.notBackup => l.backupNotBackup,
+            BackupError.newerVersion => l.backupNewer,
+          }),
+        ),
+      );
+      return;
+    } on FormatException {
+      messenger.showSnackBar(SnackBar(content: Text(l.importNotUtf8)));
+      return;
+    }
+    if (!context.mounted) return;
+
+    final date = backup.createdAt == null
+        ? l.unknownDate
+        : DateFormat.yMMMd().add_Hm().format(backup.createdAt!.toLocal());
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text(l.backupRestoreQuestion),
+        content: Text(
+          l.backupRestoreDetails(
+            date,
+            backup.count('wallets'),
+            backup.count('records'),
+            backup.count('transfers'),
+            backup.count('recurring_rules'),
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: Text(l.cancel),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: Theme.of(ctx).colorScheme.error,
+            ),
+            onPressed: () => Navigator.pop(ctx, true),
+            child: Text(l.backupRestoreConfirm),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (_) => const Center(child: CircularProgressIndicator()),
+    );
+    String message;
+    try {
+      await state.restoreFromBackup(backup);
+      message = l.backupRestored;
+    } catch (e) {
+      message = l.importFailed('$e');
+    }
+    if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
+    messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
@@ -103,6 +203,19 @@ class SettingsPage extends StatelessWidget {
                 if (v != null) state.setLanguage(v);
               },
             ),
+          ),
+          const Divider(),
+          ListTile(
+            leading: const Icon(Icons.backup_outlined),
+            title: Text(l.backupCreate),
+            subtitle: Text(l.backupCreateHint),
+            onTap: () => _backup(context),
+          ),
+          ListTile(
+            leading: const Icon(Icons.settings_backup_restore),
+            title: Text(l.backupRestore),
+            subtitle: Text(l.backupRestoreHint),
+            onTap: () => _restore(context),
           ),
           const Divider(),
           ListTile(

@@ -811,6 +811,96 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Choose year'**
   String get pickYear;
+
+  /// No description provided for @backupCreate.
+  ///
+  /// In en, this message translates to:
+  /// **'Back up'**
+  String get backupCreate;
+
+  /// No description provided for @backupCreateHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all your data to a file, e.g. on Google Drive'**
+  String get backupCreateHint;
+
+  /// No description provided for @backupRestore.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore from backup'**
+  String get backupRestore;
+
+  /// No description provided for @backupRestoreHint.
+  ///
+  /// In en, this message translates to:
+  /// **'Replaces all current data'**
+  String get backupRestoreHint;
+
+  /// No description provided for @backupSaved.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup saved'**
+  String get backupSaved;
+
+  /// No description provided for @backupFailed.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup failed: {error}'**
+  String backupFailed(String error);
+
+  /// No description provided for @backupPick.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a YAFA backup'**
+  String get backupPick;
+
+  /// No description provided for @backupRestoreQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore this backup?'**
+  String get backupRestoreQuestion;
+
+  /// No description provided for @backupRestoreDetails.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup from {date}: {wallets} wallets, {records} records, {transfers} transfers, {rules} recurring transactions.\n\nAll current data will be replaced. This cannot be undone.'**
+  String backupRestoreDetails(
+    String date,
+    int wallets,
+    int records,
+    int transfers,
+    int rules,
+  );
+
+  /// No description provided for @backupRestoreConfirm.
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get backupRestoreConfirm;
+
+  /// No description provided for @backupRestored.
+  ///
+  /// In en, this message translates to:
+  /// **'Backup restored'**
+  String get backupRestored;
+
+  /// No description provided for @backupNotBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is not a YAFA backup.'**
+  String get backupNotBackup;
+
+  /// No description provided for @backupNewer.
+  ///
+  /// In en, this message translates to:
+  /// **'This backup was made by a newer version of YAFA. Update the app first.'**
+  String get backupNewer;
+
+  /// No description provided for @unknownDate.
+  ///
+  /// In en, this message translates to:
+  /// **'an unknown date'**
+  String get unknownDate;
 }
 
 class _AppLocalizationsDelegate

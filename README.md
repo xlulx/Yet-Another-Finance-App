@@ -22,6 +22,9 @@ language by default; you can also pick one in Settings.
 - **Recurring transactions** — "every N days/weeks/months/years"; due records
   are created automatically when the app starts. Month ends are handled
   correctly (Jan 31 → Feb 28 → Mar 31).
+- **Backup and restore** — save all data to a `.json` file anywhere (e.g.
+  Google Drive) and restore it later or on another phone. Restoring replaces
+  all current data, after a confirmation.
 - **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: wallets,
   categories (colour, emoji), records, transfers and recurring transactions
   (including custom intervals). Importing the same backup twice does not
@@ -95,7 +98,7 @@ lib/
 
 ## Roadmap (ideas)
 
-- Own backup/restore (JSON) and CSV export
+- Automatic backups and CSV export
 - Budgets and limit alerts
 - A currency per wallet, with exchange rates for transfers
 - Tags and search
