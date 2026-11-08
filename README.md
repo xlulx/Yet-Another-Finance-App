@@ -11,30 +11,34 @@ language by default; you can also pick one in Settings.
 
 ## Features
 
-- **Income / expense records** — month-by-month list grouped by day,
-  swipe to delete (with undo), monthly income/expense/balance summary.
+- **Income / expense records** — month-by-month list grouped by day
+  (swipe to change the month), monthly income/expense/balance summary.
 - **Wallets** — cash, bank accounts, credit cards...: each with a colour,
   icon and starting balance (negative for debt). See every wallet's current
   balance and the total, and filter records and statistics by wallet.
 - **Transfers between wallets** — move money from one wallet to another.
   Transfers change balances but count as neither income nor expense.
 - **Debts** — money you lent or borrowed, per person, with an optional due
-  date. Record partial repayments; a debt closes itself when fully paid (or
-  close it by hand). Debts move wallet balances but are not income or expense;
-  they can also be noted without touching any wallet.
+  date. Record partial repayments; a debt closes itself when fully paid.
+  Debts move wallet balances but are not income or expense; they can also be
+  noted without touching any wallet. Closing a debt by hand before it is
+  repaid counts what is left as an expense (money lent) or income (money
+  borrowed).
 - **Categories** — name, colour, icon or emoji; archiving.
 - **Statistics** — monthly/yearly category breakdown (pie chart with
   percentages) and daily/monthly trend chart.
 - **Recurring transactions** — "every N days/weeks/months/years"; due records
   are created automatically when the app starts. Month ends are handled
   correctly (Jan 31 → Feb 28 → Mar 31).
+- **Reminders** (off by default) — a notification on the day of recurring
+  transactions and debt due dates, at a time you choose.
 - **Backup and restore** — save all data to a `.json` file anywhere (e.g.
   Google Drive) and restore it later or on another phone. Restoring replaces
   all current data, after a confirmation.
 - **Automatic backups** (off by default) — daily, weekly or monthly, taken
   when the app is opened and saved to Documents/YASBA; the last 5 are kept.
-- **CSV export** — all records and transfers as a spreadsheet for Excel or
-  Google Sheets.
+- **CSV export** — all records, transfers and debts as a spreadsheet for
+  Excel or Google Sheets.
 - **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: wallets,
   categories (colour, emoji), records, transfers and recurring transactions
   (including custom intervals). Importing the same backup twice does not
