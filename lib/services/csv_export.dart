@@ -17,7 +17,6 @@ class CsvLabels {
     required this.debtBorrowed,
     required this.repaymentReceived,
     required this.repaymentMade,
-    required this.forgiven,
   });
 
   /// Date, type, category, wallet, to wallet, title, note, amount, currency.
@@ -29,7 +28,6 @@ class CsvLabels {
   final String debtBorrowed;
   final String repaymentReceived;
   final String repaymentMade;
-  final String forgiven;
 }
 
 /// All records, transfers and debt movements as CSV, oldest first, for
@@ -91,15 +89,12 @@ String exportCsv({
         e.date,
         [
           date.format(e.date),
-          if (e.forgiven)
-            labels.forgiven
-          else
-            switch ((e.payment == null, e.debt.lent)) {
-              (true, true) => labels.debtLent,
-              (true, false) => labels.debtBorrowed,
-              (false, true) => labels.repaymentReceived,
-              (false, false) => labels.repaymentMade,
-            },
+          switch ((e.payment == null, e.debt.lent)) {
+            (true, true) => labels.debtLent,
+            (true, false) => labels.debtBorrowed,
+            (false, true) => labels.repaymentReceived,
+            (false, false) => labels.repaymentMade,
+          },
           '',
           wallets[e.walletId]?.name ?? '',
           '',

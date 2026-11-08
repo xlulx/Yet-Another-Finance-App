@@ -92,10 +92,6 @@ class DebtPayment {
   final int? walletId;
   final String? note;
 
-  /// Set when the debt was forgiven: the expense (money lent) or income
-  /// (money borrowed) record it was written off as.
-  final int? recordId;
-
   const DebtPayment({
     this.id,
     required this.debtId,
@@ -103,10 +99,7 @@ class DebtPayment {
     required this.date,
     this.walletId,
     this.note,
-    this.recordId,
   });
-
-  bool get forgiven => recordId != null;
 
   Map<String, Object?> toRow() => {
     'id': id,
@@ -115,7 +108,6 @@ class DebtPayment {
     'date': date.millisecondsSinceEpoch,
     'wallet_id': walletId,
     'note': note,
-    'record_id': recordId,
   };
 
   factory DebtPayment.fromRow(Map<String, Object?> row) => DebtPayment(
@@ -125,7 +117,6 @@ class DebtPayment {
     date: DateTime.fromMillisecondsSinceEpoch(row['date'] as int),
     walletId: row['wallet_id'] as int?,
     note: row['note'] as String?,
-    recordId: row['record_id'] as int?,
   );
 }
 
@@ -139,9 +130,6 @@ class DebtEvent {
   final DebtPayment? payment;
 
   DateTime get date => payment?.date ?? debt.date;
-
-  /// A forgiven amount: paired with a record that cancels it out.
-  bool get forgiven => payment?.forgiven ?? false;
   int? get walletId => payment == null ? debt.walletId : payment!.walletId;
 
   /// Signed change to the wallet: lending takes money out and its

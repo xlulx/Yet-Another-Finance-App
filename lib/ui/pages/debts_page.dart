@@ -3,12 +3,10 @@ import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 
 import '../../l10n/app_localizations.dart';
-import '../../models/category.dart';
 import '../../models/debt.dart';
 import '../../models/wallet.dart';
 import '../../state/app_state.dart';
 import '../../utils/money.dart';
-import '../widgets/category_avatar.dart';
 import '../widgets/wallet_avatar.dart';
 
 /// Colour for money owed to me (green) or by me (red).
@@ -552,8 +550,6 @@ class DebtDetailPage extends StatelessWidget {
                 children: [
                   figure(l.total, debt.amount),
                   figure(l.paid, state.paidOf(debt)),
-                  if (state.forgivenOf(debt) > 0)
-                    figure(l.forgivenFigure, state.forgivenOf(debt)),
                   figure(
                     l.remaining,
                     remaining < 0 ? 0 : remaining,
@@ -567,28 +563,10 @@ class DebtDetailPage extends StatelessWidget {
             padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
             child: Align(
               alignment: Alignment.centerLeft,
-              child: Wrap(
-                spacing: 8,
-                runSpacing: 8,
-                children: [
-                  OutlinedButton.icon(
-                    icon: Icon(settled ? Icons.undo : Icons.task_alt),
-                    label: Text(settled ? l.reopenDebt : l.closeDebt),
-                    onPressed: () => state.setDebtClosed(debt, !settled),
-                  ),
-                  if (!settled)
-                    OutlinedButton.icon(
-                      icon: const Icon(Icons.handshake_outlined),
-                      // "I forgive" / "they forgave me".
-                      label: Text(
-                        debt.lent ? l.forgiveDebt : l.forgiveDebtBorrowed,
-                      ),
-                      onPressed: () => showDialog<void>(
-                        context: context,
-                        builder: (_) => _ForgiveDialog(debt: debt),
-                      ),
-                    ),
-                ],
+              child: OutlinedButton.icon(
+                icon: Icon(settled ? Icons.undo : Icons.task_alt),
+                label: Text(settled ? l.reopenDebt : l.closeDebt),
+                onPressed: () => state.setDebtClosed(debt, !settled),
               ),
             ),
           ),
@@ -603,13 +581,10 @@ class DebtDetailPage extends StatelessWidget {
             ),
           for (final p in payments)
             ListTile(
-              leading: Icon(
-                p.forgiven ? Icons.handshake_outlined : Icons.payments_outlined,
-              ),
+              leading: const Icon(Icons.payments_outlined),
               title: Text(formatMoney(p.amount, state.currency)),
               subtitle: Text(
                 [
-                  if (p.forgiven) l.debtForgiven,
                   DateFormat.yMMMd().format(p.date),
                   if (state.walletById(p.walletId) != null)
                     state.walletById(p.walletId)!.name,
@@ -720,225 +695,6 @@ class _PaymentDialogState extends State<_PaymentDialog> {
                 wallets: state.wallets,
                 value: _walletId,
                 onChanged: (v) => setState(() => _walletId = v),
-              ),
-              ListTile(
-                contentPadding: EdgeInsets.zero,
-                leading: const Icon(Icons.event),
-                title: Text(DateFormat.yMMMMd().format(_date)),
-                onTap: () async {
-                  final d = await showDatePicker(
-                    context: context,
-                    initialDate: _date,
-                    firstDate: DateTime(1990),
-                    lastDate: DateTime(2100),
-                  );
-                  if (d != null) setState(() => _date = d);
-                },
-              ),
-            ],
-          ),
-        ),
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: Text(l.cancel),
-        ),
-        FilledButton(onPressed: _save, child: Text(l.save)),
-      ],
-    );
-  }
-}
-
-/// Writes off what is left of a debt as an expense (money lent) or income
-/// (money borrowed), by default in the "debt forgiven" category.
-class _ForgiveDialog extends StatefulWidget {
-  const _ForgiveDialog({required this.debt});
-  final Debt debt;
-
-  @override
-  State<_ForgiveDialog> createState() => _ForgiveDialogState();
-}
-
-class _ForgiveDialogState extends State<_ForgiveDialog> {
-  /// Stands for the category that is created on save.
-  static const _newCategory = -1;
-
-  final _formKey = GlobalKey<FormState>();
-  late final TextEditingController _amount;
-  late final int _remaining;
-  late final CategoryType _type = widget.debt.lent
-      ? CategoryType.expense
-      : CategoryType.income;
-  DateTime _date = DateTime.now();
-  late int _walletId;
-  int _categoryId = _newCategory;
-
-  /// Whether a category was used for this before; if not, one is offered.
-  bool _hasSaved = false;
-
-  @override
-  void initState() {
-    super.initState();
-    final state = context.read<AppState>();
-    _remaining = state.remainingOf(widget.debt);
-    _amount = TextEditingController(
-      text: (_remaining / 100).toStringAsFixed(2).replaceAll('.', ','),
-    );
-    _walletId = widget.debt.walletId ?? state.defaultWalletId;
-    state.forgiveCategoryId(_type).then((id) {
-      if (id != null && mounted) {
-        setState(() {
-          _categoryId = id;
-          _hasSaved = true;
-        });
-      }
-    });
-  }
-
-  @override
-  void dispose() {
-    _amount.dispose();
-    super.dispose();
-  }
-
-  Future<void> _save() async {
-    if (!_formKey.currentState!.validate()) return;
-    final l = AppLocalizations.of(context);
-    await context.read<AppState>().forgiveDebt(
-      widget.debt,
-      amount: parseMoney(_amount.text)!,
-      walletId: _walletId,
-      date: _date,
-      categoryId: _categoryId == _newCategory ? null : _categoryId,
-      newCategoryName: l.debtForgiven,
-    );
-    if (mounted) Navigator.of(context).pop();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    final l = AppLocalizations.of(context);
-    final state = context.watch<AppState>();
-    final categories = state.categories.where((c) => c.type == _type);
-    return AlertDialog(
-      title: Text(l.forgiveDebtTitle),
-      content: Form(
-        key: _formKey,
-        child: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(
-                widget.debt.lent ? l.forgiveLentHint : l.forgiveBorrowedHint,
-                style: Theme.of(context).textTheme.bodySmall,
-              ),
-              const SizedBox(height: 16),
-              TextFormField(
-                controller: _amount,
-                keyboardType: const TextInputType.numberWithOptions(
-                  decimal: true,
-                ),
-                decoration: InputDecoration(
-                  labelText: l.amount,
-                  suffixText: state.currency,
-                  border: const OutlineInputBorder(),
-                ),
-                validator: (v) {
-                  final cents = parseMoney(v ?? '');
-                  if (cents == null || cents == 0) return l.invalidAmount;
-                  if (cents > _remaining) {
-                    return l.paymentTooBig(
-                      formatMoney(_remaining, state.currency),
-                    );
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                // Rebuilt once the saved category is known.
-                key: ValueKey(_hasSaved),
-                initialValue: _categoryId,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: l.category,
-                  border: const OutlineInputBorder(),
-                ),
-                items: [
-                  if (!_hasSaved)
-                    DropdownMenuItem(
-                      value: _newCategory,
-                      child: Row(
-                        children: [
-                          const CircleAvatar(
-                            radius: 12,
-                            backgroundColor: Color(0xFF78909C),
-                            child: Icon(
-                              Icons.handshake,
-                              size: 14,
-                              color: Colors.white,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              l.debtForgiven,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  for (final c in categories)
-                    DropdownMenuItem(
-                      value: c.id,
-                      child: Row(
-                        children: [
-                          CategoryAvatar(category: c, radius: 12),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              c.name,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-                onChanged: (v) => setState(() => _categoryId = v!),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<int>(
-                initialValue: _walletId,
-                isExpanded: true,
-                decoration: InputDecoration(
-                  labelText: l.wallet,
-                  border: const OutlineInputBorder(),
-                ),
-                items: [
-                  for (final w in state.wallets.where(
-                    (w) => !w.archived || w.id == _walletId,
-                  ))
-                    DropdownMenuItem(
-                      value: w.id,
-                      child: Row(
-                        children: [
-                          WalletAvatar(wallet: w, radius: 12),
-                          const SizedBox(width: 12),
-                          Flexible(
-                            child: Text(
-                              w.name,
-                              overflow: TextOverflow.ellipsis,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                ],
-                onChanged: (v) => setState(() => _walletId = v!),
               ),
               ListTile(
                 contentPadding: EdgeInsets.zero,

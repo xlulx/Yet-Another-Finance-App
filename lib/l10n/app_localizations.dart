@@ -1285,48 +1285,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count} reminders for today'**
   String reminderCount(int count);
-
-  /// No description provided for @forgiveDebt.
-  ///
-  /// In en, this message translates to:
-  /// **'Forgive'**
-  String get forgiveDebt;
-
-  /// No description provided for @forgiveDebtBorrowed.
-  ///
-  /// In en, this message translates to:
-  /// **'Forgiven'**
-  String get forgiveDebtBorrowed;
-
-  /// No description provided for @forgiveDebtTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'Forgive the debt'**
-  String get forgiveDebtTitle;
-
-  /// No description provided for @forgiveLentHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Recorded as an expense; the wallet balance does not change.'**
-  String get forgiveLentHint;
-
-  /// No description provided for @forgiveBorrowedHint.
-  ///
-  /// In en, this message translates to:
-  /// **'Recorded as income; the wallet balance does not change.'**
-  String get forgiveBorrowedHint;
-
-  /// No description provided for @debtForgiven.
-  ///
-  /// In en, this message translates to:
-  /// **'Debt forgiven'**
-  String get debtForgiven;
-
-  /// No description provided for @forgivenFigure.
-  ///
-  /// In en, this message translates to:
-  /// **'Forgiven'**
-  String get forgivenFigure;
 }
 
 class _AppLocalizationsDelegate

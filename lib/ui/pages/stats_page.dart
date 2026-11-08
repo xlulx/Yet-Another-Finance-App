@@ -104,8 +104,6 @@ class _StatsPageState extends State<StatsPage> {
         if (!e.date.isBefore(_from) &&
             e.date.isBefore(_to) &&
             e.walletId != null &&
-            // Counted as the expense or income record instead.
-            !e.forgiven &&
             (wallet == null || e.walletId == wallet))
           e,
     ];

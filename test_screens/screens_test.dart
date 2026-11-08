@@ -340,17 +340,6 @@ void main() {
       await shot(tester, '${lang}_8c_payment');
       tester.state<NavigatorState>(find.byType(Navigator).first).pop();
       await tester.pumpAndSettle();
-      await tester.tap(find.text(lang == 'tr' ? 'Affet' : 'Forgive'));
-      for (var i = 0; i < 5; i++) {
-        await tester.runAsync(
-          () => Future.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump();
-      }
-      await tester.pumpAndSettle();
-      await shot(tester, '${lang}_8e_forgive');
-      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
-      await tester.pumpAndSettle();
       tester.state<NavigatorState>(find.byType(Navigator).first).pop();
       await tester.pumpAndSettle();
       await tester.tap(find.byType(FloatingActionButton));

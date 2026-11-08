@@ -285,17 +285,9 @@ class _RecordTile extends StatelessWidget {
           ),
         ],
       ),
-      // A forgiven debt is edited from the debt.
-      onTap: () {
-        final debtId = state.forgivenRecords[record.id];
-        Navigator.of(context).push(
-          MaterialPageRoute(
-            builder: (_) => debtId != null
-                ? DebtDetailPage(debtId: debtId)
-                : EditRecordPage(record: record),
-          ),
-        );
-      },
+      onTap: () => Navigator.of(
+        context,
+      ).push(MaterialPageRoute(builder: (_) => EditRecordPage(record: record))),
     );
   }
 }
