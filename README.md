@@ -43,6 +43,8 @@ language by default; you can also pick one in Settings.
 
 All wallets currently share one currency, chosen in Settings.
 
+See the [privacy policy](PRIVACY.md): YASBA collects no data at all.
+
 ## Install
 
 Download the latest `YASBA-x.y.z.apk` from
