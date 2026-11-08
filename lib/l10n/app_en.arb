@@ -251,5 +251,45 @@
   "manage": "Manage",
   "recurringShort": "Recurring",
   "pickMonth": "Choose month",
-  "pickYear": "Choose year"
+  "pickYear": "Choose year",
+  "backupCreate": "Back up",
+  "backupCreateHint": "Save all your data to a file, e.g. on Google Drive",
+  "backupRestore": "Restore from backup",
+  "backupRestoreHint": "Replaces all current data",
+  "backupSaved": "Backup saved",
+  "backupFailed": "Backup failed: {error}",
+  "@backupFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "backupPick": "Choose a YAFA backup",
+  "backupRestoreQuestion": "Restore this backup?",
+  "backupRestoreDetails": "Backup from {date}: {wallets} wallets, {records} records, {transfers} transfers, {rules} recurring transactions.\n\nAll current data will be replaced. This cannot be undone.",
+  "@backupRestoreDetails": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      },
+      "wallets": {
+        "type": "int"
+      },
+      "records": {
+        "type": "int"
+      },
+      "transfers": {
+        "type": "int"
+      },
+      "rules": {
+        "type": "int"
+      }
+    }
+  },
+  "backupRestoreConfirm": "Restore",
+  "backupRestored": "Backup restored",
+  "backupNotBackup": "This file is not a YAFA backup.",
+  "backupNewer": "This backup was made by a newer version of YAFA. Update the app first.",
+  "unknownDate": "an unknown date"
 }

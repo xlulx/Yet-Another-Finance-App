@@ -117,5 +117,19 @@
   "manage": "Yönet",
   "recurringShort": "Tekrarlayan",
   "pickMonth": "Ay seçin",
-  "pickYear": "Yıl seçin"
+  "pickYear": "Yıl seçin",
+  "backupCreate": "Yedekle",
+  "backupCreateHint": "Tüm verilerini bir dosyaya kaydet (ör. Google Drive'a)",
+  "backupRestore": "Yedekten geri yükle",
+  "backupRestoreHint": "Mevcut tüm verilerin yerini alır",
+  "backupSaved": "Yedek kaydedildi",
+  "backupFailed": "Yedekleme başarısız: {error}",
+  "backupPick": "Bir YAFA yedeği seçin",
+  "backupRestoreQuestion": "Bu yedek geri yüklensin mi?",
+  "backupRestoreDetails": "{date} tarihli yedek: {wallets} cüzdan, {records} kayıt, {transfers} aktarım, {rules} tekrarlayan.\n\nMevcut tüm veriler bununla değiştirilecek. Bu işlem geri alınamaz.",
+  "backupRestoreConfirm": "Geri yükle",
+  "backupRestored": "Yedek geri yüklendi",
+  "backupNotBackup": "Bu dosya bir YAFA yedeği değil.",
+  "backupNewer": "Bu yedek YAFA'nın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.",
+  "unknownDate": "bilinmeyen bir"
 }

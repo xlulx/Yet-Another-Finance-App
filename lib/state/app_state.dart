@@ -8,8 +8,10 @@ import '../models/record.dart';
 import '../models/recurring_rule.dart';
 import '../models/transfer.dart';
 import '../models/wallet.dart';
+import '../services/backup.dart';
 import '../services/oinkoin_import.dart';
 import '../services/recurring_service.dart';
+import '../utils/app_version.dart';
 
 /// App state: categories, wallets, the selected month's records and
 /// transfers, and recurring rules.
@@ -271,6 +273,18 @@ class AppState extends ChangeNotifier {
     currency = symbol;
     await db.setSetting('currency', symbol);
     notifyListeners();
+  }
+
+  /// All data as the text of a backup file.
+  Future<String> exportBackupText() => exportBackup(db, appVersion: appVersion);
+
+  /// Replaces all data with [backup]'s, then catches up recurring records.
+  Future<void> restoreFromBackup(YafaBackup backup) async {
+    await restoreBackup(db, backup);
+    currency = await db.getSetting('currency') ?? currency;
+    walletFilter = null;
+    await generateDueRecurringRecords(db, _clock());
+    await _reloadAll();
   }
 
   Future<ImportSummary> importOinkoin(String json) async {
