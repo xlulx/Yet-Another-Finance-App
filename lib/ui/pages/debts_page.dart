@@ -13,6 +13,19 @@ import '../widgets/wallet_avatar.dart';
 Color _debtColor(BuildContext context, Debt d) =>
     d.lent ? Colors.green.shade600 : Theme.of(context).colorScheme.error;
 
+/// What was written off when [d] was closed by hand with money still owed;
+/// 0 otherwise.
+int _writtenOff(AppState state, Debt d) {
+  if (!d.closed) return 0;
+  final remaining = state.remainingOf(d);
+  return remaining > 0 ? remaining : 0;
+}
+
+/// Colour of a written-off amount: a loss (money lent) is red, a gain
+/// (money borrowed) green.
+Color _writtenOffColor(BuildContext context, Debt d) =>
+    d.lent ? Theme.of(context).colorScheme.error : Colors.green.shade600;
+
 bool _overdue(AppState state, Debt d) {
   final due = d.dueDate;
   if (due == null || state.isSettled(d)) return false;
@@ -121,8 +134,9 @@ class _DebtTile extends StatelessWidget {
     final color = _debtColor(context, debt);
     final overdue = _overdue(state, debt);
     final paid = state.paidOf(debt);
+    final writtenOff = _writtenOff(state, debt);
     return Opacity(
-      opacity: settled ? 0.6 : 1,
+      opacity: settled && writtenOff == 0 ? 0.6 : 1,
       child: ListTile(
         leading: CircleAvatar(
           backgroundColor: color.withValues(alpha: 0.15),
@@ -137,7 +151,9 @@ class _DebtTile extends StatelessWidget {
         subtitle: Text(
           [
                 DateFormat.yMMMd().format(debt.date),
-                if (settled)
+                if (writtenOff > 0)
+                  debt.lent ? l.closedUncollected : l.closedUnpaid
+                else if (settled)
                   l.settled
                 else if (overdue)
                   l.overdue
@@ -151,10 +167,23 @@ class _DebtTile extends StatelessWidget {
               ? TextStyle(color: Theme.of(context).colorScheme.error)
               : null,
         ),
-        trailing: Text(
-          formatMoney(settled ? debt.amount : remaining, state.currency),
-          style: TextStyle(fontWeight: FontWeight.w600, color: color),
-        ),
+        trailing: writtenOff > 0
+            // Closed with money owed: the loss or gain, in full colour.
+            ? Text(
+                formatMoney(
+                  debt.lent ? -writtenOff : writtenOff,
+                  state.currency,
+                  signed: true,
+                ),
+                style: TextStyle(
+                  fontWeight: FontWeight.w600,
+                  color: _writtenOffColor(context, debt),
+                ),
+              )
+            : Text(
+                formatMoney(settled ? debt.amount : remaining, state.currency),
+                style: TextStyle(fontWeight: FontWeight.w600, color: color),
+              ),
         onTap: () => Navigator.of(context).push(
           MaterialPageRoute(builder: (_) => DebtDetailPage(debtId: debt.id!)),
         ),
@@ -550,11 +579,18 @@ class DebtDetailPage extends StatelessWidget {
                 children: [
                   figure(l.total, debt.amount),
                   figure(l.paid, state.paidOf(debt)),
-                  figure(
-                    l.remaining,
-                    remaining < 0 ? 0 : remaining,
-                    valueColor: color,
-                  ),
+                  if (_writtenOff(state, debt) > 0)
+                    figure(
+                      l.closedDifference,
+                      remaining,
+                      valueColor: _writtenOffColor(context, debt),
+                    )
+                  else
+                    figure(
+                      l.remaining,
+                      remaining < 0 ? 0 : remaining,
+                      valueColor: color,
+                    ),
                 ],
               ),
             ),
@@ -566,7 +602,35 @@ class DebtDetailPage extends StatelessWidget {
               child: OutlinedButton.icon(
                 icon: Icon(settled ? Icons.undo : Icons.task_alt),
                 label: Text(settled ? l.reopenDebt : l.closeDebt),
-                onPressed: () => state.setDebtClosed(debt, !settled),
+                onPressed: () async {
+                  // Closing with money owed makes it an expense or income.
+                  if (!settled && remaining > 0) {
+                    final amount = formatMoney(remaining, state.currency);
+                    final ok = await showDialog<bool>(
+                      context: context,
+                      builder: (c) => AlertDialog(
+                        title: Text(l.closeDebtQuestion),
+                        content: Text(
+                          debt.lent
+                              ? l.closeDebtLossHint(amount)
+                              : l.closeDebtGainHint(amount),
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.pop(c, false),
+                            child: Text(l.cancel),
+                          ),
+                          FilledButton(
+                            onPressed: () => Navigator.pop(c, true),
+                            child: Text(l.closeDebt),
+                          ),
+                        ],
+                      ),
+                    );
+                    if (ok != true) return;
+                  }
+                  await state.setDebtClosed(debt, !settled);
+                },
               ),
             ),
           ),

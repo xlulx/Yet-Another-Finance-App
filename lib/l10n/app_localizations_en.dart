@@ -554,7 +554,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get exportCsvHint =>
-      'All records and transfers, for Excel or Google Sheets';
+      'All records, transfers and debts, for Excel or Google Sheets';
 
   @override
   String get exportCsvSaved => 'CSV saved';
@@ -698,4 +698,77 @@ class AppLocalizationsEn extends AppLocalizations {
   String paymentTooBig(String amount) {
     return 'At most $amount';
   }
+
+  @override
+  String debtSlice(String name) {
+    return 'Debt: $name';
+  }
+
+  @override
+  String get reminders => 'Reminders';
+
+  @override
+  String get remindersHint =>
+      'A notification on the day, even when the app is closed';
+
+  @override
+  String get remindRecurring => 'Recurring records';
+
+  @override
+  String get remindDebts => 'Debt due dates';
+
+  @override
+  String get remindTime => 'Reminder time';
+
+  @override
+  String get notificationsDenied =>
+      'Notifications are turned off for YASBA in Android settings';
+
+  @override
+  String reminderRecurring(String name, String amount) {
+    return '$name $amount · recurring';
+  }
+
+  @override
+  String reminderDebtLent(String name, String amount) {
+    return '$name is due to pay you $amount';
+  }
+
+  @override
+  String reminderDebtBorrowed(String name, String amount) {
+    return 'You are due to pay $name $amount';
+  }
+
+  @override
+  String reminderCount(int count) {
+    return '$count reminders for today';
+  }
+
+  @override
+  String get closedUncollected => 'Not collected';
+
+  @override
+  String get closedUnpaid => 'Not paid back';
+
+  @override
+  String get closedUncollectedEvent => 'Closed, not collected';
+
+  @override
+  String get closedUnpaidEvent => 'Closed, not paid back';
+
+  @override
+  String get closeDebtQuestion => 'Close this debt?';
+
+  @override
+  String closeDebtLossHint(String amount) {
+    return 'The remaining $amount will not come back and counts as an expense.';
+  }
+
+  @override
+  String closeDebtGainHint(String amount) {
+    return 'The remaining $amount will not be paid and counts as income.';
+  }
+
+  @override
+  String get closedDifference => 'Written off';
 }

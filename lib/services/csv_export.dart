@@ -1,6 +1,7 @@
 import 'package:intl/intl.dart';
 
 import '../models/category.dart';
+import '../models/debt.dart';
 import '../models/record.dart';
 import '../models/transfer.dart';
 import '../models/wallet.dart';
@@ -12,6 +13,12 @@ class CsvLabels {
     required this.income,
     required this.expense,
     required this.transfer,
+    required this.debtLent,
+    required this.debtBorrowed,
+    required this.repaymentReceived,
+    required this.repaymentMade,
+    required this.closedUncollected,
+    required this.closedUnpaid,
   });
 
   /// Date, type, category, wallet, to wallet, title, note, amount, currency.
@@ -19,16 +26,27 @@ class CsvLabels {
   final String income;
   final String expense;
   final String transfer;
+  final String debtLent;
+  final String debtBorrowed;
+  final String repaymentReceived;
+  final String repaymentMade;
+  final String closedUncollected;
+  final String closedUnpaid;
 }
 
-/// All records and transfers as CSV, oldest first, for spreadsheets.
+/// All records, transfers and debt movements as CSV, oldest first, for
+/// spreadsheets.
 ///
 /// Amounts use a dot as decimal separator and are signed: income positive,
-/// expenses negative; transfers are positive with both wallets named. The
+/// expenses negative; transfers are positive with both wallets named. Debt
+/// movements are signed by their effect on the wallet (lending is negative,
+/// its repayments positive) and name the person as title; closing a debt
+/// with money still owed is signed as a loss or gain. The
 /// text starts with a byte order mark so Excel reads it as UTF-8.
 String exportCsv({
   required Iterable<Record> records,
   required Iterable<Transfer> transfers,
+  Iterable<DebtEvent> debtEvents = const [],
   required Map<int, Category> categories,
   required Map<int, Wallet> wallets,
   required String currency,
@@ -68,6 +86,29 @@ String exportCsv({
           '',
           t.note ?? '',
           amount(t.amount),
+          currency,
+        ],
+      ),
+    for (final e in debtEvents)
+      (
+        e.date,
+        [
+          date.format(e.date),
+          if (e.isClosing)
+            e.debt.lent ? labels.closedUncollected : labels.closedUnpaid
+          else
+            switch ((e.payment == null, e.debt.lent)) {
+              (true, true) => labels.debtLent,
+              (true, false) => labels.debtBorrowed,
+              (false, true) => labels.repaymentReceived,
+              (false, false) => labels.repaymentMade,
+            },
+          '',
+          wallets[e.walletId]?.name ?? '',
+          '',
+          e.debt.person,
+          (e.payment == null ? e.debt.note : e.payment!.note) ?? '',
+          amount(e.effect),
           currency,
         ],
       ),

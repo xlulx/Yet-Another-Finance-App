@@ -314,7 +314,7 @@
     }
   },
   "exportCsv": "Export as CSV",
-  "exportCsvHint": "All records and transfers, for Excel or Google Sheets",
+  "exportCsvHint": "All records, transfers and debts, for Excel or Google Sheets",
   "exportCsvSaved": "CSV saved",
   "csvDate": "Date",
   "csvType": "Type",
@@ -396,5 +396,82 @@
         "type": "String"
       }
     }
-  }
+  },
+  "debtSlice": "Debt: {name}",
+  "@debtSlice": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reminders": "Reminders",
+  "remindersHint": "A notification on the day, even when the app is closed",
+  "remindRecurring": "Recurring records",
+  "remindDebts": "Debt due dates",
+  "remindTime": "Reminder time",
+  "notificationsDenied": "Notifications are turned off for YASBA in Android settings",
+  "reminderRecurring": "{name} {amount} · recurring",
+  "@reminderRecurring": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderDebtLent": "{name} is due to pay you {amount}",
+  "@reminderDebtLent": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderDebtBorrowed": "You are due to pay {name} {amount}",
+  "@reminderDebtBorrowed": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "reminderCount": "{count} reminders for today",
+  "@reminderCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "closedUncollected": "Not collected",
+  "closedUnpaid": "Not paid back",
+  "closedUncollectedEvent": "Closed, not collected",
+  "closedUnpaidEvent": "Closed, not paid back",
+  "closeDebtQuestion": "Close this debt?",
+  "closeDebtLossHint": "The remaining {amount} will not come back and counts as an expense.",
+  "@closeDebtLossHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closeDebtGainHint": "The remaining {amount} will not be paid and counts as income.",
+  "@closeDebtGainHint": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "closedDifference": "Written off"
 }

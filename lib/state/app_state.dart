@@ -1,8 +1,9 @@
-import 'dart:ui' show Locale;
+import 'dart:ui' show Locale, PlatformDispatcher;
 
-import 'package:flutter/foundation.dart' show ChangeNotifier;
+import 'package:flutter/foundation.dart' show ChangeNotifier, listEquals;
 
 import '../data/app_database.dart';
+import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 import '../models/debt.dart';
 import '../models/record.dart';
@@ -14,6 +15,7 @@ import '../services/backup.dart';
 import '../services/csv_export.dart';
 import '../services/oinkoin_import.dart';
 import '../services/recurring_service.dart';
+import '../services/reminders.dart';
 import '../utils/app_version.dart';
 
 /// App state: categories, wallets, the selected month's records and
@@ -23,12 +25,16 @@ class AppState extends ChangeNotifier {
     this.db, {
     DateTime Function()? clock,
     this.backupWriter = const PlatformBackupWriter(),
+    this.reminderScheduler = const NoReminderScheduler(),
   }) : _clock = clock ?? DateTime.now;
 
   final AppDatabase db;
 
   /// Where automatic backups are written; replaced in tests.
   final BackupWriter backupWriter;
+
+  /// Shows reminder notifications; does nothing unless given (tests).
+  final ReminderScheduler reminderScheduler;
   final DateTime Function() _clock;
 
   List<Category> categories = [];
@@ -61,6 +67,15 @@ class AppState extends ChangeNotifier {
   /// Why the last automatic backup failed, if it did.
   String? autoBackupError;
 
+  /// Reminders on the day of recurring records and debt due dates.
+  bool remindRecurring = false;
+  bool remindDebts = false;
+  int remindHour = 9;
+  int remindMinute = 0;
+
+  /// What is scheduled now, to skip rescheduling when nothing changed.
+  List<Reminder> _scheduled = const [];
+
   /// Chosen UI language: `en`, `tr`, or empty to follow the system.
   String language = '';
 
@@ -91,9 +106,84 @@ class AppState extends ChangeNotifier {
     lastAutoBackup = DateTime.tryParse(
       await db.getSetting(autoBackupLastKey) ?? '',
     );
+    remindRecurring = await db.getSetting(remindRecurringKey) == '1';
+    remindDebts = await db.getSetting(remindDebtsKey) == '1';
+    final time = (await db.getSetting(remindTimeKey) ?? '').split(':');
+    if (time.length == 2) {
+      remindHour = int.tryParse(time[0]) ?? remindHour;
+      remindMinute = int.tryParse(time[1]) ?? remindMinute;
+    }
     await generateDueRecurringRecords(db, _clock());
     await _reloadAll();
     await autoBackupIfDue();
+  }
+
+  /// Called when the app comes back to the foreground.
+  Future<void> onResume() async {
+    await autoBackupIfDue();
+    await syncReminders();
+  }
+
+  // ---- Reminders ----
+
+  /// Schedules the reminders that are due from now on, replacing the old
+  /// ones. Never throws.
+  Future<void> syncReminders() async {
+    final code = language.isNotEmpty
+        ? language
+        : PlatformDispatcher.instance.locale.languageCode;
+    final l = lookupAppLocalizations(Locale(code == 'tr' ? 'tr' : 'en'));
+    final next = upcomingReminders(
+      now: _clock(),
+      hour: remindHour,
+      minute: remindMinute,
+      l: l,
+      currency: currency,
+      rules: remindRecurring ? rules : const [],
+      categories: _byId,
+      debts: remindDebts ? debts : const [],
+      remainingOf: remainingOf,
+      isSettled: isSettled,
+    );
+    if (listEquals(next, _scheduled)) return;
+    try {
+      await reminderScheduler.replaceAll(next, l);
+      _scheduled = next;
+    } catch (_) {
+      // Reminders are a convenience; a failure must not break the app.
+    }
+  }
+
+  /// Turns reminders for recurring records or debts on or off. Turning one
+  /// on asks for permission first; returns false if it was refused.
+  Future<bool> setReminders({bool? recurring, bool? debts}) async {
+    if ((recurring ?? false) || (debts ?? false)) {
+      var granted = false;
+      try {
+        granted = await reminderScheduler.requestPermission();
+      } catch (_) {}
+      if (!granted) return false;
+    }
+    if (recurring != null) {
+      remindRecurring = recurring;
+      await db.setSetting(remindRecurringKey, recurring ? '1' : '0');
+    }
+    if (debts != null) {
+      remindDebts = debts;
+      await db.setSetting(remindDebtsKey, debts ? '1' : '0');
+    }
+    notifyListeners();
+    await syncReminders();
+    return true;
+  }
+
+  Future<void> setReminderTime(int hour, int minute) async {
+    remindHour = hour;
+    remindMinute = minute;
+    final hh = '$hour'.padLeft(2, '0'), mm = '$minute'.padLeft(2, '0');
+    await db.setSetting(remindTimeKey, '$hh:$mm');
+    notifyListeners();
+    await syncReminders();
   }
 
   /// Takes an automatic backup if one is due. Called on start and whenever
@@ -162,13 +252,15 @@ class AppState extends ChangeNotifier {
       _payments.putIfAbsent(p.debtId, () => []).add(p);
     }
     monthDebtEvents = [
-      for (final e in _allDebtEvents())
+      for (final e in allDebtEvents())
         if (!e.date.isBefore(month) &&
             e.date.isBefore(to) &&
-            e.walletId != null &&
+            // Closing without a wallet still counts across all wallets.
+            (e.walletId != null || (e.isClosing && walletFilter == null)) &&
             (walletFilter == null || e.walletId == walletFilter))
           e,
     ];
+    await syncReminders();
     if (notify) notifyListeners();
   }
 
@@ -299,28 +391,36 @@ class AppState extends ChangeNotifier {
     ];
   }
 
-  Iterable<DebtEvent> _allDebtEvents() sync* {
+  /// Every debt and payment, with or without a wallet, and debts closed
+  /// by hand with money still owed.
+  Iterable<DebtEvent> allDebtEvents() sync* {
     for (final d in debts) {
       yield DebtEvent(d, null);
-      for (final p in paymentsOf(d)) {
+      final payments = paymentsOf(d);
+      for (final p in payments) {
         yield DebtEvent(d, p);
+      }
+      final remaining = remainingOf(d);
+      if (d.closed && remaining > 0) {
+        // Debts closed before the date was kept: the last movement.
+        final on =
+            d.closedAt ?? (payments.isEmpty ? d.date : payments.last.date);
+        yield DebtEvent.closed(d, remaining, on);
       }
     }
   }
 
-  /// Debt money into the filtered wallet this month; 0 without a filter.
-  int get monthDebtIn => walletFilter == null
-      ? 0
-      : monthDebtEvents
-            .where((e) => e.effect > 0)
-            .fold(0, (s, e) => s + e.effect);
+  /// Money borrowed that will not be paid back, closed this month (in the
+  /// filtered wallet, if any): counts as income.
+  int get monthDebtIn => monthDebtEvents
+      .where((e) => e.counts && e.effect > 0)
+      .fold(0, (s, e) => s + e.effect);
 
-  /// Debt money out of the filtered wallet this month; 0 without a filter.
-  int get monthDebtOut => walletFilter == null
-      ? 0
-      : monthDebtEvents
-            .where((e) => e.effect < 0)
-            .fold(0, (s, e) => s - e.effect);
+  /// Money lent that will not come back, closed this month: counts as an
+  /// expense.
+  int get monthDebtOut => monthDebtEvents
+      .where((e) => e.counts && e.effect < 0)
+      .fold(0, (s, e) => s - e.effect);
 
   Future<void> saveDebt(Debt d) async {
     if (d.id == null) {
@@ -337,7 +437,7 @@ class AppState extends ChangeNotifier {
   }
 
   Future<void> setDebtClosed(Debt d, bool closed) =>
-      saveDebt(d.copyWith(closed: closed));
+      saveDebt(d.copyWith(closed: closed, at: _clock()));
 
   Future<void> addDebtPayment(DebtPayment p) async {
     await db.insertDebtPayment(p);
@@ -422,18 +522,21 @@ class AppState extends ChangeNotifier {
     language = code;
     await db.setSetting('language', code);
     notifyListeners();
+    await syncReminders();
   }
 
   Future<void> setCurrency(String symbol) async {
     currency = symbol;
     await db.setSetting('currency', symbol);
     notifyListeners();
+    await syncReminders();
   }
 
-  /// All records and transfers as CSV text.
+  /// All records, transfers and debt movements as CSV text.
   Future<String> exportCsvText(CsvLabels labels) async => exportCsv(
     records: await db.records(),
     transfers: await db.transfers(),
+    debtEvents: allDebtEvents(),
     categories: _byId,
     wallets: _walletsById,
     currency: currency,
@@ -458,26 +561,5 @@ class AppState extends ChangeNotifier {
     await generateDueRecurringRecords(db, _clock());
     await _reloadAll();
     return summary;
-  }
-}
-
-/// A debt being opened, or one of its payments, as it affects a wallet.
-class DebtEvent {
-  DebtEvent(this.debt, this.payment);
-
-  final Debt debt;
-
-  /// Null for the debt itself.
-  final DebtPayment? payment;
-
-  DateTime get date => payment?.date ?? debt.date;
-  int? get walletId => payment == null ? debt.walletId : payment!.walletId;
-
-  /// Signed change to the wallet: lending takes money out and its
-  /// repayments bring it back; borrowing is the other way round.
-  int get effect {
-    final amount = payment?.amount ?? debt.amount;
-    final out = (payment == null) == debt.lent;
-    return out ? -amount : amount;
   }
 }

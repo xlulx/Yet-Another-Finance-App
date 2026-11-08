@@ -499,7 +499,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get exportCsvHint =>
-      'Tüm kayıtlar ve aktarımlar; Excel veya Google Sheets için';
+      'Tüm kayıtlar, aktarımlar ve borçlar; Excel veya Google Sheets için';
 
   @override
   String get exportCsvSaved => 'CSV kaydedildi';
@@ -643,4 +643,76 @@ class AppLocalizationsTr extends AppLocalizations {
   String paymentTooBig(String amount) {
     return 'En fazla $amount';
   }
+
+  @override
+  String debtSlice(String name) {
+    return 'Borç: $name';
+  }
+
+  @override
+  String get reminders => 'Hatırlatmalar';
+
+  @override
+  String get remindersHint => 'O gün bildirim gelir, uygulama kapalıyken bile';
+
+  @override
+  String get remindRecurring => 'Tekrarlayan işlemler';
+
+  @override
+  String get remindDebts => 'Borç son ödeme tarihleri';
+
+  @override
+  String get remindTime => 'Hatırlatma saati';
+
+  @override
+  String get notificationsDenied =>
+      'YASBA için bildirimler Android ayarlarında kapalı';
+
+  @override
+  String reminderRecurring(String name, String amount) {
+    return '$name $amount · tekrarlayan';
+  }
+
+  @override
+  String reminderDebtLent(String name, String amount) {
+    return '$name bugün sana $amount ödeyecek';
+  }
+
+  @override
+  String reminderDebtBorrowed(String name, String amount) {
+    return 'Bugün $name kişisine $amount ödeyeceksin';
+  }
+
+  @override
+  String reminderCount(int count) {
+    return 'Bugün için $count hatırlatma';
+  }
+
+  @override
+  String get closedUncollected => 'Tahsil edilmeyen';
+
+  @override
+  String get closedUnpaid => 'Ödenmeyen';
+
+  @override
+  String get closedUncollectedEvent => 'Tahsil edilmeden kapatıldı';
+
+  @override
+  String get closedUnpaidEvent => 'Ödenmeden kapatıldı';
+
+  @override
+  String get closeDebtQuestion => 'Borç kapatılsın mı?';
+
+  @override
+  String closeDebtLossHint(String amount) {
+    return 'Kalan $amount geri gelmeyecek sayılır ve gider olarak eklenir.';
+  }
+
+  @override
+  String closeDebtGainHint(String amount) {
+    return 'Kalan $amount ödenmeyecek sayılır ve gelir olarak eklenir.';
+  }
+
+  @override
+  String get closedDifference => 'Kapatılan fark';
 }

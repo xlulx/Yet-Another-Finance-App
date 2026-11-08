@@ -17,7 +17,7 @@ class AppDatabase {
   /// 1: categories, records, recurring rules, settings.
   /// 2: wallets and transfers.
   /// 3: debts and their payments.
-  static const _version = 3;
+  static const _version = 5;
 
   /// Opens the app database. Tests can pass a [factory] and [path]
   /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`), or a
@@ -46,10 +46,12 @@ class AppDatabase {
           await _onCreate(db, version, language);
           await _upgradeToV2(db, language);
           await _upgradeToV3(db);
+          await _upgradeToV5(db);
         },
         onUpgrade: (db, from, to) async {
           if (from < 2) await _upgradeToV2(db, language);
           if (from < 3) await _upgradeToV3(db);
+          if (from < 5) await _upgradeToV5(db);
         },
       ),
     );
@@ -181,6 +183,13 @@ class AppDatabase {
     await db.execute(
       'CREATE INDEX idx_debt_payments_debt ON debt_payments(debt_id)',
     );
+  }
+
+  /// When a debt was closed by hand. (Version 4 was a test build only.)
+  static Future<void> _upgradeToV5(Database db) async {
+    final columns = await db.rawQuery('PRAGMA table_info(debts)');
+    if (columns.any((c) => c['name'] == 'closed_at')) return;
+    await db.execute('ALTER TABLE debts ADD COLUMN closed_at INTEGER');
   }
 
   static Future<void> _seedDefaultCategories(

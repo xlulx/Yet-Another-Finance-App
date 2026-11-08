@@ -953,7 +953,7 @@ abstract class AppLocalizations {
   /// No description provided for @exportCsvHint.
   ///
   /// In en, this message translates to:
-  /// **'All records and transfers, for Excel or Google Sheets'**
+  /// **'All records, transfers and debts, for Excel or Google Sheets'**
   String get exportCsvHint;
 
   /// No description provided for @exportCsvSaved.
@@ -1219,6 +1219,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'At most {amount}'**
   String paymentTooBig(String amount);
+
+  /// No description provided for @debtSlice.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt: {name}'**
+  String debtSlice(String name);
+
+  /// No description provided for @reminders.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminders'**
+  String get reminders;
+
+  /// No description provided for @remindersHint.
+  ///
+  /// In en, this message translates to:
+  /// **'A notification on the day, even when the app is closed'**
+  String get remindersHint;
+
+  /// No description provided for @remindRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring records'**
+  String get remindRecurring;
+
+  /// No description provided for @remindDebts.
+  ///
+  /// In en, this message translates to:
+  /// **'Debt due dates'**
+  String get remindDebts;
+
+  /// No description provided for @remindTime.
+  ///
+  /// In en, this message translates to:
+  /// **'Reminder time'**
+  String get remindTime;
+
+  /// No description provided for @notificationsDenied.
+  ///
+  /// In en, this message translates to:
+  /// **'Notifications are turned off for YASBA in Android settings'**
+  String get notificationsDenied;
+
+  /// No description provided for @reminderRecurring.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} {amount} · recurring'**
+  String reminderRecurring(String name, String amount);
+
+  /// No description provided for @reminderDebtLent.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} is due to pay you {amount}'**
+  String reminderDebtLent(String name, String amount);
+
+  /// No description provided for @reminderDebtBorrowed.
+  ///
+  /// In en, this message translates to:
+  /// **'You are due to pay {name} {amount}'**
+  String reminderDebtBorrowed(String name, String amount);
+
+  /// No description provided for @reminderCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count} reminders for today'**
+  String reminderCount(int count);
+
+  /// No description provided for @closedUncollected.
+  ///
+  /// In en, this message translates to:
+  /// **'Not collected'**
+  String get closedUncollected;
+
+  /// No description provided for @closedUnpaid.
+  ///
+  /// In en, this message translates to:
+  /// **'Not paid back'**
+  String get closedUnpaid;
+
+  /// No description provided for @closedUncollectedEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed, not collected'**
+  String get closedUncollectedEvent;
+
+  /// No description provided for @closedUnpaidEvent.
+  ///
+  /// In en, this message translates to:
+  /// **'Closed, not paid back'**
+  String get closedUnpaidEvent;
+
+  /// No description provided for @closeDebtQuestion.
+  ///
+  /// In en, this message translates to:
+  /// **'Close this debt?'**
+  String get closeDebtQuestion;
+
+  /// No description provided for @closeDebtLossHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining {amount} will not come back and counts as an expense.'**
+  String closeDebtLossHint(String amount);
+
+  /// No description provided for @closeDebtGainHint.
+  ///
+  /// In en, this message translates to:
+  /// **'The remaining {amount} will not be paid and counts as income.'**
+  String closeDebtGainHint(String amount);
+
+  /// No description provided for @closedDifference.
+  ///
+  /// In en, this message translates to:
+  /// **'Written off'**
+  String get closedDifference;
 }
 
 class _AppLocalizationsDelegate

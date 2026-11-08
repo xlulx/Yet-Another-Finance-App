@@ -27,7 +27,7 @@ class _HomeShellState extends State<HomeShell> {
     super.initState();
     // Check for a due automatic backup whenever the app comes back.
     _lifecycle = AppLifecycleListener(
-      onResume: () => context.read<AppState>().autoBackupIfDue(),
+      onResume: () => context.read<AppState>().onResume(),
     );
   }
 

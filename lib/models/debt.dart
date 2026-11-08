@@ -25,8 +25,13 @@ class Debt {
   final String? note;
   final int? walletId;
 
-  /// Closed by hand (e.g. forgiven) even if not fully repaid.
+  /// Closed by hand (e.g. forgiven) even if not fully repaid. What was
+  /// left then counts as an expense (money lent) or income (borrowed).
   final bool closed;
+
+  /// When it was closed by hand; null for debts closed before this was
+  /// kept.
+  final DateTime? closedAt;
 
   const Debt({
     this.id,
@@ -38,11 +43,13 @@ class Debt {
     this.note,
     this.walletId,
     this.closed = false,
+    this.closedAt,
   });
 
   bool get lent => direction == DebtDirection.lent;
 
-  Debt copyWith({bool? closed}) => Debt(
+  /// Closing sets [closedAt] to [at]; reopening clears it.
+  Debt copyWith({bool? closed, DateTime? at}) => Debt(
     id: id,
     person: person,
     direction: direction,
@@ -52,6 +59,7 @@ class Debt {
     note: note,
     walletId: walletId,
     closed: closed ?? this.closed,
+    closedAt: closed == null ? closedAt : (closed ? at : null),
   );
 
   Map<String, Object?> toRow() => {
@@ -64,10 +72,12 @@ class Debt {
     'note': note,
     'wallet_id': walletId,
     'closed': closed ? 1 : 0,
+    'closed_at': closedAt?.millisecondsSinceEpoch,
   };
 
   factory Debt.fromRow(Map<String, Object?> row) {
     final due = row['due_date'] as int?;
+    final closedAt = row['closed_at'] as int?;
     return Debt(
       id: row['id'] as int?,
       person: row['person'] as String,
@@ -78,6 +88,9 @@ class Debt {
       note: row['note'] as String?,
       walletId: row['wallet_id'] as int?,
       closed: (row['closed'] as int? ?? 0) == 1,
+      closedAt: closedAt == null
+          ? null
+          : DateTime.fromMillisecondsSinceEpoch(closedAt),
     );
   }
 }
@@ -118,4 +131,45 @@ class DebtPayment {
     walletId: row['wallet_id'] as int?,
     note: row['note'] as String?,
   );
+}
+
+/// Something that happened to a debt: opened, a repayment, or closed by
+/// hand with money still owed.
+class DebtEvent {
+  DebtEvent(this.debt, this.payment) : closedRemaining = null, _closedOn = null;
+
+  /// Closed with [remaining] still owed, on [on].
+  DebtEvent.closed(this.debt, int remaining, DateTime on)
+    : payment = null,
+      closedRemaining = remaining,
+      _closedOn = on;
+
+  final Debt debt;
+
+  /// Null for the debt itself and for closing.
+  final DebtPayment? payment;
+
+  /// What was still owed when the debt was closed by hand.
+  final int? closedRemaining;
+  final DateTime? _closedOn;
+
+  bool get isClosing => closedRemaining != null;
+
+  /// Only closing with money still owed is a real loss (money lent) or
+  /// gain (money borrowed); lending, borrowing and repaying are not income
+  /// or expense.
+  bool get counts => isClosing;
+
+  DateTime get date => _closedOn ?? payment?.date ?? debt.date;
+  int? get walletId => payment == null ? debt.walletId : payment!.walletId;
+
+  /// Signed change: for opening and repayments, to the wallet (lending
+  /// takes money out and its repayments bring it back; borrowing is the
+  /// other way round). For closing, the loss or gain.
+  int get effect {
+    if (isClosing) return debt.lent ? -closedRemaining! : closedRemaining!;
+    final amount = payment?.amount ?? debt.amount;
+    final out = (payment == null) == debt.lent;
+    return out ? -amount : amount;
+  }
 }

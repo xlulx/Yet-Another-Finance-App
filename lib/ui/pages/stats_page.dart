@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 
 import '../../models/category.dart';
+import '../../models/debt.dart';
 import '../../models/record.dart';
 import '../../models/transfer.dart';
 import '../../services/stats.dart';
@@ -18,6 +19,7 @@ import '../widgets/menu_button.dart';
 import '../widgets/category_avatar.dart';
 import '../widgets/month_selector.dart';
 import '../widgets/selected_wallet_chip.dart';
+import 'debts_page.dart';
 
 enum _Period { month, year }
 
@@ -95,6 +97,16 @@ class _StatsPageState extends State<StatsPage> {
     final state = context.watch<AppState>();
     final byId = {for (final c in state.categories) c.id!: c};
     final wallet = state.walletFilter;
+    // Debt movements in the period that touched a wallet (the filtered one,
+    // if any).
+    final debtEvents = [
+      for (final e in state.allDebtEvents())
+        if (!e.date.isBefore(_from) &&
+            e.date.isBefore(_to) &&
+            (e.walletId != null || (e.isClosing && wallet == null)) &&
+            (wallet == null || e.walletId == wallet))
+          e,
+    ];
     final totals = totalsByCategory(_records, byId, _type);
     if (wallet != null) {
       // One slice per other wallet, shown like a category.
@@ -120,8 +132,25 @@ class _StatsPageState extends State<StatsPage> {
           ),
         );
       }
-      totals.sort((a, b) => b.total.compareTo(a.total));
     }
+    // Debts closed with money still owed: a loss or gain, one slice per
+    // person. Other debt movements are not income or expense.
+    for (final (person, total, count) in debtTotals(debtEvents, _type)) {
+      final hash = person.toLowerCase().codeUnits.fold(0, (h, c) => h + c);
+      totals.add(
+        CategoryTotal(
+          Category(
+            name: l.debtSlice(person),
+            type: _type,
+            color: categoryColors[hash % categoryColors.length],
+            icon: debtIconKey,
+          ),
+          total,
+          count,
+        ),
+      );
+    }
+    totals.sort((a, b) => b.total.compareTo(a.total));
     final sum = totals.fold(0, (s, t) => s + t.total);
 
     final bucketCount = _period == _Period.month
@@ -134,6 +163,7 @@ class _StatsPageState extends State<StatsPage> {
       _period == _Period.month ? (d) => d.day - 1 : (d) => d.month - 1,
       transfers: _transfers,
       walletId: wallet,
+      debtEvents: debtEvents,
     );
 
     return Scaffold(
@@ -271,7 +301,115 @@ class _StatsPageState extends State<StatsPage> {
               currency: state.currency,
             ),
           ),
+          if (state.debts.isNotEmpty &&
+              (wallet == null || debtEvents.isNotEmpty)) ...[
+            const SizedBox(height: 24),
+            _DebtSummary(events: debtEvents, showOpen: wallet == null),
+          ],
         ],
+      ),
+    );
+  }
+}
+
+/// The period's debt movements, each kind next to its repayments, and
+/// what was written off when debts were closed with money still owed.
+/// Only the latter counts as income or expense elsewhere.
+class _DebtSummary extends StatelessWidget {
+  const _DebtSummary({required this.events, required this.showOpen});
+
+  final List<DebtEvent> events;
+  final bool showOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final state = context.watch<AppState>();
+    final theme = Theme.of(context);
+    int sum(bool Function(DebtEvent) test) =>
+        events.where(test).fold(0, (s, e) => s + e.effect.abs());
+    bool opened(DebtEvent e) => e.payment == null && !e.isClosing;
+    final lost = sum((e) => e.isClosing && e.debt.lent);
+    final gained = sum((e) => e.isClosing && !e.debt.lent);
+
+    Widget cell(String label, int amount, {Color? color}) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: theme.textTheme.labelMedium),
+          const SizedBox(height: 2),
+          Text(
+            formatMoney(amount, state.currency),
+            style: theme.textTheme.titleSmall?.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
+    Widget pair(Widget a, Widget b) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(children: [a, const SizedBox(width: 12), b]),
+    );
+
+    return Card(
+      margin: EdgeInsets.zero,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () =>
+            Navigator.of(context)
+                .push(MaterialPageRoute(builder: (_) => const DebtsPage())),
+        child: Padding(
+          padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: Text(l.debts, style: theme.textTheme.titleSmall),
+                  ),
+                  const Icon(Icons.chevron_right),
+                ],
+              ),
+              pair(
+                cell(l.debtLentEvent, sum((e) => opened(e) && e.debt.lent)),
+                cell(
+                  l.repaymentReceived,
+                  sum((e) => e.payment != null && e.debt.lent),
+                ),
+              ),
+              pair(
+                cell(
+                  l.debtBorrowedEvent,
+                  sum((e) => opened(e) && !e.debt.lent),
+                ),
+                cell(
+                  l.repaymentMade,
+                  sum((e) => e.payment != null && !e.debt.lent),
+                ),
+              ),
+              if (lost > 0 || gained > 0)
+                pair(
+                  cell(
+                    l.closedUncollected,
+                    lost,
+                    color: lost > 0 ? theme.colorScheme.error : null,
+                  ),
+                  cell(
+                    l.closedUnpaid,
+                    gained,
+                    color: gained > 0 ? Colors.green.shade600 : null,
+                  ),
+                ),
+              if (showOpen) ...[
+                const Divider(height: 16),
+                pair(
+                  cell(l.owedToMe, state.totalOwedToMe),
+                  cell(l.iOwe, state.totalIOwe),
+                ),
+              ],
+            ],
+          ),
+        ),
       ),
     );
   }
