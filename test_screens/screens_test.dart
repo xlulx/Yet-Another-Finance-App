@@ -14,6 +14,7 @@ import 'package:yasba/models/record.dart';
 import 'package:yasba/models/recurring_rule.dart';
 import 'package:yasba/models/transfer.dart';
 import 'package:yasba/models/wallet.dart';
+import 'package:yasba/services/reminders.dart';
 import 'package:yasba/state/app_state.dart';
 
 /// Renders the main screens in English and Turkish with sample data and
@@ -209,6 +210,9 @@ Future<void> seed(AppDatabase db, String lang) async {
       startDate: DateTime(now.year, now.month - 2, 15),
     ),
   );
+  // Reminders on, to show them in Settings.
+  await db.setSetting(remindRecurringKey, '1');
+  await db.setSetting(remindDebtsKey, '1');
 }
 
 Future<void> shot(WidgetTester tester, String name) async {
@@ -242,7 +246,10 @@ Future<AppState> start(WidgetTester tester, String lang) async {
   });
   // flutter_test draws shadows as black outlines unless enabled.
   debugDisableShadows = false;
-  tester.view.physicalSize = const Size(1080, 2340);
+  // SHOT_HEIGHT=1920 gives 9:16 shots, the tallest Google Play accepts.
+  final height =
+      double.tryParse(Platform.environment['SHOT_HEIGHT'] ?? '') ?? 2340;
+  tester.view.physicalSize = Size(1080, height);
   tester.view.devicePixelRatio = 3;
   await tester.pumpWidget(
     RepaintBoundary(
