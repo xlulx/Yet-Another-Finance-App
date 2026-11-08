@@ -199,6 +199,27 @@ Future<void> tapNav(WidgetTester tester, IconData icon) async {
   await tester.pumpAndSettle();
 }
 
+/// Selects the wallet called [name] (null for all wallets) and lets the
+/// database work finish.
+Future<void> pickWallet(
+  WidgetTester tester,
+  AppState state,
+  String? name,
+) async {
+  await tester.runAsync(
+    () => state.setWalletFilter(
+      name == null ? null : state.wallets.firstWhere((w) => w.name == name).id,
+    ),
+  );
+  for (var i = 0; i < 10; i++) {
+    await tester.runAsync(
+      () => Future.delayed(const Duration(milliseconds: 30)),
+    );
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 void main() {
   setUpAll(() async {
     // flutter_test draws shadows as thick black outlines unless disabled.
@@ -214,28 +235,9 @@ void main() {
       await shot(tester, '${lang}_1_records');
 
       // The same month filtered to the cash wallet.
-      await tester.tap(
-        find.widgetWithText(ChoiceChip, lang == 'tr' ? 'Nakit' : 'Cash'),
-      );
-      for (var i = 0; i < 10; i++) {
-        await tester.runAsync(
-          () => Future.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump();
-      }
+      await pickWallet(tester, state, lang == 'tr' ? 'Nakit' : 'Cash');
       await shot(tester, '${lang}_1b_records_one_wallet');
-      await tester.tap(
-        find.widgetWithText(
-          ChoiceChip,
-          lang == 'tr' ? 'Tüm cüzdanlar' : 'All wallets',
-        ),
-      );
-      for (var i = 0; i < 10; i++) {
-        await tester.runAsync(
-          () => Future.delayed(const Duration(milliseconds: 20)),
-        );
-        await tester.pump();
-      }
+      await pickWallet(tester, state, null);
 
       await tester.tap(find.byType(FloatingActionButton));
       await tester.pumpAndSettle();
@@ -251,30 +253,9 @@ void main() {
         await tester.pump();
       }
       await shot(tester, '${lang}_3_stats');
-      await tester.tap(
-        find.widgetWithText(ChoiceChip, lang == 'tr' ? 'Banka' : 'Bank').last,
-      );
-      for (var i = 0; i < 10; i++) {
-        await tester.runAsync(
-          () => Future.delayed(const Duration(milliseconds: 30)),
-        );
-        await tester.pump();
-      }
+      await pickWallet(tester, state, lang == 'tr' ? 'Banka' : 'Bank');
       await shot(tester, '${lang}_3b_stats_one_wallet');
-      await tester.tap(
-        find
-            .widgetWithText(
-              ChoiceChip,
-              lang == 'tr' ? 'Tüm cüzdanlar' : 'All wallets',
-            )
-            .last,
-      );
-      for (var i = 0; i < 10; i++) {
-        await tester.runAsync(
-          () => Future.delayed(const Duration(milliseconds: 30)),
-        );
-        await tester.pump();
-      }
+      await pickWallet(tester, state, null);
 
       await tapNav(tester, Icons.settings_outlined);
       await shot(tester, '${lang}_4_settings');
