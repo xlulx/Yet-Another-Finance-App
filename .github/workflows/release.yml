@@ -2,15 +2,26 @@
 # is pushed. Regular pushes, PRs and branches use no Actions minutes.
 #
 # Ways to cut a release:
-#   - GitHub > Actions > Release APK > Run workflow (version: 0.1.0)
+#   - GitHub > Actions > Release > Run workflow (version: 0.1.0)
 #   - git tag v0.1.0 && git push origin v0.1.0
 #   - GitHub > Releases > Draft a new release (with a new v* tag)
 # The workflow creates the tag/release if needed and attaches the signed APK.
+# If the Play secret is set, it also builds an App Bundle and uploads it to
+# Google Play as a draft release on a testing track; it is rolled out from
+# the Play Console. The bundle is not kept anywhere else.
 #
-# Required repository secrets (Settings > Secrets and variables > Actions):
-#   RELEASE_KEYSTORE_BASE64   - the signing keystore, base64 encoded
-#   RELEASE_KEYSTORE_PASSWORD - the keystore password
-name: Release APK
+# The version code is derived from the version: 1.2.3 -> 10203, so it always
+# grows with the version, as Android and Play require.
+#
+# Repository secrets (Settings > Secrets and variables > Actions):
+#   RELEASE_KEYSTORE_BASE64    - the signing keystore, base64 encoded
+#   RELEASE_KEYSTORE_PASSWORD  - the keystore password
+#   PLAY_SERVICE_ACCOUNT_JSON  - optional: a Google Cloud service account key
+#                                with release rights in the Play Console
+#
+# Third-party actions are pinned to commits so a moved tag cannot change
+# what runs here.
+name: Release
 
 on:
   push:
@@ -21,6 +32,12 @@ on:
         description: 'Version (e.g. 0.1.0)'
         required: true
         type: string
+      play_track:
+        description: 'Google Play track for the draft release'
+        required: false
+        default: alpha
+        type: choice
+        options: [alpha, internal, beta, production, none]
 
 permissions:
   contents: write
@@ -30,36 +47,56 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  apk:
+  release:
     runs-on: ubuntu-latest
-    timeout-minutes: 25
+    timeout-minutes: 30
     env:
       TAG: ${{ github.event_name == 'workflow_dispatch' && format('v{0}', inputs.version) || github.ref_name }}
+      # "alpha" is the closed testing track.
+      PLAY_TRACK: ${{ inputs.play_track || 'alpha' }}
+      PACKAGE: io.github.xlulx.yasba
     steps:
-      # Fail fast, before downloading anything, if the secrets are missing.
-      - name: Check secrets
+      # Fail fast, before downloading anything, if something is missing.
+      - name: Check secrets and version
+        id: check
         env:
           KEYSTORE_BASE64: ${{ secrets.RELEASE_KEYSTORE_BASE64 }}
           KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          PLAY_JSON: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
         run: |
           if [ -z "$KEYSTORE_BASE64" ] || [ -z "$KEYSTORE_PASSWORD" ]; then
             echo "::error::RELEASE_KEYSTORE_BASE64 / RELEASE_KEYSTORE_PASSWORD secrets are missing."
             exit 1
           fi
-          if ! [[ "$TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+          if ! [[ "$TAG" =~ ^v([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]; then
             echo "::error::Version must look like 1.2.3 (got: $TAG)."
             exit 1
           fi
+          major=${BASH_REMATCH[1]} minor=${BASH_REMATCH[2]} patch=${BASH_REMATCH[3]}
+          if [ "$minor" -gt 99 ] || [ "$patch" -gt 99 ]; then
+            echo "::error::Minor and patch must be at most 99 (got: $TAG)."
+            exit 1
+          fi
+          echo "name=${TAG#v}" >> "$GITHUB_OUTPUT"
+          echo "code=$((major * 10000 + minor * 100 + patch))" >> "$GITHUB_OUTPUT"
+          if [ -n "$PLAY_JSON" ] && [ "$PLAY_TRACK" != none ]; then
+            echo "play=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No Play secret or track 'none': skipping Google Play."
+          fi
 
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: actions/setup-java@cf277c60eb25467037889841efdb72551f06f6c3 # v4.9.1
         with:
           distribution: temurin
           java-version: '17'
-      - uses: subosito/flutter-action@v2
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           channel: stable
           cache: true
+
+      - run: flutter pub get
+      - run: flutter test
 
       - name: Prepare signing key
         env:
@@ -68,20 +105,32 @@ jobs:
           echo "$KEYSTORE_BASE64" | tr -d ' \n\r' | base64 -d > "$RUNNER_TEMP/release.jks"
           echo "RELEASE_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
 
-      - run: flutter pub get
-      - run: flutter test
-
       - name: Build APK
         env:
           RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          NAME: ${{ steps.check.outputs.name }}
+          CODE: ${{ steps.check.outputs.code }}
         run: |
-          # Version name comes from the tag: v1.2.3 -> 1.2.3
-          NAME="${TAG#v}"
           flutter build apk --release --flavor prod \
             --target-platform android-arm64 \
-            --build-name="$NAME" --build-number="${{ github.run_number }}" \
+            --build-name="$NAME" --build-number="$CODE" \
             --dart-define=APP_VERSION="$NAME"
           cp build/app/outputs/flutter-apk/app-prod-release.apk "YASBA-$NAME.apk"
+
+      - name: Build App Bundle
+        if: steps.check.outputs.play == 'true'
+        env:
+          RELEASE_KEYSTORE_PASSWORD: ${{ secrets.RELEASE_KEYSTORE_PASSWORD }}
+          NAME: ${{ steps.check.outputs.name }}
+          CODE: ${{ steps.check.outputs.code }}
+        run: |
+          flutter build appbundle --release --flavor prod \
+            --build-name="$NAME" --build-number="$CODE" \
+            --dart-define=APP_VERSION="$NAME"
+
+      - name: Remove signing key
+        if: always()
+        run: rm -f "$RUNNER_TEMP/release.jks"
 
       - name: Create release and attach APK
         env:
@@ -93,6 +142,16 @@ jobs:
           fi
           gh release upload "$TAG" YASBA-*.apk --clobber
 
-      - name: Remove signing key
-        if: always()
-        run: rm -f "$RUNNER_TEMP/release.jks"
+      # Last, so a Play problem never holds back the GitHub release. Draft:
+      # nothing reaches users until it is rolled out in the Play Console.
+      - name: Upload to Google Play
+        if: steps.check.outputs.play == 'true'
+        uses: r0adkll/upload-google-play@e738b9dd8f2476ea806d921b64aacd24f34515a5 # v1.1.5
+        with:
+          serviceAccountJsonPlainText: ${{ secrets.PLAY_SERVICE_ACCOUNT_JSON }}
+          packageName: ${{ env.PACKAGE }}
+          releaseFiles: build/app/outputs/bundle/prodRelease/app-prod-release.aab
+          releaseName: ${{ steps.check.outputs.name }}
+          track: ${{ env.PLAY_TRACK }}
+          status: draft
+          mappingFile: build/app/outputs/mapping/prodRelease/mapping.txt
