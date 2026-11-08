@@ -4,13 +4,13 @@ import 'package:sqflite/sqflite.dart';
 
 import '../data/app_database.dart';
 
-/// YAFA's own backup: every table as plain rows in one JSON file.
+/// YASBA's own backup: every table as plain rows in one JSON file.
 ///
 /// ```json
-/// {"format": "yafa-backup", "version": 1, "created_at": "...",
+/// {"format": "yasba-backup", "version": 1, "created_at": "...",
 ///  "app_version": "0.4.0", "tables": {"wallets": [...], ...}}
 /// ```
-const backupFormat = 'yafa-backup';
+const backupFormat = 'yasba-backup';
 
 /// Bump when the file layout changes in a way older apps cannot read.
 const backupVersion = 1;
@@ -38,8 +38,8 @@ class BackupException implements Exception {
 }
 
 /// A parsed backup, checked but not yet restored.
-class YafaBackup {
-  YafaBackup(this.createdAt, this.tables);
+class YasbaBackup {
+  YasbaBackup(this.createdAt, this.tables);
 
   final DateTime? createdAt;
   final Map<String, List<Map<String, Object?>>> tables;
@@ -70,7 +70,7 @@ Future<String> exportBackup(
 }
 
 /// Parses and checks a backup file's text. Throws [BackupException].
-YafaBackup parseBackup(String source) {
+YasbaBackup parseBackup(String source) {
   final Object? decoded;
   try {
     decoded = jsonDecode(source);
@@ -97,7 +97,7 @@ YafaBackup parseBackup(String source) {
   }
   // Every record needs a wallet: a backup without one is not ours.
   if (tables['wallets']!.isEmpty) throw BackupException(BackupError.notBackup);
-  return YafaBackup(
+  return YasbaBackup(
     DateTime.tryParse(decoded['created_at']?.toString() ?? ''),
     tables,
   );
@@ -105,7 +105,7 @@ YafaBackup parseBackup(String source) {
 
 /// Replaces all data with the backup's, in one transaction: on any error
 /// nothing changes. Unknown columns (from newer files) are ignored.
-Future<void> restoreBackup(AppDatabase db, YafaBackup backup) {
+Future<void> restoreBackup(AppDatabase db, YasbaBackup backup) {
   return db.db.transaction((txn) async {
     // Rows reference each other; check foreign keys at commit instead.
     await txn.execute('PRAGMA defer_foreign_keys = ON');

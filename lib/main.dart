@@ -18,11 +18,11 @@ Future<void> main() async {
   final db = await AppDatabase.open(language: systemLanguage);
   final state = AppState(db);
   await state.load();
-  runApp(YafaApp(state: state));
+  runApp(YasbaApp(state: state));
 }
 
-class YafaApp extends StatelessWidget {
-  const YafaApp({super.key, required this.state});
+class YasbaApp extends StatelessWidget {
+  const YasbaApp({super.key, required this.state});
 
   final AppState state;
 
@@ -33,7 +33,7 @@ class YafaApp extends StatelessWidget {
       value: state,
       child: Consumer<AppState>(
         builder: (context, state, _) => MaterialApp(
-          title: 'YAFA',
+          title: 'YASBA',
           debugShowCheckedModeBanner: false,
           locale: state.locale,
           supportedLocales: AppLocalizations.supportedLocales,

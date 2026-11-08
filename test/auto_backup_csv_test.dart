@@ -3,15 +3,15 @@ import 'dart:convert';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:yafa/data/app_database.dart';
-import 'package:yafa/models/category.dart';
-import 'package:yafa/models/record.dart';
-import 'package:yafa/models/transfer.dart';
-import 'package:yafa/models/wallet.dart';
-import 'package:yafa/services/auto_backup.dart';
-import 'package:yafa/services/backup.dart';
-import 'package:yafa/services/csv_export.dart';
-import 'package:yafa/state/app_state.dart';
+import 'package:yasba/data/app_database.dart';
+import 'package:yasba/models/category.dart';
+import 'package:yasba/models/record.dart';
+import 'package:yasba/models/transfer.dart';
+import 'package:yasba/models/wallet.dart';
+import 'package:yasba/services/auto_backup.dart';
+import 'package:yasba/services/backup.dart';
+import 'package:yasba/services/csv_export.dart';
+import 'package:yasba/state/app_state.dart';
 
 /// Keeps written backups in memory.
 class FakeWriter implements BackupWriter {
@@ -22,7 +22,7 @@ class FakeWriter implements BackupWriter {
   Future<String> save(String name, Uint8List bytes, {required int keep}) async {
     if (error != null) throw error!;
     saved[name] = utf8.decode(bytes);
-    return 'Download/YAFA/$name';
+    return 'Download/YASBA/$name';
   }
 }
 
@@ -66,7 +66,7 @@ void main() {
       await state.setAutoBackup(AutoBackupFrequency.weekly);
       expect(writer.saved, hasLength(1));
       expect(state.lastAutoBackup, now);
-      expect(state.autoBackupLocation, 'Download/YAFA');
+      expect(state.autoBackupLocation, 'Download/YASBA');
       final backup = parseBackup(writer.saved.values.single);
       expect(backup.count('wallets'), 1);
       // Automatic backup settings belong to the device, not the backup.

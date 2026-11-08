@@ -1,6 +1,6 @@
 import 'package:flutter_test/flutter_test.dart';
-import 'package:yafa/models/recurring_rule.dart';
-import 'package:yafa/services/recurrence.dart';
+import 'package:yasba/models/recurring_rule.dart';
+import 'package:yasba/services/recurrence.dart';
 
 RecurringRule rule(
   DateTime start, {

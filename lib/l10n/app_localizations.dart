@@ -101,7 +101,7 @@ abstract class AppLocalizations {
   /// No description provided for @appTitle.
   ///
   /// In en, this message translates to:
-  /// **'YAFA'**
+  /// **'YASBA'**
   String get appTitle;
 
   /// No description provided for @navRecords.
@@ -617,7 +617,7 @@ abstract class AppLocalizations {
   /// No description provided for @aboutLegalese.
   ///
   /// In en, this message translates to:
-  /// **'Yet Another Finance App\nAll your data stays on your device.'**
+  /// **'A simple, private budget tracker.\nAll your data stays on your device.'**
   String get aboutLegalese;
 
   /// No description provided for @wallet.
@@ -851,7 +851,7 @@ abstract class AppLocalizations {
   /// No description provided for @backupPick.
   ///
   /// In en, this message translates to:
-  /// **'Choose a YAFA backup'**
+  /// **'Choose a YASBA backup'**
   String get backupPick;
 
   /// No description provided for @backupRestoreQuestion.
@@ -887,13 +887,13 @@ abstract class AppLocalizations {
   /// No description provided for @backupNotBackup.
   ///
   /// In en, this message translates to:
-  /// **'This file is not a YAFA backup.'**
+  /// **'This file is not a YASBA backup.'**
   String get backupNotBackup;
 
   /// No description provided for @backupNewer.
   ///
   /// In en, this message translates to:
-  /// **'This backup was made by a newer version of YAFA. Update the app first.'**
+  /// **'This backup was made by a newer version of YASBA. Update the app first.'**
   String get backupNewer;
 
   /// No description provided for @unknownDate.
@@ -935,7 +935,7 @@ abstract class AppLocalizations {
   /// No description provided for @autoBackupOffHint.
   ///
   /// In en, this message translates to:
-  /// **'When on, a backup is saved to Download/YAFA when you open the app; the last 5 are kept'**
+  /// **'When on, a backup is saved to Download/YASBA when you open the app; the last 5 are kept'**
   String get autoBackupOffHint;
 
   /// No description provided for @autoBackupLast.

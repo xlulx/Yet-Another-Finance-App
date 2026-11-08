@@ -72,7 +72,7 @@ class SettingsPage extends StatelessWidget {
       final day = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final uri = await FilePicker.saveFile(
         dialogTitle: l.backupCreate,
-        fileName: 'yafa-backup-$day.json',
+        fileName: 'yasba-backup-$day.json',
         bytes: Uint8List.fromList(utf8.encode(text)),
         mimeType: 'application/json',
       );
@@ -111,7 +111,7 @@ class SettingsPage extends StatelessWidget {
       final day = DateFormat('yyyy-MM-dd').format(DateTime.now());
       final uri = await FilePicker.saveFile(
         dialogTitle: l.exportCsv,
-        fileName: 'yafa-$day.csv',
+        fileName: 'yasba-$day.csv',
         bytes: Uint8List.fromList(utf8.encode(text)),
         mimeType: 'text/csv',
       );
@@ -133,7 +133,7 @@ class SettingsPage extends StatelessWidget {
     );
     if (file == null || !context.mounted) return;
 
-    final YafaBackup backup;
+    final YasbaBackup backup;
     try {
       backup = parseBackup(utf8.decode(await file.readAsBytes()));
     } on BackupException catch (e) {
@@ -312,7 +312,7 @@ class SettingsPage extends StatelessWidget {
           const Divider(),
           AboutListTile(
             icon: const Icon(Icons.info_outline),
-            applicationName: 'YAFA',
+            applicationName: 'YASBA',
             applicationVersion: appVersion,
             applicationLegalese: l.aboutLegalese,
           ),

@@ -7,13 +7,13 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:yafa/data/app_database.dart';
-import 'package:yafa/main.dart';
-import 'package:yafa/models/record.dart';
-import 'package:yafa/models/recurring_rule.dart';
-import 'package:yafa/models/transfer.dart';
-import 'package:yafa/models/wallet.dart';
-import 'package:yafa/state/app_state.dart';
+import 'package:yasba/data/app_database.dart';
+import 'package:yasba/main.dart';
+import 'package:yasba/models/record.dart';
+import 'package:yasba/models/recurring_rule.dart';
+import 'package:yasba/models/transfer.dart';
+import 'package:yasba/models/wallet.dart';
+import 'package:yasba/state/app_state.dart';
 
 /// Renders the main screens in English and Turkish with sample data and
 /// saves them as phone-sized PNGs (1080x2340). Not part of `flutter test`:
@@ -188,7 +188,7 @@ Future<AppState> start(WidgetTester tester, String lang) async {
   await tester.pumpWidget(
     RepaintBoundary(
       key: const Key('root'),
-      child: YafaApp(state: state),
+      child: YasbaApp(state: state),
     ),
   );
   return state;

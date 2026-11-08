@@ -12,7 +12,7 @@ import java.io.File
 class MainActivity : FlutterActivity() {
     override fun configureFlutterEngine(flutterEngine: FlutterEngine) {
         super.configureFlutterEngine(flutterEngine)
-        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "yafa/auto_backup")
+        MethodChannel(flutterEngine.dartExecutor.binaryMessenger, "yasba/auto_backup")
             .setMethodCallHandler { call, result ->
                 when (call.method) {
                     "save" -> try {
@@ -32,13 +32,13 @@ class MainActivity : FlutterActivity() {
      * Writes an automatic backup and keeps only the newest [keep] of them.
      * Returns where the file went, for display.
      *
-     * Android 10+: Download/YAFA through MediaStore (no permission needed,
+     * Android 10+: Download/YASBA through MediaStore (no permission needed,
      * survives uninstalling the app). Older versions: the app's own folder,
      * since the public Download folder would need a storage permission.
      */
     private fun save(name: String, bytes: ByteArray, keep: Int): String {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            val relativePath = Environment.DIRECTORY_DOWNLOADS + "/YAFA/"
+            val relativePath = Environment.DIRECTORY_DOWNLOADS + "/YASBA/"
             val collection = MediaStore.Downloads.EXTERNAL_CONTENT_URI
             val values = ContentValues().apply {
                 put(MediaStore.MediaColumns.DISPLAY_NAME, name)
@@ -64,7 +64,7 @@ class MainActivity : FlutterActivity() {
                 arrayOf(MediaStore.MediaColumns._ID),
                 "${MediaStore.MediaColumns.RELATIVE_PATH} = ? AND " +
                     "${MediaStore.MediaColumns.DISPLAY_NAME} LIKE ?",
-                arrayOf(relativePath, "yafa-auto-backup-%"),
+                arrayOf(relativePath, "yasba-auto-backup-%"),
                 "${MediaStore.MediaColumns.DATE_ADDED} DESC",
             )?.use { cursor ->
                 var index = 0
@@ -81,10 +81,10 @@ class MainActivity : FlutterActivity() {
             }
             return relativePath + name
         }
-        val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "YAFA")
+        val dir = File(getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS), "YASBA")
         dir.mkdirs()
         File(dir, name).writeBytes(bytes)
-        dir.listFiles { f -> f.name.startsWith("yafa-auto-backup-") }
+        dir.listFiles { f -> f.name.startsWith("yasba-auto-backup-") }
             ?.sortedByDescending { it.lastModified() }
             ?.drop(keep)
             ?.forEach { it.delete() }

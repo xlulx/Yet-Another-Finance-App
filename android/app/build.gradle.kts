@@ -66,7 +66,7 @@ android {
         }
     }
 
-    // "dev":  test build installed next to the real app ("YAFA Dev",
+    // "dev":  test build installed next to the real app ("YASBA Dev",
     //         separate data).
     // "prod": the real app; only built by the Release APK workflow.
     flavorDimensions += "channel"
@@ -75,12 +75,12 @@ android {
             dimension = "channel"
             applicationIdSuffix = ".dev"
             versionNameSuffix = "-dev"
-            resValue("string", "app_name", "YAFA Dev")
+            resValue("string", "app_name", "YASBA Dev")
             signingConfig = signingConfigs.getByName("dev")
         }
         create("prod") {
             dimension = "channel"
-            resValue("string", "app_name", "YAFA")
+            resValue("string", "app_name", "YASBA")
             // Left unsigned without a key, so a release is never signed with the
             // wrong key.
             signingConfig = signingConfigs.findByName("release")

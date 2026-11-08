@@ -46,10 +46,10 @@ abstract interface class BackupWriter {
   Future<String> save(String name, Uint8List bytes, {required int keep});
 }
 
-/// Android: Download/YAFA (or the app's own folder before Android 10).
+/// Android: Download/YASBA (or the app's own folder before Android 10).
 class PlatformBackupWriter implements BackupWriter {
   const PlatformBackupWriter();
-  static const _channel = MethodChannel('yafa/auto_backup');
+  static const _channel = MethodChannel('yasba/auto_backup');
 
   @override
   Future<String> save(String name, Uint8List bytes, {required int keep}) async {
@@ -77,7 +77,7 @@ Future<String?> runAutoBackupIfDue(
   if (!force && !autoBackupDue(frequency, last, now)) return null;
   final text = await exportBackup(db, appVersion: appVersion);
   final name =
-      'yafa-auto-backup-${DateFormat('yyyy-MM-dd-HHmm').format(now)}.json';
+      'yasba-auto-backup-${DateFormat('yyyy-MM-dd-HHmm').format(now)}.json';
   final where = await writer.save(
     name,
     Uint8List.fromList(utf8.encode(text)),

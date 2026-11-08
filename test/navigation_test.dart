@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
-import 'package:yafa/data/app_database.dart';
-import 'package:yafa/main.dart';
-import 'package:yafa/models/wallet.dart';
-import 'package:yafa/state/app_state.dart';
+import 'package:yasba/data/app_database.dart';
+import 'package:yasba/main.dart';
+import 'package:yasba/models/wallet.dart';
+import 'package:yasba/state/app_state.dart';
 
 Future<AppState> openApp(WidgetTester tester) async {
   late AppState state;
@@ -18,7 +18,7 @@ Future<AppState> openApp(WidgetTester tester) async {
     await state.load();
     await state.setLanguage('en');
   });
-  await tester.pumpWidget(YafaApp(state: state));
+  await tester.pumpWidget(YasbaApp(state: state));
   await tester.pumpAndSettle();
   return state;
 }
@@ -119,7 +119,7 @@ void main() {
       await state.load();
       await state.setLanguage('en');
     });
-    await tester.pumpWidget(YafaApp(state: state));
+    await tester.pumpWidget(YasbaApp(state: state));
     await tester.pumpAndSettle();
 
     await tester.tap(find.text('Wallets'));

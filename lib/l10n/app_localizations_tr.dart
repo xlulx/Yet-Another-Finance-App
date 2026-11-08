@@ -10,7 +10,7 @@ class AppLocalizationsTr extends AppLocalizations {
   AppLocalizationsTr([String locale = 'tr']) : super(locale);
 
   @override
-  String get appTitle => 'YAFA';
+  String get appTitle => 'YASBA';
 
   @override
   String get navRecords => 'Kayıtlar';
@@ -304,7 +304,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get aboutLegalese =>
-      'Yet Another Finance App\nTüm verileriniz cihazınızda kalır.';
+      'Sade ve gizli bütçe takibi.\nTüm verileriniz cihazınızda kalır.';
 
   @override
   String get wallet => 'Cüzdan';
@@ -436,7 +436,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get backupPick => 'Bir YAFA yedeği seçin';
+  String get backupPick => 'Bir YASBA yedeği seçin';
 
   @override
   String get backupRestoreQuestion => 'Bu yedek geri yüklensin mi?';
@@ -459,11 +459,11 @@ class AppLocalizationsTr extends AppLocalizations {
   String get backupRestored => 'Yedek geri yüklendi';
 
   @override
-  String get backupNotBackup => 'Bu dosya bir YAFA yedeği değil.';
+  String get backupNotBackup => 'Bu dosya bir YASBA yedeği değil.';
 
   @override
   String get backupNewer =>
-      'Bu yedek YAFA\'nın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.';
+      'Bu yedek YASBA\'nın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.';
 
   @override
   String get unknownDate => 'bilinmeyen bir';
@@ -485,7 +485,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get autoBackupOffHint =>
-      'Açıkken, uygulamayı açtığında İndirilenler/YAFA klasörüne yedek alınır; son 5 yedek tutulur';
+      'Açıkken, uygulamayı açtığında İndirilenler/YASBA klasörüne yedek alınır; son 5 yedek tutulur';
 
   @override
   String autoBackupLast(String date) {

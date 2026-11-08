@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:path/path.dart' as p;
 import 'package:sqflite/sqflite.dart';
 
@@ -18,17 +20,24 @@ class AppDatabase {
   static const _version = 2;
 
   /// Opens the app database. Tests can pass a [factory] and [path]
-  /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`).
+  /// (e.g. `databaseFactoryFfi` and `inMemoryDatabasePath`), or a
+  /// [directory] to use instead of the platform's database folder.
   ///
   /// [language] picks the names of the default categories created on first
   /// launch (`tr` or anything else for English).
   static Future<AppDatabase> open({
     DatabaseFactory? factory,
     String? path,
+    String? directory,
     String language = 'en',
   }) async {
     final f = factory ?? databaseFactory;
-    final dbPath = path ?? p.join(await f.getDatabasesPath(), 'yafa.db');
+    var dbPath = path;
+    if (dbPath == null) {
+      final dir = directory ?? await f.getDatabasesPath();
+      dbPath = p.join(dir, 'yasba.db');
+      await _moveOldDatabase(f, p.join(dir, 'yafa.db'), dbPath);
+    }
     final db = await f.openDatabase(
       dbPath,
       options: OpenDatabaseOptions(
@@ -44,6 +53,22 @@ class AppDatabase {
       ),
     );
     return AppDatabase._(db);
+  }
+
+  /// The app was called YAFA and kept its data in `yafa.db`; move it to the
+  /// new name once, with SQLite's side files, so no data is lost.
+  static Future<void> _moveOldDatabase(
+    DatabaseFactory f,
+    String oldPath,
+    String newPath,
+  ) async {
+    if (!await f.databaseExists(oldPath) || await f.databaseExists(newPath)) {
+      return;
+    }
+    for (final suffix in ['', '-journal', '-wal', '-shm']) {
+      final file = File('$oldPath$suffix');
+      if (await file.exists()) await file.rename('$newPath$suffix');
+    }
   }
 
   static Future<void> _onCreate(

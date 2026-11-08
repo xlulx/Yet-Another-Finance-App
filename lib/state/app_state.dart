@@ -345,7 +345,7 @@ class AppState extends ChangeNotifier {
   Future<String> exportBackupText() => exportBackup(db, appVersion: appVersion);
 
   /// Replaces all data with [backup]'s, then catches up recurring records.
-  Future<void> restoreFromBackup(YafaBackup backup) async {
+  Future<void> restoreFromBackup(YasbaBackup backup) async {
     await restoreBackup(db, backup);
     currency = await db.getSetting('currency') ?? currency;
     walletFilter = null;
