@@ -10,6 +10,7 @@ import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/category_picker.dart';
 import '../widgets/wallet_dropdown.dart';
+import '../widgets/dialogs.dart';
 
 enum _Kind { expense, income, transfer }
 
@@ -82,12 +83,7 @@ class _EditRecordPageState extends State<EditRecordPage> {
   }
 
   Future<void> _pickDate() async {
-    final picked = await showDatePicker(
-      context: context,
-      initialDate: _date,
-      firstDate: DateTime(1990),
-      lastDate: DateTime(2100),
-    );
+    final picked = await pickDate(context, _date);
     if (picked != null) {
       setState(
         () => _date = DateTime(
@@ -152,27 +148,14 @@ class _EditRecordPageState extends State<EditRecordPage> {
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
     final state = context.read<AppState>();
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text(
-          widget.transfer != null
-              ? l.deleteTransferQuestion
-              : l.deleteRecordQuestion,
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c, false),
-            child: Text(l.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(c, true),
-            child: Text(l.delete),
-          ),
-        ],
-      ),
+    final ok = await confirm(
+      context,
+      title: widget.transfer != null
+          ? l.deleteTransferQuestion
+          : l.deleteRecordQuestion,
+      action: l.delete,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     if (widget.transfer != null) {
       await state.deleteTransfer(widget.transfer!);
     } else {

@@ -14,6 +14,7 @@ import '../../services/csv_export.dart';
 import '../../services/oinkoin_import.dart';
 import '../../state/app_state.dart';
 import '../../utils/app_version.dart';
+import '../widgets/dialogs.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -177,35 +178,19 @@ class SettingsPage extends StatelessWidget {
     final date = backup.createdAt == null
         ? l.unknownDate
         : DateFormat.yMMMd().add_Hm().format(backup.createdAt!.toLocal());
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (ctx) => AlertDialog(
-        title: Text(l.backupRestoreQuestion),
-        content: Text(
-          l.backupRestoreDetails(
-            date,
-            backup.count('wallets'),
-            backup.count('records'),
-            backup.count('transfers'),
-            backup.count('recurring_rules'),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(ctx, false),
-            child: Text(l.cancel),
-          ),
-          FilledButton(
-            style: FilledButton.styleFrom(
-              backgroundColor: Theme.of(ctx).colorScheme.error,
-            ),
-            onPressed: () => Navigator.pop(ctx, true),
-            child: Text(l.backupRestoreConfirm),
-          ),
-        ],
+    final ok = await confirm(
+      context,
+      title: l.backupRestoreQuestion,
+      message: l.backupRestoreDetails(
+        date,
+        backup.count('wallets'),
+        backup.count('records'),
+        backup.count('transfers'),
+        backup.count('recurring_rules'),
       ),
+      action: l.backupRestoreConfirm,
     );
-    if (ok != true || !context.mounted) return;
+    if (!ok || !context.mounted) return;
 
     showDialog<void>(
       context: context,

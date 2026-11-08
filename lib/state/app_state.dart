@@ -49,6 +49,9 @@ class AppState extends ChangeNotifier {
   List<Debt> debts = [];
   Map<int, List<DebtPayment>> _payments = {};
 
+  /// Repaid so far, per debt id.
+  Map<int, int> _paid = {};
+
   /// Debt movements that touched a wallet in the selected month (and the
   /// filtered wallet, if any), for the records page.
   List<DebtEvent> monthDebtEvents = [];
@@ -100,15 +103,14 @@ class AppState extends ChangeNotifier {
   int get totalBalance => balances.values.fold(0, (a, b) => a + b);
 
   Future<void> load() async {
-    currency = await db.getSetting('currency') ?? '₺';
-    language = await db.getSetting('language') ?? '';
-    autoBackup = parseFrequency(await db.getSetting(autoBackupKey));
-    lastAutoBackup = DateTime.tryParse(
-      await db.getSetting(autoBackupLastKey) ?? '',
-    );
-    remindRecurring = await db.getSetting(remindRecurringKey) == '1';
-    remindDebts = await db.getSetting(remindDebtsKey) == '1';
-    final time = (await db.getSetting(remindTimeKey) ?? '').split(':');
+    final settings = await db.settings();
+    currency = settings['currency'] ?? '₺';
+    language = settings['language'] ?? '';
+    autoBackup = parseFrequency(settings[autoBackupKey]);
+    lastAutoBackup = DateTime.tryParse(settings[autoBackupLastKey] ?? '');
+    remindRecurring = settings[remindRecurringKey] == '1';
+    remindDebts = settings[remindDebtsKey] == '1';
+    final time = (settings[remindTimeKey] ?? '').split(':');
     if (time.length == 2) {
       remindHour = int.tryParse(time[0]) ?? remindHour;
       remindMinute = int.tryParse(time[1]) ?? remindMinute;
@@ -118,10 +120,15 @@ class AppState extends ChangeNotifier {
     await autoBackupIfDue();
   }
 
-  /// Called when the app comes back to the foreground.
+  /// Called when the app comes back to the foreground: adds recurring
+  /// records that fell due while it was in the background (e.g. overnight).
   Future<void> onResume() async {
+    if (await generateDueRecurringRecords(db, _clock()) > 0) {
+      await _reloadAll();
+    } else {
+      await syncReminders();
+    }
     await autoBackupIfDue();
-    await syncReminders();
   }
 
   // ---- Reminders ----
@@ -129,6 +136,8 @@ class AppState extends ChangeNotifier {
   /// Schedules the reminders that are due from now on, replacing the old
   /// ones. Never throws.
   Future<void> syncReminders() async {
+    // Nothing to schedule and nothing scheduled: skip the work.
+    if (!remindRecurring && !remindDebts && _scheduled.isEmpty) return;
     final code = language.isNotEmpty
         ? language
         : PlatformDispatcher.instance.locale.languageCode;
@@ -229,10 +238,26 @@ class AppState extends ChangeNotifier {
     if (walletFilter != null && !_walletsById.containsKey(walletFilter)) {
       walletFilter = null;
     }
+    await _reloadData();
+  }
+
+  /// Reloads what data changes touch: balances, debts and the selected
+  /// month; then reschedules reminders.
+  Future<void> _reloadData() async {
+    balances = await db.walletBalances();
+    debts = await db.debts();
+    _payments = {};
+    _paid = {};
+    for (final p in await db.debtPayments()) {
+      _payments.putIfAbsent(p.debtId, () => []).add(p);
+      _paid[p.debtId] = (_paid[p.debtId] ?? 0) + p.amount;
+    }
     await _reloadMonth(notify: false);
+    await syncReminders();
     notifyListeners();
   }
 
+  /// Reloads the selected month's entries for the wallet filter.
   Future<void> _reloadMonth({bool notify = true}) async {
     final to = DateTime(month.year, month.month + 1);
     monthRecords = await db.records(
@@ -245,12 +270,6 @@ class AppState extends ChangeNotifier {
       to: to,
       walletId: walletFilter,
     );
-    balances = await db.walletBalances();
-    debts = await db.debts();
-    _payments = {};
-    for (final p in await db.debtPayments()) {
-      _payments.putIfAbsent(p.debtId, () => []).add(p);
-    }
     monthDebtEvents = [
       for (final e in allDebtEvents())
         if (!e.date.isBefore(month) &&
@@ -260,7 +279,6 @@ class AppState extends ChangeNotifier {
             (walletFilter == null || e.walletId == walletFilter))
           e,
     ];
-    await syncReminders();
     if (notify) notifyListeners();
   }
 
@@ -314,12 +332,12 @@ class AppState extends ChangeNotifier {
     } else {
       await db.updateRecord(r);
     }
-    await _reloadMonth();
+    await _reloadData();
   }
 
   Future<void> deleteRecord(Record r) async {
     await db.deleteRecord(r.id!);
-    await _reloadMonth();
+    await _reloadData();
   }
 
   // ---- Transfers ----
@@ -330,12 +348,12 @@ class AppState extends ChangeNotifier {
     } else {
       await db.updateTransfer(t);
     }
-    await _reloadMonth();
+    await _reloadData();
   }
 
   Future<void> deleteTransfer(Transfer t) async {
     await db.deleteTransfer(t.id!);
-    await _reloadMonth();
+    await _reloadData();
   }
 
   /// Replaces a record with a transfer or the other way round, when the
@@ -360,13 +378,13 @@ class AppState extends ChangeNotifier {
       if (newRecord != null) await db.insertRecord(newRecord, txn: txn);
       if (newTransfer != null) await db.insertTransfer(newTransfer, txn: txn);
     });
-    await _reloadMonth();
+    await _reloadData();
   }
 
   // ---- Debts ----
 
   List<DebtPayment> paymentsOf(Debt d) => _payments[d.id] ?? const [];
-  int paidOf(Debt d) => paymentsOf(d).fold(0, (s, p) => s + p.amount);
+  int paidOf(Debt d) => _paid[d.id] ?? 0;
   int remainingOf(Debt d) => d.amount - paidOf(d);
 
   /// Fully repaid, or closed by hand.
@@ -428,12 +446,12 @@ class AppState extends ChangeNotifier {
     } else {
       await db.updateDebt(d);
     }
-    await _reloadMonth();
+    await _reloadData();
   }
 
   Future<void> deleteDebt(Debt d) async {
     await db.deleteDebt(d.id!);
-    await _reloadMonth();
+    await _reloadData();
   }
 
   Future<void> setDebtClosed(Debt d, bool closed) =>
@@ -441,12 +459,12 @@ class AppState extends ChangeNotifier {
 
   Future<void> addDebtPayment(DebtPayment p) async {
     await db.insertDebtPayment(p);
-    await _reloadMonth();
+    await _reloadData();
   }
 
   Future<void> deleteDebtPayment(DebtPayment p) async {
     await db.deleteDebtPayment(p.id!);
-    await _reloadMonth();
+    await _reloadData();
   }
 
   // ---- Wallets ----

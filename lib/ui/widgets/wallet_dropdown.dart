@@ -5,25 +5,39 @@ import 'wallet_avatar.dart';
 
 /// Picks a wallet. Archived wallets are only listed when already selected.
 class WalletDropdown extends StatelessWidget {
-  const WalletDropdown({
+  WalletDropdown({
     super.key,
     required this.label,
     required this.wallets,
     required this.value,
-    required this.onChanged,
+    required ValueChanged<int> onChanged,
     this.validator,
-  });
+  }) : noneLabel = null,
+       onSelected = ((v) {
+         if (v != null) onChanged(v);
+       });
+
+  /// Also offers no wallet, labelled [noneLabel].
+  const WalletDropdown.optional({
+    super.key,
+    required this.label,
+    required this.wallets,
+    required this.value,
+    required String this.noneLabel,
+    required this.onSelected,
+  }) : validator = null;
 
   final String label;
   final List<Wallet> wallets;
   final int? value;
-  final ValueChanged<int> onChanged;
-  final FormFieldValidator<int>? validator;
+  final String? noneLabel;
+  final ValueChanged<int?> onSelected;
+  final FormFieldValidator<int?>? validator;
 
   @override
   Widget build(BuildContext context) {
     final items = wallets.where((w) => !w.archived || w.id == value);
-    return DropdownButtonFormField<int>(
+    return DropdownButtonFormField<int?>(
       // Rebuild when the selection is changed from outside (e.g. swap).
       key: ValueKey('$label-$value'),
       initialValue: value,
@@ -35,6 +49,11 @@ class WalletDropdown extends StatelessWidget {
         border: const OutlineInputBorder(),
       ),
       items: [
+        if (noneLabel != null)
+          DropdownMenuItem(
+            value: null,
+            child: Text(noneLabel!, overflow: TextOverflow.ellipsis),
+          ),
         for (final w in items)
           DropdownMenuItem(
             value: w.id,
@@ -47,9 +66,7 @@ class WalletDropdown extends StatelessWidget {
             ),
           ),
       ],
-      onChanged: (v) {
-        if (v != null) onChanged(v);
-      },
+      onChanged: onSelected,
     );
   }
 }

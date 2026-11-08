@@ -1,17 +1,20 @@
 import 'package:intl/intl.dart';
 
+final _formats = <(String, String), NumberFormat>{};
+
 /// Formats an amount in minor units for [locale] (defaults to the current
-/// Intl locale): 123456 -> "1.234,56 ₺" (tr) or "₺1,234.56" (en).
+/// Intl locale): 123456 -> "₺1.234,56" (tr) or "₺1,234.56" (en).
 String formatMoney(
   int cents,
   String symbol, {
   bool signed = false,
   String? locale,
 }) {
-  final f = NumberFormat.currency(
-    locale: locale ?? Intl.getCurrentLocale(),
-    symbol: symbol,
-    decimalDigits: 2,
+  final loc = locale ?? Intl.getCurrentLocale();
+  // Creating a NumberFormat is slow and lists format many amounts.
+  final f = _formats.putIfAbsent(
+    (loc, symbol),
+    () => NumberFormat.currency(locale: loc, symbol: symbol, decimalDigits: 2),
   );
   final text = f.format(cents.abs() / 100);
   if (!signed || cents == 0) return cents < 0 ? '-$text' : text;

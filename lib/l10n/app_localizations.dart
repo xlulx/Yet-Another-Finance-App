@@ -98,12 +98,6 @@ abstract class AppLocalizations {
     Locale('tr'),
   ];
 
-  /// No description provided for @appTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'YASBA'**
-  String get appTitle;
-
   /// No description provided for @navRecords.
   ///
   /// In en, this message translates to:
@@ -115,12 +109,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Statistics'**
   String get navStats;
-
-  /// No description provided for @navSettings.
-  ///
-  /// In en, this message translates to:
-  /// **'Settings'**
-  String get navSettings;
 
   /// No description provided for @expense.
   ///
@@ -524,18 +512,6 @@ abstract class AppLocalizations {
   /// **'Settings'**
   String get settings;
 
-  /// No description provided for @categoryCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 category} other{{count} categories}}'**
-  String categoryCount(int count);
-
-  /// No description provided for @ruleCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 rule} other{{count} rules}}'**
-  String ruleCount(int count);
-
   /// No description provided for @currency.
   ///
   /// In en, this message translates to:
@@ -656,12 +632,6 @@ abstract class AppLocalizations {
   /// **'Edit wallet'**
   String get editWallet;
 
-  /// No description provided for @walletCount.
-  ///
-  /// In en, this message translates to:
-  /// **'{count, plural, =1{1 wallet} other{{count} wallets}}'**
-  String walletCount(int count);
-
   /// No description provided for @startingBalance.
   ///
   /// In en, this message translates to:
@@ -751,12 +721,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Delete this transfer?'**
   String get deleteTransferQuestion;
-
-  /// No description provided for @needTwoWallets.
-  ///
-  /// In en, this message translates to:
-  /// **'Add a second wallet in Settings > Wallets to make transfers.'**
-  String get needTwoWallets;
 
   /// No description provided for @moneyIn.
   ///

@@ -10,6 +10,7 @@ import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/category_picker.dart';
 import '../widgets/wallet_dropdown.dart';
+import '../widgets/dialogs.dart';
 import 'recurring_page.dart' show unitName;
 
 class EditRecurringPage extends StatefulWidget {
@@ -68,12 +69,7 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
     super.dispose();
   }
 
-  Future<DateTime?> _pick(DateTime initial) => showDatePicker(
-    context: context,
-    initialDate: initial,
-    firstDate: DateTime(1990),
-    lastDate: DateTime(2100),
-  );
+  Future<DateTime?> _pick(DateTime initial) => pickDate(context, initial);
 
   Future<void> _save() async {
     final l = AppLocalizations.of(context);
@@ -112,24 +108,13 @@ class _EditRecurringPageState extends State<EditRecurringPage> {
 
   Future<void> _delete() async {
     final l = AppLocalizations.of(context);
-    final ok = await showDialog<bool>(
-      context: context,
-      builder: (c) => AlertDialog(
-        title: Text(l.deleteRecurringQuestion),
-        content: Text(l.deleteRecurringHint),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(c, false),
-            child: Text(l.cancel),
-          ),
-          FilledButton(
-            onPressed: () => Navigator.pop(c, true),
-            child: Text(l.delete),
-          ),
-        ],
-      ),
+    final ok = await confirm(
+      context,
+      title: l.deleteRecurringQuestion,
+      message: l.deleteRecurringHint,
+      action: l.delete,
     );
-    if (ok != true || !mounted) return;
+    if (!ok || !mounted) return;
     await context.read<AppState>().deleteRule(widget.rule!);
     if (mounted) Navigator.of(context).pop();
   }
