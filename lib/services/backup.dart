@@ -16,7 +16,8 @@ const backupFormat = 'yafa-backup';
 const backupVersion = 1;
 
 /// Tables in insert order (parents before children). Settings that only
-/// make sense on one device (the UI language) are not backed up.
+/// make sense on one device (UI language, automatic backups) are not backed
+/// up.
 const _tables = [
   'wallets',
   'categories',
@@ -25,7 +26,7 @@ const _tables = [
   'transfers',
   'settings',
 ];
-const _deviceSettings = {'language'};
+const _deviceSettings = {'language', 'auto_backup', 'auto_backup_last'};
 
 enum BackupError { notJson, notBackup, newerVersion }
 

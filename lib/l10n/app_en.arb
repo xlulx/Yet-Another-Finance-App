@@ -291,5 +291,36 @@
   "backupRestored": "Backup restored",
   "backupNotBackup": "This file is not a YAFA backup.",
   "backupNewer": "This backup was made by a newer version of YAFA. Update the app first.",
-  "unknownDate": "an unknown date"
+  "unknownDate": "an unknown date",
+  "autoBackup": "Automatic backup",
+  "autoBackupOff": "Off",
+  "autoBackupDaily": "Daily",
+  "autoBackupWeekly": "Weekly",
+  "autoBackupMonthly": "Monthly",
+  "autoBackupOffHint": "When on, a backup is saved to Download/YAFA when you open the app; the last 5 are kept",
+  "autoBackupLast": "Last: {date}",
+  "@autoBackupLast": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "autoBackupNever": "No automatic backup yet",
+  "autoBackupFailed": "Last automatic backup failed: {error}",
+  "@autoBackupFailed": {
+    "placeholders": {
+      "error": {
+        "type": "String"
+      }
+    }
+  },
+  "exportCsv": "Export as CSV",
+  "exportCsvHint": "All records and transfers, for Excel or Google Sheets",
+  "exportCsvSaved": "CSV saved",
+  "csvDate": "Date",
+  "csvType": "Type",
+  "csvToWallet": "To wallet",
+  "csvTitle": "Title",
+  "csvNote": "Note"
 }

@@ -8,7 +8,9 @@ import '../models/record.dart';
 import '../models/recurring_rule.dart';
 import '../models/transfer.dart';
 import '../models/wallet.dart';
+import '../services/auto_backup.dart';
 import '../services/backup.dart';
+import '../services/csv_export.dart';
 import '../services/oinkoin_import.dart';
 import '../services/recurring_service.dart';
 import '../utils/app_version.dart';
@@ -16,10 +18,16 @@ import '../utils/app_version.dart';
 /// App state: categories, wallets, the selected month's records and
 /// transfers, and recurring rules.
 class AppState extends ChangeNotifier {
-  AppState(this.db, {DateTime Function()? clock})
-    : _clock = clock ?? DateTime.now;
+  AppState(
+    this.db, {
+    DateTime Function()? clock,
+    this.backupWriter = const PlatformBackupWriter(),
+  }) : _clock = clock ?? DateTime.now;
 
   final AppDatabase db;
+
+  /// Where automatic backups are written; replaced in tests.
+  final BackupWriter backupWriter;
   final DateTime Function() _clock;
 
   List<Category> categories = [];
@@ -35,6 +43,15 @@ class AppState extends ChangeNotifier {
   int? walletFilter;
   late DateTime month = DateTime(_clock().year, _clock().month);
   String currency = '₺';
+
+  AutoBackupFrequency autoBackup = AutoBackupFrequency.off;
+  DateTime? lastAutoBackup;
+
+  /// Folder of the last automatic backup, if one ran since app start.
+  String? autoBackupLocation;
+
+  /// Why the last automatic backup failed, if it did.
+  String? autoBackupError;
 
   /// Chosen UI language: `en`, `tr`, or empty to follow the system.
   String language = '';
@@ -62,8 +79,47 @@ class AppState extends ChangeNotifier {
   Future<void> load() async {
     currency = await db.getSetting('currency') ?? '₺';
     language = await db.getSetting('language') ?? '';
+    autoBackup = parseFrequency(await db.getSetting(autoBackupKey));
+    lastAutoBackup = DateTime.tryParse(
+      await db.getSetting(autoBackupLastKey) ?? '',
+    );
     await generateDueRecurringRecords(db, _clock());
     await _reloadAll();
+    await autoBackupIfDue();
+  }
+
+  /// Takes an automatic backup if one is due. Called on start and whenever
+  /// the app comes back to the foreground. Never throws: failures are kept
+  /// in [autoBackupError] and shown in Settings.
+  Future<void> autoBackupIfDue() async {
+    if (autoBackup == AutoBackupFrequency.off) return;
+    try {
+      final where = await runAutoBackupIfDue(
+        db,
+        backupWriter,
+        _clock(),
+        appVersion: appVersion,
+      );
+      if (where == null) return;
+      lastAutoBackup = _clock();
+      // Show the folder; the file name is long and changes every time.
+      final slash = where.lastIndexOf('/');
+      autoBackupLocation = slash > 0 ? where.substring(0, slash) : where;
+      autoBackupError = null;
+    } catch (e) {
+      autoBackupError = '$e';
+    }
+    notifyListeners();
+  }
+
+  /// Turns automatic backups on or off; when turned on, backs up right away
+  /// if one is due (always the case the first time).
+  Future<void> setAutoBackup(AutoBackupFrequency frequency) async {
+    autoBackup = frequency;
+    autoBackupError = null;
+    await db.setSetting(autoBackupKey, frequency.name);
+    notifyListeners();
+    await autoBackupIfDue();
   }
 
   Future<void> _reloadAll() async {
@@ -274,6 +330,16 @@ class AppState extends ChangeNotifier {
     await db.setSetting('currency', symbol);
     notifyListeners();
   }
+
+  /// All records and transfers as CSV text.
+  Future<String> exportCsvText(CsvLabels labels) async => exportCsv(
+    records: await db.records(),
+    transfers: await db.transfers(),
+    categories: _byId,
+    wallets: _walletsById,
+    currency: currency,
+    labels: labels,
+  );
 
   /// All data as the text of a backup file.
   Future<String> exportBackupText() => exportBackup(db, appVersion: appVersion);

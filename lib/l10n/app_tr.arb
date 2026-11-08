@@ -131,5 +131,22 @@
   "backupRestored": "Yedek geri yüklendi",
   "backupNotBackup": "Bu dosya bir YAFA yedeği değil.",
   "backupNewer": "Bu yedek YAFA'nın daha yeni bir sürümüyle alınmış. Önce uygulamayı güncelleyin.",
-  "unknownDate": "bilinmeyen bir"
+  "unknownDate": "bilinmeyen bir",
+  "autoBackup": "Otomatik yedek",
+  "autoBackupOff": "Kapalı",
+  "autoBackupDaily": "Günlük",
+  "autoBackupWeekly": "Haftalık",
+  "autoBackupMonthly": "Aylık",
+  "autoBackupOffHint": "Açıkken, uygulamayı açtığında İndirilenler/YAFA klasörüne yedek alınır; son 5 yedek tutulur",
+  "autoBackupLast": "Son yedek: {date}",
+  "autoBackupNever": "Henüz otomatik yedek alınmadı",
+  "autoBackupFailed": "Son otomatik yedek başarısız: {error}",
+  "exportCsv": "CSV olarak dışa aktar",
+  "exportCsvHint": "Tüm kayıtlar ve aktarımlar; Excel veya Google Sheets için",
+  "exportCsvSaved": "CSV kaydedildi",
+  "csvDate": "Tarih",
+  "csvType": "Tür",
+  "csvToWallet": "Hedef cüzdan",
+  "csvTitle": "Başlık",
+  "csvNote": "Not"
 }

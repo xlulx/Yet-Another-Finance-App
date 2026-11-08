@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 
 import '../l10n/app_localizations.dart';
+import '../state/app_state.dart';
 
 import 'pages/manage_page.dart';
 import 'pages/records_page.dart';
@@ -17,6 +19,23 @@ class HomeShell extends StatefulWidget {
 
 class _HomeShellState extends State<HomeShell> {
   int _index = 0;
+
+  late final AppLifecycleListener _lifecycle;
+
+  @override
+  void initState() {
+    super.initState();
+    // Check for a due automatic backup whenever the app comes back.
+    _lifecycle = AppLifecycleListener(
+      onResume: () => context.read<AppState>().autoBackupIfDue(),
+    );
+  }
+
+  @override
+  void dispose() {
+    _lifecycle.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {

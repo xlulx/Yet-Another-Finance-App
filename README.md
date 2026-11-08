@@ -25,6 +25,10 @@ language by default; you can also pick one in Settings.
 - **Backup and restore** — save all data to a `.json` file anywhere (e.g.
   Google Drive) and restore it later or on another phone. Restoring replaces
   all current data, after a confirmation.
+- **Automatic backups** (off by default) — daily, weekly or monthly, taken
+  when the app is opened and saved to Download/YAFA; the last 5 are kept.
+- **CSV export** — all records and transfers as a spreadsheet for Excel or
+  Google Sheets.
 - **Migrate from Oinkoin** — imports an Oinkoin `.json` backup: wallets,
   categories (colour, emoji), records, transfers and recurring transactions
   (including custom intervals). Importing the same backup twice does not
@@ -98,7 +102,6 @@ lib/
 
 ## Roadmap (ideas)
 
-- Automatic backups and CSV export
 - Budgets and limit alerts
 - A currency per wallet, with exchange rates for transfers
 - Tags and search

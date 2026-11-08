@@ -467,4 +467,61 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get unknownDate => 'bilinmeyen bir';
+
+  @override
+  String get autoBackup => 'Otomatik yedek';
+
+  @override
+  String get autoBackupOff => 'Kapalı';
+
+  @override
+  String get autoBackupDaily => 'Günlük';
+
+  @override
+  String get autoBackupWeekly => 'Haftalık';
+
+  @override
+  String get autoBackupMonthly => 'Aylık';
+
+  @override
+  String get autoBackupOffHint =>
+      'Açıkken, uygulamayı açtığında İndirilenler/YAFA klasörüne yedek alınır; son 5 yedek tutulur';
+
+  @override
+  String autoBackupLast(String date) {
+    return 'Son yedek: $date';
+  }
+
+  @override
+  String get autoBackupNever => 'Henüz otomatik yedek alınmadı';
+
+  @override
+  String autoBackupFailed(String error) {
+    return 'Son otomatik yedek başarısız: $error';
+  }
+
+  @override
+  String get exportCsv => 'CSV olarak dışa aktar';
+
+  @override
+  String get exportCsvHint =>
+      'Tüm kayıtlar ve aktarımlar; Excel veya Google Sheets için';
+
+  @override
+  String get exportCsvSaved => 'CSV kaydedildi';
+
+  @override
+  String get csvDate => 'Tarih';
+
+  @override
+  String get csvType => 'Tür';
+
+  @override
+  String get csvToWallet => 'Hedef cüzdan';
+
+  @override
+  String get csvTitle => 'Başlık';
+
+  @override
+  String get csvNote => 'Not';
 }

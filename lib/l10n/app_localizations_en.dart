@@ -522,4 +522,61 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unknownDate => 'an unknown date';
+
+  @override
+  String get autoBackup => 'Automatic backup';
+
+  @override
+  String get autoBackupOff => 'Off';
+
+  @override
+  String get autoBackupDaily => 'Daily';
+
+  @override
+  String get autoBackupWeekly => 'Weekly';
+
+  @override
+  String get autoBackupMonthly => 'Monthly';
+
+  @override
+  String get autoBackupOffHint =>
+      'When on, a backup is saved to Download/YAFA when you open the app; the last 5 are kept';
+
+  @override
+  String autoBackupLast(String date) {
+    return 'Last: $date';
+  }
+
+  @override
+  String get autoBackupNever => 'No automatic backup yet';
+
+  @override
+  String autoBackupFailed(String error) {
+    return 'Last automatic backup failed: $error';
+  }
+
+  @override
+  String get exportCsv => 'Export as CSV';
+
+  @override
+  String get exportCsvHint =>
+      'All records and transfers, for Excel or Google Sheets';
+
+  @override
+  String get exportCsvSaved => 'CSV saved';
+
+  @override
+  String get csvDate => 'Date';
+
+  @override
+  String get csvType => 'Type';
+
+  @override
+  String get csvToWallet => 'To wallet';
+
+  @override
+  String get csvTitle => 'Title';
+
+  @override
+  String get csvNote => 'Note';
 }
