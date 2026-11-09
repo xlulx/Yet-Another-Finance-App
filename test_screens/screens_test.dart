@@ -403,6 +403,20 @@ void main() {
         await tester.pumpAndSettle();
         await shot(tester, '${lang}_3h_stats_day');
       }
+      // Income and expenses apart, with the running total.
+      await tester.tap(find.byIcon(Icons.compare_arrows));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3i_net_split');
+      await tester.tap(find.byIcon(Icons.trending_up));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3j_net_running');
+      await tester.tap(
+        find.descendant(
+          of: find.byType(IconButton),
+          matching: find.byIcon(Icons.account_balance_wallet),
+        ),
+      );
+      await tester.pumpAndSettle();
       // The period picker, then the last three months, week by week.
       await tester.tap(find.byIcon(Icons.arrow_drop_down));
       await tester.pumpAndSettle();

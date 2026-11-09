@@ -511,5 +511,9 @@
       }
     }
   },
-  "clearSelection": "Clear"
+  "clearSelection": "Clear",
+  "showNet": "Show the net",
+  "showIncomeAndExpense": "Show income and expenses",
+  "showRunningTotal": "Show the running total",
+  "hideRunningTotal": "Hide the running total"
 }

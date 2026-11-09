@@ -227,5 +227,9 @@
   "averagePerMonth": "Ayda ortalama {amount}",
   "average": "Ortalama",
   "nothingOnDate": "Bu tarihte kayıt yok.",
-  "clearSelection": "Temizle"
+  "clearSelection": "Temizle",
+  "showNet": "Neti göster",
+  "showIncomeAndExpense": "Gelir ve gideri göster",
+  "showRunningTotal": "Birikimli toplamı göster",
+  "hideRunningTotal": "Birikimli toplamı gizle"
 }

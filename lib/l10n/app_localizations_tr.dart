@@ -796,4 +796,16 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get clearSelection => 'Temizle';
+
+  @override
+  String get showNet => 'Neti göster';
+
+  @override
+  String get showIncomeAndExpense => 'Gelir ve gideri göster';
+
+  @override
+  String get showRunningTotal => 'Birikimli toplamı göster';
+
+  @override
+  String get hideRunningTotal => 'Birikimli toplamı gizle';
 }

@@ -28,7 +28,8 @@ language by default; you can also pick one in Settings.
 - **Statistics** — expenses, income or net for the period, with the
   average per day, week or month. Expenses and income by category as a pie
   chart or over time as a bar chart with an average line; tap a bar to see
-  its records. Tap a category to see its records and its last 12 months.
+  its records. The net can also show income and expenses side by side and
+  a running total. Tap a category to see its records and its last 12 months.
 - **Periods** — the records and statistics pages share one period: a month,
   a year, the last 3 or 12 months, or any range of days.
 - **Recurring transactions** — "every N days/weeks/months/years"; due records

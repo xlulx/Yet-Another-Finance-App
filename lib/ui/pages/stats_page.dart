@@ -37,6 +37,12 @@ class _StatsPageState extends State<StatsPage> {
   _Chart _chart = _Chart.pie;
   int? _touched;
 
+  /// Net: income and expense bars side by side instead of the net.
+  bool _netSplit = false;
+
+  /// Net: a line of the running total over the bars.
+  bool _cumulative = false;
+
   /// The bar picked in the bar chart; its entries are listed below.
   int? _selected;
 
@@ -91,6 +97,13 @@ class _StatsPageState extends State<StatsPage> {
     final average = (total / (elapsed == 0 ? 1 : elapsed)).round();
 
     final bars = _chart == _Chart.bars || _view == _View.net;
+    final split = _view == _View.net && _netSplit;
+    // The net added up bucket by bucket, up to today.
+    final running = <int>[];
+    for (var i = 0, sum = 0; i < elapsed; i++) {
+      sum += buckets[i].$1 - buckets[i].$2;
+      running.add(sum);
+    }
     final selected = bars ? _selected : null;
     final scheme = theme.colorScheme;
     final color = switch (_view) {
@@ -208,6 +221,29 @@ class _StatsPageState extends State<StatsPage> {
                   ],
                 ),
               ),
+              if (_view == _View.net) ...[
+                IconButton.filledTonal(
+                  iconSize: 26,
+                  padding: const EdgeInsets.all(12),
+                  tooltip: _netSplit ? l.showNet : l.showIncomeAndExpense,
+                  icon: Icon(
+                    _netSplit
+                        ? Icons.account_balance_wallet
+                        : Icons.compare_arrows,
+                  ),
+                  onPressed: () => setState(() => _netSplit = !_netSplit),
+                ),
+                const SizedBox(width: 8),
+                IconButton.filledTonal(
+                  iconSize: 26,
+                  padding: const EdgeInsets.all(12),
+                  tooltip: _cumulative
+                      ? l.hideRunningTotal
+                      : l.showRunningTotal,
+                  icon: Icon(_cumulative ? Icons.remove : Icons.trending_up),
+                  onPressed: () => setState(() => _cumulative = !_cumulative),
+                ),
+              ],
               // The net is only shown as bars.
               if (_view != _View.net)
                 IconButton.filledTonal(
@@ -237,10 +273,16 @@ class _StatsPageState extends State<StatsPage> {
             SizedBox(
               height: 240,
               child: TrendChart(
-                values: values,
-                color: _view == _View.net ? null : color,
-                signed: _view == _View.net,
-                average: average,
+                values: split ? [for (final b in buckets) b.$1] : values,
+                values2: split ? [for (final b in buckets) b.$2] : null,
+                color: split
+                    ? Colors.green.shade600
+                    : (_view == _View.net ? null : color),
+                color2: scheme.error,
+                signed: _view == _View.net && !split,
+                // The average of the net; not of income and expenses apart.
+                average: split ? null : average,
+                line: _view == _View.net && _cumulative ? running : null,
                 selected: selected,
                 onSelected: (i) => setState(() => _selected = i),
                 labelOf: (i) => bucketLabel(range, i),
@@ -599,6 +641,9 @@ class TrendChart extends StatelessWidget {
     this.average,
     this.selected,
     this.onSelected,
+    this.values2,
+    this.color2,
+    this.line,
   });
 
   /// Amounts in minor units.
@@ -622,22 +667,47 @@ class TrendChart extends StatelessWidget {
   /// Called with the tapped bar, or null when it was already picked.
   final ValueChanged<int?>? onSelected;
 
+  /// A second bar per bucket, next to the first, in [color2].
+  final List<int>? values2;
+  final Color? color2;
+
+  /// A line over the bars (e.g. the running total), in minor units; may
+  /// stop before the last bucket.
+  final List<int>? line;
+
   @override
   Widget build(BuildContext context) {
     final l = AppLocalizations.of(context);
     final scheme = Theme.of(context).colorScheme;
-    final maxV = values.fold<double>(0, (m, v) => math.max(m, v / 100));
-    final minV = values.fold<double>(0, (m, v) => math.min(m, v / 100));
+    final all = [...values, ...?values2, ...?line];
+    final maxV = all.fold<double>(0, (m, v) => math.max(m, v / 100));
+    final minV = all.fold<double>(0, (m, v) => math.min(m, v / 100));
     final span = maxV - minV == 0 ? 1.0 : maxV - minV;
     final step = _niceStep(span / 4);
     final maxY = maxV <= 0 ? 0.0 : (maxV / step).ceil() * step;
     final minY = minV >= 0 ? 0.0 : (minV / step).floor() * step;
-    final width = values.length > 16 ? 6.0 : 14.0;
+    final pair = values2 != null;
+    final width = values.length > 16 ? (pair ? 3.0 : 6.0) : (pair ? 8.0 : 14.0);
+    final top = maxY == minY ? 1.0 : maxY;
     final axis = NumberFormat.compact(locale: Intl.getCurrentLocale());
     final lineColor = scheme.outlineVariant;
-    return BarChart(
+    BarChartRodData rod(int cents, Color c, int i) => BarChartRodData(
+      toY: cents / 100,
+      color: c.withValues(alpha: selected == null || selected == i ? 1 : 0.35),
+      width: width,
+      borderRadius: BorderRadius.circular(3),
+      backDrawRodData: BackgroundBarChartRodData(
+        show: true,
+        fromY: minY,
+        toY: top,
+        color: Colors.transparent,
+      ),
+    );
+    final chart = BarChart(
       BarChartData(
-        maxY: maxY == minY ? 1 : maxY,
+        // Bar centres at (i + 0.5) / n of the width, like the line's points.
+        alignment: BarChartAlignment.spaceAround,
+        maxY: top,
         minY: minY,
         gridData: FlGridData(
           drawVerticalLine: false,
@@ -719,8 +789,9 @@ class TrendChart extends StatelessWidget {
           touchTooltipData: BarTouchTooltipData(
             // Plain light text on a dark bubble: easy to read.
             getTooltipColor: (_) => scheme.inverseSurface,
-            getTooltipItem: (group, _, rod, _) => BarTooltipItem(
+            getTooltipItem: (group, _, rod, rodIndex) => BarTooltipItem(
               '${labelOf(group.x)}\n'
+              '${pair ? (rodIndex == 0 ? '${l.income}: ' : '${l.expense}: ') : ''}'
               '${formatMoney((rod.toY * 100).round(), currency, signed: signed)}',
               TextStyle(color: scheme.onInverseSurface, fontSize: 12),
             ),
@@ -730,30 +801,83 @@ class TrendChart extends StatelessWidget {
           for (var i = 0; i < values.length; i++)
             BarChartGroupData(
               x: i,
+              barsSpace: 2,
               barRods: [
-                BarChartRodData(
-                  toY: values[i] / 100,
-                  color:
-                      (color ??
-                              (values[i] < 0
-                                  ? scheme.error
-                                  : Colors.green.shade600))
-                          .withValues(
-                            alpha: selected == null || selected == i ? 1 : 0.35,
-                          ),
-                  width: width,
-                  borderRadius: BorderRadius.circular(3),
-                  backDrawRodData: BackgroundBarChartRodData(
-                    show: true,
-                    fromY: minY,
-                    toY: maxY == minY ? 1 : maxY,
-                    color: Colors.transparent,
-                  ),
+                rod(
+                  values[i],
+                  color ??
+                      (values[i] < 0 ? scheme.error : Colors.green.shade600),
+                  i,
                 ),
+                if (pair) rod(values2![i], color2 ?? scheme.error, i),
               ],
             ),
         ],
       ),
+    );
+    if (line == null) return chart;
+    final lineColor2 = scheme.primary;
+    // Drawn over the bars with the same scale and margins; touches go
+    // through to the bars.
+    return Stack(
+      children: [
+        chart,
+        IgnorePointer(
+          child: LineChart(
+            LineChartData(
+              minX: -0.5,
+              maxX: values.length - 0.5,
+              minY: minY,
+              maxY: top,
+              gridData: const FlGridData(show: false),
+              borderData: FlBorderData(show: false),
+              lineTouchData: const LineTouchData(enabled: false),
+              titlesData: FlTitlesData(
+                rightTitles: const AxisTitles(),
+                topTitles: const AxisTitles(),
+                leftTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 40,
+                    getTitlesWidget: (_, _) => const SizedBox.shrink(),
+                  ),
+                ),
+                bottomTitles: AxisTitles(
+                  sideTitles: SideTitles(
+                    showTitles: true,
+                    reservedSize: 24,
+                    getTitlesWidget: (_, _) => const SizedBox.shrink(),
+                  ),
+                ),
+              ),
+              lineBarsData: [
+                LineChartBarData(
+                  spots: [
+                    for (var i = 0; i < line!.length; i++)
+                      FlSpot(i.toDouble(), line![i] / 100),
+                  ],
+                  color: lineColor2,
+                  barWidth: 2.5,
+                  dotData: const FlDotData(show: false),
+                  // Filled between the line and zero, above or below it.
+                  belowBarData: BarAreaData(
+                    show: true,
+                    color: lineColor2.withValues(alpha: 0.12),
+                    cutOffY: 0,
+                    applyCutOffY: true,
+                  ),
+                  aboveBarData: BarAreaData(
+                    show: true,
+                    color: lineColor2.withValues(alpha: 0.12),
+                    cutOffY: 0,
+                    applyCutOffY: true,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
 

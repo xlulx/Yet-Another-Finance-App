@@ -840,4 +840,16 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get clearSelection => 'Clear';
+
+  @override
+  String get showNet => 'Show the net';
+
+  @override
+  String get showIncomeAndExpense => 'Show income and expenses';
+
+  @override
+  String get showRunningTotal => 'Show the running total';
+
+  @override
+  String get hideRunningTotal => 'Hide the running total';
 }

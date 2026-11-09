@@ -1477,6 +1477,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Clear'**
   String get clearSelection;
+
+  /// No description provided for @showNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the net'**
+  String get showNet;
+
+  /// No description provided for @showIncomeAndExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Show income and expenses'**
+  String get showIncomeAndExpense;
+
+  /// No description provided for @showRunningTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the running total'**
+  String get showRunningTotal;
+
+  /// No description provided for @hideRunningTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the running total'**
+  String get hideRunningTotal;
 }
 
 class _AppLocalizationsDelegate
