@@ -1,5 +1,8 @@
 import 'package:intl/intl.dart';
 
+/// Currency symbols offered in Settings and on the welcome screen.
+const currencySymbols = ['₺', '\$', '€', '£', '¥', '₽', 'CHF'];
+
 final _formats = <(String, String), NumberFormat>{};
 
 /// Formats an amount in minor units for [locale] (defaults to the current

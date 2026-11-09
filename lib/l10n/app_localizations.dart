@@ -1297,6 +1297,126 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Written off'**
   String get closedDifference;
+
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to YASBA'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeText.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep track of your income, expenses and debts with ease. No account, no ads: all your data stays on your phone.'**
+  String get welcomeText;
+
+  /// No description provided for @readyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set'**
+  String get readyTitle;
+
+  /// No description provided for @readyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first income or expense with the Add record button.'**
+  String get readyText;
+
+  /// No description provided for @haveBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Used YASBA on another phone? Bring your data over from a backup.'**
+  String get haveBackup;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
+
+  /// No description provided for @featuresTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'What you can do'**
+  String get featuresTitle;
+
+  /// No description provided for @featureRecordsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get featureRecordsTitle;
+
+  /// No description provided for @featureRecordsText.
+  ///
+  /// In en, this message translates to:
+  /// **'See where your money goes, day by day'**
+  String get featureRecordsText;
+
+  /// No description provided for @featureWalletsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Wallets'**
+  String get featureWalletsTitle;
+
+  /// No description provided for @featureWalletsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Cash, bank accounts and cards, with transfers between them'**
+  String get featureWalletsText;
+
+  /// No description provided for @featureDebtsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Debts'**
+  String get featureDebtsTitle;
+
+  /// No description provided for @featureDebtsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep track of money you lent and borrowed'**
+  String get featureDebtsText;
+
+  /// No description provided for @featureStatsTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Statistics'**
+  String get featureStatsTitle;
+
+  /// No description provided for @featureStatsText.
+  ///
+  /// In en, this message translates to:
+  /// **'Charts by category, month and year'**
+  String get featureStatsText;
+
+  /// No description provided for @featureRecurringTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Recurring transactions'**
+  String get featureRecurringTitle;
+
+  /// No description provided for @featureRecurringText.
+  ///
+  /// In en, this message translates to:
+  /// **'Rent, salary and subscriptions added for you, with reminders if you like'**
+  String get featureRecurringText;
+
+  /// No description provided for @featureBackupTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Backups'**
+  String get featureBackupTitle;
+
+  /// No description provided for @featureBackupText.
+  ///
+  /// In en, this message translates to:
+  /// **'Save all your data to one file, or export it as CSV'**
+  String get featureBackupText;
 }
 
 class _AppLocalizationsDelegate

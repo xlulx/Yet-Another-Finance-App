@@ -9,17 +9,15 @@ import 'package:provider/provider.dart';
 import '../../l10n/app_localizations.dart';
 
 import '../../services/auto_backup.dart';
-import '../../services/backup.dart';
 import '../../services/csv_export.dart';
 import '../../services/oinkoin_import.dart';
 import '../../state/app_state.dart';
 import '../../utils/app_version.dart';
-import '../widgets/dialogs.dart';
+import '../../utils/money.dart';
+import '../restore_backup.dart';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
-
-  static const _currencies = ['₺', '\$', '€', '£', '¥', '₽', 'CHF'];
 
   Future<void> _import(BuildContext context) async {
     final l = AppLocalizations.of(context);
@@ -146,68 +144,6 @@ class SettingsPage extends StatelessWidget {
     }
   }
 
-  Future<void> _restore(BuildContext context) async {
-    final l = AppLocalizations.of(context);
-    final state = context.read<AppState>();
-    final messenger = ScaffoldMessenger.of(context);
-    final file = await FilePicker.pickFile(
-      dialogTitle: l.backupPick,
-      type: FileType.any,
-    );
-    if (file == null || !context.mounted) return;
-
-    final YasbaBackup backup;
-    try {
-      backup = parseBackup(utf8.decode(await file.readAsBytes()));
-    } on BackupException catch (e) {
-      messenger.showSnackBar(
-        SnackBar(
-          content: Text(switch (e.error) {
-            BackupError.notJson || BackupError.notBackup => l.backupNotBackup,
-            BackupError.newerVersion => l.backupNewer,
-          }),
-        ),
-      );
-      return;
-    } on FormatException {
-      messenger.showSnackBar(SnackBar(content: Text(l.importNotUtf8)));
-      return;
-    }
-    if (!context.mounted) return;
-
-    final date = backup.createdAt == null
-        ? l.unknownDate
-        : DateFormat.yMMMd().add_Hm().format(backup.createdAt!.toLocal());
-    final ok = await confirm(
-      context,
-      title: l.backupRestoreQuestion,
-      message: l.backupRestoreDetails(
-        date,
-        backup.count('wallets'),
-        backup.count('records'),
-        backup.count('transfers'),
-        backup.count('recurring_rules'),
-      ),
-      action: l.backupRestoreConfirm,
-    );
-    if (!ok || !context.mounted) return;
-
-    showDialog<void>(
-      context: context,
-      barrierDismissible: false,
-      builder: (_) => const Center(child: CircularProgressIndicator()),
-    );
-    String message;
-    try {
-      await state.restoreFromBackup(backup);
-      message = l.backupRestored;
-    } catch (e) {
-      message = l.importFailed('$e');
-    }
-    if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
-    messenger.showSnackBar(SnackBar(content: Text(message)));
-  }
-
   String _autoBackupStatus(AppLocalizations l, AppState state) {
     if (state.autoBackup == AutoBackupFrequency.off) return l.autoBackupOffHint;
     if (state.autoBackupError != null) {
@@ -234,13 +170,13 @@ class SettingsPage extends StatelessWidget {
             leading: const Icon(Icons.currency_exchange),
             title: Text(l.currency),
             trailing: DropdownButton<String>(
-              value: _currencies.contains(state.currency)
+              value: currencySymbols.contains(state.currency)
                   ? state.currency
                   : null,
               hint: Text(state.currency),
               underline: const SizedBox.shrink(),
               items: [
-                for (final c in _currencies)
+                for (final c in currencySymbols)
                   DropdownMenuItem(value: c, child: Text(c)),
               ],
               onChanged: (v) {
@@ -344,7 +280,7 @@ class SettingsPage extends StatelessWidget {
             leading: const Icon(Icons.settings_backup_restore),
             title: Text(l.backupRestore),
             subtitle: Text(l.backupRestoreHint),
-            onTap: () => _restore(context),
+            onTap: () => restoreBackupFromFile(context),
           ),
           ListTile(
             leading: const Icon(Icons.table_view_outlined),

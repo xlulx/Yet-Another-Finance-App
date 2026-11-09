@@ -10,6 +10,7 @@ import 'l10n/app_localizations.dart';
 import 'services/reminders.dart';
 import 'state/app_state.dart';
 import 'ui/home_shell.dart';
+import 'ui/pages/welcome_page.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -51,7 +52,7 @@ class YasbaApp extends StatelessWidget {
             brightness: Brightness.dark,
             useMaterial3: true,
           ),
-          home: const HomeShell(),
+          home: state.needsOnboarding ? const WelcomePage() : const HomeShell(),
         ),
       ),
     );

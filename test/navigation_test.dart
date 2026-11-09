@@ -14,6 +14,8 @@ Future<AppState> openApp(WidgetTester tester) async {
       factory: databaseFactoryFfiNoIsolate,
       path: inMemoryDatabasePath,
     );
+    // Skip the welcome screen of a fresh install.
+    await db.setSetting('onboarded', '1');
     state = AppState(db);
     await state.load();
     await state.setLanguage('en');
@@ -131,6 +133,8 @@ void main() {
       bank = await db.insertWallet(
         const Wallet(name: 'Bank', color: 0xFF42A5F5),
       );
+      // Skip the welcome screen of a fresh install.
+      await db.setSetting('onboarded', '1');
       state = AppState(db);
       await state.load();
       await state.setLanguage('en');

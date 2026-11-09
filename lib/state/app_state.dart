@@ -79,6 +79,10 @@ class AppState extends ChangeNotifier {
   /// What is scheduled now, to skip rescheduling when nothing changed.
   List<Reminder> _scheduled = const [];
 
+  /// Shows the welcome screen: only on a fresh install, never to someone
+  /// who already has data.
+  bool needsOnboarding = false;
+
   /// Chosen UI language: `en`, `tr`, or empty to follow the system.
   String language = '';
 
@@ -110,6 +114,10 @@ class AppState extends ChangeNotifier {
     lastAutoBackup = DateTime.tryParse(settings[autoBackupLastKey] ?? '');
     remindRecurring = settings[remindRecurringKey] == '1';
     remindDebts = settings[remindDebtsKey] == '1';
+    if (settings[_onboardedKey] != '1') {
+      needsOnboarding = await db.isUntouched();
+      if (!needsOnboarding) await db.setSetting(_onboardedKey, '1');
+    }
     final time = (settings[remindTimeKey] ?? '').split(':');
     if (time.length == 2) {
       remindHour = int.tryParse(time[0]) ?? remindHour;
@@ -534,12 +542,32 @@ class AppState extends ChangeNotifier {
     await _reloadAll();
   }
 
+  // ---- Welcome screen ----
+
+  static const _onboardedKey = 'onboarded';
+
+  /// Ends the welcome screen.
+  Future<void> finishOnboarding() async {
+    await db.setSetting(_onboardedKey, '1');
+    needsOnboarding = false;
+    await _reloadAll();
+  }
+
   // ---- Settings / import ----
 
   Future<void> setLanguage(String code) async {
     language = code;
     await db.setSetting('language', code);
-    notifyListeners();
+    if (needsOnboarding) {
+      // The defaults were created in the phone's language.
+      final resolved = code.isNotEmpty
+          ? code
+          : PlatformDispatcher.instance.locale.languageCode;
+      await db.localizeDefaults(resolved);
+      await _reloadAll();
+    } else {
+      notifyListeners();
+    }
     await syncReminders();
   }
 
@@ -568,6 +596,8 @@ class AppState extends ChangeNotifier {
   Future<void> restoreFromBackup(YasbaBackup backup) async {
     await restoreBackup(db, backup);
     currency = await db.getSetting('currency') ?? currency;
+    await db.setSetting(_onboardedKey, '1');
+    needsOnboarding = false;
     walletFilter = null;
     await generateDueRecurringRecords(db, _clock());
     await _reloadAll();
