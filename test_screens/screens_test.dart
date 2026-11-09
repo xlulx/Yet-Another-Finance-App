@@ -11,6 +11,7 @@ import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yasba/data/app_database.dart';
 import 'package:yasba/main.dart';
 import 'package:yasba/models/debt.dart';
+import 'package:yasba/models/period.dart';
 import 'package:yasba/models/record.dart';
 import 'package:yasba/models/recurring_rule.dart';
 import 'package:yasba/models/transfer.dart';
@@ -19,7 +20,8 @@ import 'package:yasba/services/reminders.dart';
 import 'package:yasba/state/app_state.dart';
 
 /// Renders the main screens in English and Turkish with sample data and
-/// saves them as phone-sized PNGs (1080x2340). Not part of `flutter test`:
+/// saves them as phone-sized PNGs (1080x2340, or 1080 by SHOT_HEIGHT; 1920
+/// for the store images, see store/compose.js). Not part of `flutter test`:
 ///
 ///   SHOT_DIR=/some/dir flutter test test_screens/screens_test.dart
 final fonts =
@@ -213,6 +215,78 @@ Future<void> seed(AppDatabase db, String lang) async {
       startDate: DateTime(now.year, now.month - 2, 15),
     ),
   );
+  // A year of history, so charts over months have something to show; each
+  // month a little different.
+  const mood = [1.0, 0.85, 1.2, 0.95, 1.1, 0.8, 1.3, 0.9, 1.05, 1.15, 0.75];
+  for (var back = 1; back <= 11; back++) {
+    final f = mood[back - 1];
+    DateTime day(int d) => DateTime(now.year, now.month - back, d, 12);
+    for (final (title, cents, d, cat, w) in [
+      (
+        lang == 'tr' ? 'Maaş' : 'Salary',
+        4500000,
+        1,
+        id('Salary', 'Maaş'),
+        bank,
+      ),
+      (lang == 'tr' ? 'Kira' : 'Rent', 1800000, 1, id('Rent', 'Kira'), bank),
+      (
+        lang == 'tr' ? 'Market' : 'Groceries',
+        (700000 * f).round(),
+        9,
+        id('Groceries', 'Market'),
+        cash,
+      ),
+      (
+        lang == 'tr' ? 'Faturalar' : 'Bills',
+        (350000 * (2 - f)).round(),
+        12,
+        id('Bills', 'Faturalar'),
+        bank,
+      ),
+      (
+        lang == 'tr' ? 'Akşam yemeği' : 'Dinner',
+        (400000 * f).round(),
+        18,
+        id('Eating out', 'Yeme-İçme'),
+        cash,
+      ),
+      (
+        lang == 'tr' ? 'Alışveriş' : 'Shopping',
+        (650000 * f * f).round(),
+        22,
+        id('Shopping', 'Alışveriş'),
+        bank,
+      ),
+      (
+        lang == 'tr' ? 'Ulaşım' : 'Transport',
+        200000,
+        25,
+        id('Transport', 'Ulaşım'),
+        cash,
+      ),
+    ]) {
+      await db.insertRecord(
+        Record(
+          title: title,
+          amount: m(cents),
+          date: day(d),
+          categoryId: cat,
+          walletId: w,
+        ),
+      );
+    }
+    // Cash spending comes from the bank.
+    await db.insertTransfer(
+      Transfer(
+        fromWalletId: bank,
+        toWalletId: cash,
+        amount: m((1300000 * f).round()),
+        date: day(5),
+        note: 'ATM',
+      ),
+    );
+  }
   // Reminders on, to show them in Settings.
   await db.setSetting(remindRecurringKey, '1');
   await db.setSetting(remindDebtsKey, '1');
@@ -424,6 +498,12 @@ void main() {
       await tester.tap(find.text(lang == 'tr' ? 'Son 3 ay' : 'Last 3 months'));
       await settleDb(tester);
       await shot(tester, '${lang}_3g_last3_net');
+      // A year of the net, with the running total.
+      await tester.runAsync(
+        () => state.setPeriod(Period.lastMonths(12, DateTime.now())),
+      );
+      await settleDb(tester);
+      await shot(tester, '${lang}_3k_year_net');
       await tester.runAsync(() => state.setMonth(DateTime.now()));
       await tester.tap(find.text(lang == 'tr' ? 'Gider' : 'Expense').first);
       await tester.pumpAndSettle();

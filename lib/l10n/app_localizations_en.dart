@@ -758,7 +758,8 @@ class AppLocalizationsEn extends AppLocalizations {
   String get featureStatsTitle => 'Statistics';
 
   @override
-  String get featureStatsText => 'Charts by category, month and year';
+  String get featureStatsText =>
+      'Charts by category and over time, with averages';
 
   @override
   String get featureRecurringTitle => 'Recurring transactions';

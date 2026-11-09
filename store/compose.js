@@ -16,6 +16,7 @@ const outDir = path.join(__dirname, 'images');
 const shots = [
   ['1_records', 'Gelir ve giderleriniz bir bakışta', 'Your money at a glance'],
   ['3_stats', 'Paranız nereye gidiyor, görün', 'See where your money goes'],
+  ['3k_year_net', 'Ay ay ne kadar biriktirdiğinizi görün', 'See how much you save, month by month'],
   ['6_wallets', 'Nakit, banka, kart: hepsi bir arada', 'Cash, bank and cards in one place'],
   ['8_debts', 'Borçlarınızı ve alacaklarınızı takip edin', 'Keep track of what you lent and borrowed'],
   ['5b_recurring', 'Kira, maaş, abonelik kendiliğinden eklenir', 'Rent, salary, subscriptions added for you'],

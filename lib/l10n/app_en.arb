@@ -455,7 +455,7 @@
   "featureDebtsTitle": "Debts",
   "featureDebtsText": "Keep track of money you lent and borrowed",
   "featureStatsTitle": "Statistics",
-  "featureStatsText": "Charts by category, month and year",
+  "featureStatsText": "Charts by category and over time, with averages",
   "featureRecurringTitle": "Recurring transactions",
   "featureRecurringText": "Rent, salary and subscriptions added for you, with reminders if you like",
   "featureBackupTitle": "Backups",
