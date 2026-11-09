@@ -699,14 +699,6 @@ class AppLocalizationsTr extends AppLocalizations {
       'Gelirini, giderini ve borçlarını kolayca takip et. Hesap yok, reklam yok; tüm verilerin yalnızca telefonunda kalır.';
 
   @override
-  String get startingBalanceTitle => 'Başlangıç bakiyesi';
-
-  @override
-  String startingBalanceText(String wallet) {
-    return '$wallet cüzdanında şu an ne kadar para var? Banka hesabı, kart gibi diğer cüzdanları sonra Cüzdanlar\'dan ekleyebilirsin.';
-  }
-
-  @override
   String get readyTitle => 'Her şey hazır';
 
   @override
@@ -722,4 +714,46 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get getStarted => 'Başla';
+
+  @override
+  String get featuresTitle => 'Neler yapabilirsin?';
+
+  @override
+  String get featureRecordsTitle => 'Gelir ve giderler';
+
+  @override
+  String get featureRecordsText => 'Paranın nereye gittiğini gün gün gör';
+
+  @override
+  String get featureWalletsTitle => 'Cüzdanlar';
+
+  @override
+  String get featureWalletsText =>
+      'Nakit, banka hesabı ve kartlar; aralarında aktarım yap';
+
+  @override
+  String get featureDebtsTitle => 'Borçlar';
+
+  @override
+  String get featureDebtsText => 'Verdiğin ve aldığın borçları takip et';
+
+  @override
+  String get featureStatsTitle => 'İstatistikler';
+
+  @override
+  String get featureStatsText => 'Kategoriye, aya ve yıla göre grafikler';
+
+  @override
+  String get featureRecurringTitle => 'Tekrarlayan işlemler';
+
+  @override
+  String get featureRecurringText =>
+      'Kira, maaş, abonelikler kendiliğinden eklenir; istersen hatırlatma al';
+
+  @override
+  String get featureBackupTitle => 'Yedekleme';
+
+  @override
+  String get featureBackupText =>
+      'Tüm verilerini tek dosyaya yedekle ya da CSV olarak dışa aktar';
 }

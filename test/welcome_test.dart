@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
@@ -56,9 +55,7 @@ void main() {
     await used.close();
   });
 
-  testWidgets('choose Turkish and a starting balance, then start', (
-    tester,
-  ) async {
+  testWidgets('choose Turkish, see the features, then start', (tester) async {
     late AppDatabase db;
     late AppState state;
     await tester.runAsync(() async {
@@ -83,14 +80,13 @@ void main() {
 
     await tester.tap(find.text('İleri'));
     await tester.pumpAndSettle();
-    await tester.enterText(find.byType(TextField), '250,50');
+    expect(find.text('Neler yapabilirsin?'), findsOneWidget);
     await tester.tap(find.text('İleri'));
     await tester.pumpAndSettle();
     await tester.tap(find.text('Başla'));
     await settle(tester);
 
     expect(find.byType(HomeShell), findsOneWidget);
-    expect(state.balances[state.wallets.single.id], 25050);
     expect(await tester.runAsync(() => db.getSetting('onboarded')), '1');
     await tester.runAsync(() => db.close());
   });

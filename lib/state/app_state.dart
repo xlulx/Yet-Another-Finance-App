@@ -546,12 +546,8 @@ class AppState extends ChangeNotifier {
 
   static const _onboardedKey = 'onboarded';
 
-  /// Ends the welcome screen, setting the first wallet's starting balance.
-  Future<void> finishOnboarding({int initialBalance = 0}) async {
-    if (initialBalance != 0) {
-      final w = wallets.first;
-      await db.updateWallet(w.copyWith(initialBalance: initialBalance));
-    }
+  /// Ends the welcome screen.
+  Future<void> finishOnboarding() async {
     await db.setSetting(_onboardedKey, '1');
     needsOnboarding = false;
     await _reloadAll();

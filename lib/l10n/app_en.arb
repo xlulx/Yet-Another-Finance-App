@@ -449,19 +449,22 @@
   "closedDifference": "Written off",
   "welcomeTitle": "Welcome to YASBA",
   "welcomeText": "Keep track of your income, expenses and debts with ease. No account, no ads: all your data stays on your phone.",
-  "startingBalanceTitle": "Starting balance",
-  "startingBalanceText": "How much money is in your {wallet} wallet right now? You can add bank accounts, cards and more later, in Wallets.",
-  "@startingBalanceText": {
-    "placeholders": {
-      "wallet": {
-        "type": "String"
-      }
-    }
-  },
   "readyTitle": "You're all set",
   "readyText": "Add your first income or expense with the Add record button.",
   "haveBackup": "Used YASBA on another phone? Bring your data over from a backup.",
-  "next": "Next",
   "back": "Back",
-  "getStarted": "Get started"
+  "getStarted": "Get started",
+  "featuresTitle": "What you can do",
+  "featureRecordsTitle": "Income and expenses",
+  "featureRecordsText": "See where your money goes, day by day",
+  "featureWalletsTitle": "Wallets",
+  "featureWalletsText": "Cash, bank accounts and cards, with transfers between them",
+  "featureDebtsTitle": "Debts",
+  "featureDebtsText": "Keep track of money you lent and borrowed",
+  "featureStatsTitle": "Statistics",
+  "featureStatsText": "Charts by category, month and year",
+  "featureRecurringTitle": "Recurring transactions",
+  "featureRecurringText": "Rent, salary and subscriptions added for you, with reminders if you like",
+  "featureBackupTitle": "Backups",
+  "featureBackupText": "Save all your data to one file, or export it as CSV"
 }

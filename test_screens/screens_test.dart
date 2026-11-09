@@ -324,7 +324,7 @@ void main() {
       );
       for (final (i, name) in [
         '0a_welcome',
-        '0b_balance',
+        '0b_features',
         '0c_ready',
       ].indexed) {
         if (i > 0) {

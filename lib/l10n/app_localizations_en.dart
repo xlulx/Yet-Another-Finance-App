@@ -737,14 +737,6 @@ class AppLocalizationsEn extends AppLocalizations {
       'Keep track of your income, expenses and debts with ease. No account, no ads: all your data stays on your phone.';
 
   @override
-  String get startingBalanceTitle => 'Starting balance';
-
-  @override
-  String startingBalanceText(String wallet) {
-    return 'How much money is in your $wallet wallet right now? You can add bank accounts, cards and more later, in Wallets.';
-  }
-
-  @override
   String get readyTitle => 'You\'re all set';
 
   @override
@@ -760,4 +752,46 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get getStarted => 'Get started';
+
+  @override
+  String get featuresTitle => 'What you can do';
+
+  @override
+  String get featureRecordsTitle => 'Income and expenses';
+
+  @override
+  String get featureRecordsText => 'See where your money goes, day by day';
+
+  @override
+  String get featureWalletsTitle => 'Wallets';
+
+  @override
+  String get featureWalletsText =>
+      'Cash, bank accounts and cards, with transfers between them';
+
+  @override
+  String get featureDebtsTitle => 'Debts';
+
+  @override
+  String get featureDebtsText => 'Keep track of money you lent and borrowed';
+
+  @override
+  String get featureStatsTitle => 'Statistics';
+
+  @override
+  String get featureStatsText => 'Charts by category, month and year';
+
+  @override
+  String get featureRecurringTitle => 'Recurring transactions';
+
+  @override
+  String get featureRecurringText =>
+      'Rent, salary and subscriptions added for you, with reminders if you like';
+
+  @override
+  String get featureBackupTitle => 'Backups';
+
+  @override
+  String get featureBackupText =>
+      'Save all your data to one file, or export it as CSV';
 }

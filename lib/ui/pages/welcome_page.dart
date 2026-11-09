@@ -6,8 +6,8 @@ import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../restore_backup.dart';
 
-/// Shown once, on a fresh install: language and currency, the first
-/// wallet's balance, and a way to restore a backup instead.
+/// Shown once, on a fresh install: language and currency, what the app
+/// does, and a way to restore a backup instead.
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
 
@@ -19,13 +19,11 @@ class _WelcomePageState extends State<WelcomePage> {
   static const _pageCount = 3;
 
   final _pages = PageController();
-  final _balance = TextEditingController();
   int _page = 0;
 
   @override
   void dispose() {
     _pages.dispose();
-    _balance.dispose();
     super.dispose();
   }
 
@@ -38,9 +36,7 @@ class _WelcomePageState extends State<WelcomePage> {
     );
   }
 
-  Future<void> _finish() => context.read<AppState>().finishOnboarding(
-    initialBalance: parseMoney(_balance.text) ?? 0,
-  );
+  Future<void> _finish() => context.read<AppState>().finishOnboarding();
 
   @override
   Widget build(BuildContext context) {
@@ -84,26 +80,42 @@ class _WelcomePageState extends State<WelcomePage> {
                     ],
                   ),
                   _Step(
-                    icon: Icons.payments_outlined,
-                    title: l.startingBalanceTitle,
-                    text: l.startingBalanceText(state.wallets.first.name),
+                    icon: Icons.auto_awesome,
+                    title: l.featuresTitle,
                     children: [
-                      TextField(
-                        controller: _balance,
-                        keyboardType: const TextInputType.numberWithOptions(
-                          decimal: true,
-                          signed: true,
+                      for (final (icon, title, text) in [
+                        (
+                          Icons.receipt_long,
+                          l.featureRecordsTitle,
+                          l.featureRecordsText,
                         ),
-                        decoration: InputDecoration(
-                          labelText: state.wallets.first.name,
-                          // Shows the 0 and the currency before typing.
-                          floatingLabelBehavior: FloatingLabelBehavior.always,
-                          hintText: '0',
-                          suffixText: state.currency,
-                          border: const OutlineInputBorder(),
+                        (
+                          Icons.account_balance_wallet_outlined,
+                          l.featureWalletsTitle,
+                          l.featureWalletsText,
                         ),
-                        onSubmitted: (_) => _go(2),
-                      ),
+                        (
+                          Icons.handshake_outlined,
+                          l.featureDebtsTitle,
+                          l.featureDebtsText,
+                        ),
+                        (
+                          Icons.pie_chart_outline,
+                          l.featureStatsTitle,
+                          l.featureStatsText,
+                        ),
+                        (
+                          Icons.repeat,
+                          l.featureRecurringTitle,
+                          l.featureRecurringText,
+                        ),
+                        (
+                          Icons.backup_outlined,
+                          l.featureBackupTitle,
+                          l.featureBackupText,
+                        ),
+                      ])
+                        _Feature(icon: icon, title: title, text: text),
                     ],
                   ),
                   _Step(
@@ -187,13 +199,13 @@ class _Step extends StatelessWidget {
   const _Step({
     required this.icon,
     required this.title,
-    required this.text,
+    this.text,
     required this.children,
   });
 
   final IconData icon;
   final String title;
-  final String text;
+  final String? text;
   final List<Widget> children;
 
   @override
@@ -226,17 +238,61 @@ class _Step extends StatelessWidget {
             fontWeight: FontWeight.w600,
           ),
         ),
-        const SizedBox(height: 12),
-        Text(
-          text,
-          textAlign: TextAlign.center,
-          style: theme.textTheme.bodyLarge?.copyWith(
-            color: scheme.onSurfaceVariant,
+        if (text != null) ...[
+          const SizedBox(height: 12),
+          Text(
+            text!,
+            textAlign: TextAlign.center,
+            style: theme.textTheme.bodyLarge?.copyWith(
+              color: scheme.onSurfaceVariant,
+            ),
           ),
-        ),
+        ],
         const SizedBox(height: 32),
         for (final c in children)
           Padding(padding: const EdgeInsets.only(bottom: 12), child: c),
+      ],
+    );
+  }
+}
+
+/// One feature in the list: an icon, a name and a line about it.
+class _Feature extends StatelessWidget {
+  const _Feature({required this.icon, required this.title, required this.text});
+
+  final IconData icon;
+  final String title;
+  final String text;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final scheme = theme.colorScheme;
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        CircleAvatar(
+          radius: 22,
+          backgroundColor: scheme.primaryContainer,
+          foregroundColor: scheme.onPrimaryContainer,
+          child: Icon(icon, size: 22),
+        ),
+        const SizedBox(width: 16),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(title, style: theme.textTheme.titleSmall),
+              const SizedBox(height: 2),
+              Text(
+                text,
+                style: theme.textTheme.bodyMedium?.copyWith(
+                  color: scheme.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
     );
   }
