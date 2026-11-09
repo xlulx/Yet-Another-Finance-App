@@ -466,5 +466,21 @@
   "featureRecurringTitle": "Recurring transactions",
   "featureRecurringText": "Rent, salary and subscriptions added for you, with reminders if you like",
   "featureBackupTitle": "Backups",
-  "featureBackupText": "Save all your data to one file, or export it as CSV"
+  "featureBackupText": "Save all your data to one file, or export it as CSV",
+  "periodLast3Months": "Last 3 months",
+  "periodLast12Months": "Last 12 months",
+  "periodCustom": "Custom range",
+  "weekly": "Weekly",
+  "savingsRate": "Saved",
+  "incomeAndExpense": "Income and expenses",
+  "last12Months": "Last 12 months",
+  "categoryEmpty": "No records in this category for the period.",
+  "recordCount": "{count, plural, =1{1 record} other{{count} records}}",
+  "@recordCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  }
 }

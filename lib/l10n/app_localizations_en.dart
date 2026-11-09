@@ -794,4 +794,39 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get featureBackupText =>
       'Save all your data to one file, or export it as CSV';
+
+  @override
+  String get periodLast3Months => 'Last 3 months';
+
+  @override
+  String get periodLast12Months => 'Last 12 months';
+
+  @override
+  String get periodCustom => 'Custom range';
+
+  @override
+  String get weekly => 'Weekly';
+
+  @override
+  String get savingsRate => 'Saved';
+
+  @override
+  String get incomeAndExpense => 'Income and expenses';
+
+  @override
+  String get last12Months => 'Last 12 months';
+
+  @override
+  String get categoryEmpty => 'No records in this category for the period.';
+
+  @override
+  String recordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+    );
+    return '$_temp0';
+  }
 }

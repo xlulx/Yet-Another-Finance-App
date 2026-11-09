@@ -756,4 +756,33 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get featureBackupText =>
       'Tüm verilerini tek dosyaya yedekle ya da CSV olarak dışa aktar';
+
+  @override
+  String get periodLast3Months => 'Son 3 ay';
+
+  @override
+  String get periodLast12Months => 'Son 12 ay';
+
+  @override
+  String get periodCustom => 'Özel aralık';
+
+  @override
+  String get weekly => 'Haftalık';
+
+  @override
+  String get savingsRate => 'Tasarruf';
+
+  @override
+  String get incomeAndExpense => 'Gelir ve gider';
+
+  @override
+  String get last12Months => 'Son 12 ay';
+
+  @override
+  String get categoryEmpty => 'Bu dönemde bu kategoride kayıt yok.';
+
+  @override
+  String recordCount(int count) {
+    return '$count kayıt';
+  }
 }

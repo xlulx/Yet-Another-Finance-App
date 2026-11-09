@@ -360,6 +360,37 @@ void main() {
         await tester.pump();
       }
       await shot(tester, '${lang}_3_stats');
+      // A category's details.
+      await tester.tap(find.textContaining(lang == 'tr' ? 'Kira' : 'Rent'));
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future.delayed(const Duration(milliseconds: 30)),
+        );
+        await tester.pump();
+      }
+      await shot(tester, '${lang}_3d_category');
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
+      await tester.pumpAndSettle();
+      // The last three months, week by week.
+      await tester.tap(find.text(lang == 'tr' ? 'Ay' : 'Month'));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3e_periods');
+      await tester.tap(find.text(lang == 'tr' ? 'Son 3 ay' : 'Last 3 months'));
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future.delayed(const Duration(milliseconds: 30)),
+        );
+        await tester.pump();
+      }
+      await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3f_last3_chart');
+      await tester.drag(find.byType(ListView).last, const Offset(0, 2000));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(lang == 'tr' ? 'Son 3 ay' : 'Last 3 months'));
+      await tester.pumpAndSettle();
+      await tester.tap(find.text(lang == 'tr' ? 'Ay' : 'Month').last);
+      await tester.pumpAndSettle();
       await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
       await tester.pumpAndSettle();
       await shot(tester, '${lang}_3c_stats_debts');

@@ -1417,6 +1417,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save all your data to one file, or export it as CSV'**
   String get featureBackupText;
+
+  /// No description provided for @periodLast3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get periodLast3Months;
+
+  /// No description provided for @periodLast12Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get periodLast12Months;
+
+  /// No description provided for @periodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get periodCustom;
+
+  /// No description provided for @weekly.
+  ///
+  /// In en, this message translates to:
+  /// **'Weekly'**
+  String get weekly;
+
+  /// No description provided for @savingsRate.
+  ///
+  /// In en, this message translates to:
+  /// **'Saved'**
+  String get savingsRate;
+
+  /// No description provided for @incomeAndExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Income and expenses'**
+  String get incomeAndExpense;
+
+  /// No description provided for @last12Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get last12Months;
+
+  /// No description provided for @categoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No records in this category for the period.'**
+  String get categoryEmpty;
+
+  /// No description provided for @recordCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 record} other{{count} records}}'**
+  String recordCount(int count);
 }
 
 class _AppLocalizationsDelegate

@@ -217,5 +217,14 @@
   "featureRecurringTitle": "Tekrarlayan işlemler",
   "featureRecurringText": "Kira, maaş, abonelikler kendiliğinden eklenir; istersen hatırlatma al",
   "featureBackupTitle": "Yedekleme",
-  "featureBackupText": "Tüm verilerini tek dosyaya yedekle ya da CSV olarak dışa aktar"
+  "featureBackupText": "Tüm verilerini tek dosyaya yedekle ya da CSV olarak dışa aktar",
+  "periodLast3Months": "Son 3 ay",
+  "periodLast12Months": "Son 12 ay",
+  "periodCustom": "Özel aralık",
+  "weekly": "Haftalık",
+  "savingsRate": "Tasarruf",
+  "incomeAndExpense": "Gelir ve gider",
+  "last12Months": "Son 12 ay",
+  "categoryEmpty": "Bu dönemde bu kategoride kayıt yok.",
+  "recordCount": "{count} kayıt"
 }
