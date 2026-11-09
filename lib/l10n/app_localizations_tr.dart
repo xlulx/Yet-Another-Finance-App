@@ -770,9 +770,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get weekly => 'Haftalık';
 
   @override
-  String get savingsRate => 'Tasarruf';
-
-  @override
   String get incomeAndExpense => 'Gelir ve gider';
 
   @override

@@ -489,7 +489,7 @@ String bucketLabel(StatsRange range, int i, {bool short = false}) {
   };
 }
 
-/// Income, expenses, what is left and the share of income kept.
+/// Income, expenses and what is left.
 class _Summary extends StatelessWidget {
   const _Summary({
     required this.income,
@@ -511,7 +511,7 @@ class _Summary extends StatelessWidget {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final net = income - expense;
-    Widget cell(String label, String value, Color? color) => Expanded(
+    Widget cell(String label, String value, Color color) => Expanded(
       child: Column(
         children: [
           Text(label, style: theme.textTheme.labelMedium),
@@ -548,14 +548,6 @@ class _Summary extends StatelessWidget {
               l.net,
               formatMoney(net, currency),
               net >= 0 ? scheme.primary : scheme.error,
-            ),
-            cell(
-              l.savingsRate,
-              // Nothing earned: no rate to show.
-              income == 0
-                  ? '–'
-                  : NumberFormat.percentPattern().format(net / income),
-              null,
             ),
           ],
         ),
@@ -770,6 +762,8 @@ class TrendChart extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final scheme = Theme.of(context).colorScheme;
     final incomeColor = Colors.green.shade600;
     final expenseColor = Theme.of(context).colorScheme.error;
     final maxY = buckets.fold<double>(
@@ -816,10 +810,19 @@ class TrendChart extends StatelessWidget {
         ),
         barTouchData: BarTouchData(
           touchTooltipData: BarTouchTooltipData(
-            getTooltipItem: (group, _, rod, _) => BarTooltipItem(
-              '${labelOf(group.x)}\n'
-              '${formatMoney((rod.toY * 100).round(), currency)}',
-              TextStyle(color: rod.color, fontSize: 12),
+            // Plain light text on a dark bubble; colours are hard to read
+            // there, so the series is named instead.
+            getTooltipColor: (_) => scheme.inverseSurface,
+            getTooltipItem: (group, _, rod, rodIndex) => BarTooltipItem(
+              [
+                labelOf(group.x),
+                [
+                  if (single == null)
+                    rodIndex == 0 ? '${l.income}: ' : '${l.expense}: ',
+                  formatMoney((rod.toY * 100).round(), currency),
+                ].join(),
+              ].join('\n'),
+              TextStyle(color: scheme.onInverseSurface, fontSize: 12),
             ),
           ),
         ),

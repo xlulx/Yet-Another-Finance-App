@@ -808,9 +808,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weekly => 'Weekly';
 
   @override
-  String get savingsRate => 'Saved';
-
-  @override
   String get incomeAndExpense => 'Income and expenses';
 
   @override

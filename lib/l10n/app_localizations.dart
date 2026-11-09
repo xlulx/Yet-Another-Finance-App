@@ -1442,12 +1442,6 @@ abstract class AppLocalizations {
   /// **'Weekly'**
   String get weekly;
 
-  /// No description provided for @savingsRate.
-  ///
-  /// In en, this message translates to:
-  /// **'Saved'**
-  String get savingsRate;
-
   /// No description provided for @incomeAndExpense.
   ///
   /// In en, this message translates to:
