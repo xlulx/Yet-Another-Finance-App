@@ -1349,7 +1349,7 @@ abstract class AppLocalizations {
   /// No description provided for @featureStatsText.
   ///
   /// In en, this message translates to:
-  /// **'Charts by category, month and year'**
+  /// **'Charts by category and over time, with averages'**
   String get featureStatsText;
 
   /// No description provided for @featureRecurringTitle.

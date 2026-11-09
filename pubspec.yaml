@@ -1,7 +1,7 @@
 name: yasba
 description: "YASBA (Yet Another Simple Budget App) - a simple, private, offline budget tracker."
 publish_to: 'none'
-version: 0.1.0+1
+version: 1.0.0+10000
 
 environment:
   sdk: ^3.13.7

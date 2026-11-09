@@ -2,17 +2,18 @@
 
 *Yet Another Simple Budget App* — a simple, private budget tracker.
 
-A privacy-friendly, fully offline income and expense tracker for Android and
-iOS, built with Flutter. All data lives in a SQLite database on the device and
-is never sent anywhere.
+A privacy-friendly, fully offline income and expense tracker for Android,
+built with Flutter. All data lives in a SQLite database on the device and is
+never sent anywhere: the app does not even have internet access.
 
 The app is available in **English** and **Turkish**. It follows the phone's
 language by default; you can also pick one in Settings.
 
 ## Features
 
-- **Income / expense records** — month-by-month list grouped by day
-  (swipe to change the month), monthly income/expense/balance summary.
+- **Income / expense records** — listed by day for the chosen period, with
+  its income, expenses, net and the current balance at the top; swipe to
+  move to the previous or next period.
 - **Wallets** — cash, bank accounts, credit cards...: each with a colour,
   icon and starting balance (negative for debt). See every wallet's current
   balance and the total, and filter records and statistics by wallet.
@@ -31,9 +32,11 @@ language by default; you can also pick one in Settings.
   its records. The net can also show income and expenses side by side and
   a running total. Tap a category to see its records and its last 12 months.
 - **Periods** — the records and statistics pages share one period: a month,
-  a year, the last 3 or 12 months, or any range of days.
+  a year, the last 3 or 12 months, or any range of days. The Debts page sums
+  up the same period.
 - **Recurring transactions** — "every N days/weeks/months/years"; due records
-  are created automatically when the app starts. Month ends are handled
+  are created automatically when the app opens or comes back to the
+  foreground. Month ends are handled
   correctly (Jan 31 → Feb 28 → Mar 31).
 - **Reminders** (off by default) — a notification on the day of recurring
   transactions and debt due dates, at a time you choose.
@@ -50,6 +53,9 @@ language by default; you can also pick one in Settings.
   duplicate anything. YASBA is not affiliated with Oinkoin; it only reads its
   backup format.
 
+- **Welcome screen** — on a fresh install: language and currency, what the
+  app does, and restoring a backup from another phone.
+
 All wallets currently share one currency, chosen in Settings.
 
 See the [privacy policy](PRIVACY.md): YASBA collects no data at all.
@@ -58,7 +64,9 @@ See the [privacy policy](PRIVACY.md): YASBA collects no data at all.
 
 Download the latest `YASBA-x.y.z.apk` from
 [Releases](https://github.com/xlulx/Yet-Another-Simple-Budget-App/releases) and
-install it on your Android phone (64-bit / arm64).
+install it on your Android phone (Android 7 or later, 64-bit / arm64). A
+Google Play release is on the way; both are signed with the same key, so the
+Play version updates an installed APK and the other way round.
 
 ## Development
 
@@ -74,7 +82,7 @@ flutter run --flavor dev   # run on a connected device/emulator
 | Flavor | App name | Package | Built by |
 |---|---|---|---|
 | `dev`  | YASBA Dev | `io.github.xlulx.yasba.dev` | Locally, for testing |
-| `prod` | YASBA    | `io.github.xlulx.yasba`    | The Release APK workflow only |
+| `prod` | YASBA    | `io.github.xlulx.yasba`    | The Release workflow only |
 
 Both can be installed side by side and keep separate data. Test builds are
 signed with the intentionally public `android/keystores/dev.jks`.
@@ -86,24 +94,47 @@ flutter build apk --release --flavor dev --target-platform android-arm64
 ### Releases
 
 The only GitHub Actions workflow, `.github/workflows/release.yml`, runs when
-it is started manually (**Actions → Release APK → Run workflow**, with a
-version such as `0.1.0`) or when a `v*` tag is pushed. It runs the tests,
-creates the release if needed and attaches a signed `YASBA-x.y.z.apk`
-(~8 minutes). It needs the `RELEASE_KEYSTORE_BASE64` and
-`RELEASE_KEYSTORE_PASSWORD` repository secrets; the release key is **not**
-stored in the repository.
+it is started manually (**Actions → Release → Run workflow**, with a version
+such as `1.2.3`) or when a `v*` tag is pushed. It runs the tests, creates the
+release if needed and attaches a signed `YASBA-x.y.z.apk`. The version code
+comes from the version (`1.2.3` → `10203`), so it always grows.
+
+Secrets (the release key is **not** stored in the repository):
+
+- `RELEASE_KEYSTORE_BASE64`, `RELEASE_KEYSTORE_PASSWORD` — the signing key.
+- `PLAY_SERVICE_ACCOUNT_JSON` (optional) — a Google Cloud service account
+  with release rights in the Play Console. When set, the workflow also
+  builds an App Bundle and uploads it to Google Play as a draft on a testing
+  track (closed testing by default), to be rolled out from the Play Console.
+
+### Screenshots and store images
+
+`test_screens/screens_test.dart` renders the main screens with sample data
+in English and Turkish; `store/compose.js` turns them into the Google Play
+images in `store/images/`. Store texts are in `store/listing.md`, the privacy
+policy in `PRIVACY.md`.
+
+```bash
+SHOT_DIR=/tmp/raw SHOT_HEIGHT=1920 flutter test test_screens/screens_test.dart
+node store/compose.js /tmp/raw   # needs Playwright with Chromium
+```
 
 ## Architecture
 
 ```
 lib/
-  models/      Category, Record, RecurringRule, Wallet, Transfer
+  models/      Category, Record, RecurringRule, Wallet, Transfer, Debt, Period
   data/        AppDatabase — sqflite schema and queries
-  services/    recurrence (date maths), recurring_service, oinkoin_import, stats
+  services/    backup, auto_backup, csv_export, oinkoin_import, recurrence
+               (date maths), recurring_service, reminders, stats
   state/       AppState (ChangeNotifier, via provider)
   ui/          pages and shared widgets
   utils/       money formatting/parsing, icon and colour lists
   l10n/        translations (app_en.arb, app_tr.arb) and generated code
+android/       Android project; MainActivity writes automatic backups
+store/         Google Play texts and images
+test/          unit and widget tests
+test_screens/  screenshots (not part of `flutter test`)
 ```
 
 - Amounts are stored as **integers in minor units** (no rounding errors).
@@ -122,6 +153,7 @@ lib/
 - Budgets and limit alerts
 - A currency per wallet, with exchange rates for transfers
 - Tags and search
+- Swipe to delete records, with undo
 - Home screen widget, app lock (biometric)
 - More languages
 

@@ -720,7 +720,8 @@ class AppLocalizationsTr extends AppLocalizations {
   String get featureStatsTitle => 'İstatistikler';
 
   @override
-  String get featureStatsText => 'Kategoriye, aya ve yıla göre grafikler';
+  String get featureStatsText =>
+      'Kategoriye ve zamana göre grafikler, ortalamalar';
 
   @override
   String get featureRecurringTitle => 'Tekrarlayan işlemler';

@@ -206,7 +206,7 @@
   "featureDebtsTitle": "Borçlar",
   "featureDebtsText": "Verdiğin ve aldığın borçları takip et",
   "featureStatsTitle": "İstatistikler",
-  "featureStatsText": "Kategoriye, aya ve yıla göre grafikler",
+  "featureStatsText": "Kategoriye ve zamana göre grafikler, ortalamalar",
   "featureRecurringTitle": "Tekrarlayan işlemler",
   "featureRecurringText": "Kira, maaş, abonelikler kendiliğinden eklenir; istersen hatırlatma al",
   "featureBackupTitle": "Yedekleme",
