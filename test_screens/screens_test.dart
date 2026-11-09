@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -262,6 +263,17 @@ Future<AppState> start(WidgetTester tester, String lang) async {
   return state;
 }
 
+/// Lets database work finish between frames.
+Future<void> settleDb(WidgetTester tester) async {
+  for (var i = 0; i < 10; i++) {
+    await tester.runAsync(
+      () => Future.delayed(const Duration(milliseconds: 30)),
+    );
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 Future<void> tapNav(WidgetTester tester, IconData icon) async {
   await tester.tap(find.byIcon(icon));
   await tester.pumpAndSettle();
@@ -360,11 +372,68 @@ void main() {
         await tester.pump();
       }
       await shot(tester, '${lang}_3_stats');
-      await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
+      // A category's details.
+      await tester.tap(
+        find.textContaining(lang == 'tr' ? 'Kira' : 'Rent').last,
+      );
+      for (var i = 0; i < 10; i++) {
+        await tester.runAsync(
+          () => Future.delayed(const Duration(milliseconds: 30)),
+        );
+        await tester.pump();
+      }
+      await shot(tester, '${lang}_3d_category');
+      tester.state<NavigatorState>(find.byType(Navigator).first).pop();
       await tester.pumpAndSettle();
-      await shot(tester, '${lang}_3c_stats_debts');
-      await tester.drag(find.byType(ListView).last, const Offset(0, 2000));
+      // Bar chart, then the net.
+      await tester.tap(find.byIcon(Icons.bar_chart));
       await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3c_stats_bars');
+      await tester.tap(find.text('Net').first);
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3e_stats_net');
+      // Pick today's bar: its records are listed under the chart.
+      {
+        final rect = tester.getRect(find.byType(BarChart));
+        final now = DateTime.now();
+        final days = DateTime(now.year, now.month + 1, 0).day;
+        // The amounts on the left take 40 pixels.
+        final x = rect.left + 40 + (now.day - 0.5) * (rect.width - 40) / days;
+        await tester.tapAt(Offset(x, rect.bottom - 40));
+        await tester.pumpAndSettle();
+        await shot(tester, '${lang}_3h_stats_day');
+      }
+      // Income and expenses apart, with the running total.
+      await tester.tap(find.byIcon(Icons.compare_arrows));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3i_net_split');
+      await tester.tap(find.byIcon(Icons.trending_up));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3j_net_running');
+      await tester.tap(
+        find.descendant(
+          of: find.byType(IconButton),
+          matching: find.byIcon(Icons.account_balance_wallet),
+        ),
+      );
+      await tester.pumpAndSettle();
+      // The period picker, then the last three months, week by week.
+      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3f_periods');
+      await tester.tap(find.text(lang == 'tr' ? 'Son 3 ay' : 'Last 3 months'));
+      await settleDb(tester);
+      await shot(tester, '${lang}_3g_last3_net');
+      await tester.runAsync(() => state.setMonth(DateTime.now()));
+      await tester.tap(find.text(lang == 'tr' ? 'Gider' : 'Expense').first);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(IconButton),
+          matching: find.byIcon(Icons.pie_chart),
+        ),
+      );
+      await settleDb(tester);
       await pickWallet(tester, state, lang == 'tr' ? 'Banka' : 'Bank');
       await shot(tester, '${lang}_3b_stats_one_wallet');
       await pickWallet(tester, state, null);

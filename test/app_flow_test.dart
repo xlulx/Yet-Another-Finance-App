@@ -50,7 +50,7 @@ Future<void> addRecordFlow(
   await tester.pumpAndSettle();
   await tester.tap(save);
   // Database calls are real I/O; wait for them to finish.
-  for (var i = 0; i < 20 && state.monthRecords.isEmpty; i++) {
+  for (var i = 0; i < 20 && state.periodRecords.isEmpty; i++) {
     await tester.runAsync(
       () => Future<void>.delayed(const Duration(milliseconds: 50)),
     );
@@ -60,7 +60,7 @@ Future<void> addRecordFlow(
   expect(find.text(strings['newRecord']!), findsNothing);
 
   expect(find.text('Migros'), findsOneWidget);
-  expect(state.monthExpense, 25075);
+  expect(state.periodExpense, 25075);
   expect(find.textContaining(formattedAmount), findsWidgets);
 
   // Swiping a record does not delete it (too easy to do by accident).
@@ -71,7 +71,7 @@ Future<void> addRecordFlow(
   );
   await tester.pumpAndSettle();
   expect(find.text('Migros'), findsOneWidget);
-  expect(state.monthRecords, hasLength(1));
+  expect(state.periodRecords, hasLength(1));
 
   // Close so the next test gets a fresh in-memory database.
   await tester.runAsync(() => state.db.close());
@@ -88,7 +88,7 @@ void main() {
       tester,
       language: 'en',
       strings: const {
-        'empty': 'No records this month.',
+        'empty': 'No records in this period.',
         'add': 'Add record',
         'title': 'Title (optional)',
         'save': 'Save',
@@ -104,7 +104,7 @@ void main() {
       tester,
       language: 'tr',
       strings: const {
-        'empty': 'Bu ay için kayıt yok.',
+        'empty': 'Bu dönemde kayıt yok.',
         'add': 'Kayıt ekle',
         'title': 'Başlık (isteğe bağlı)',
         'save': 'Kaydet',
@@ -150,7 +150,7 @@ void main() {
     await tester.ensureVisible(save);
     await tester.pumpAndSettle();
     await tester.tap(save);
-    for (var i = 0; i < 20 && state.monthTransfers.isEmpty; i++) {
+    for (var i = 0; i < 20 && state.periodTransfers.isEmpty; i++) {
       await tester.runAsync(
         () => Future<void>.delayed(const Duration(milliseconds: 50)),
       );
@@ -166,7 +166,7 @@ void main() {
     expect(state.balances[cash], -12000);
     expect(state.balances[bank], 12000);
     // Across all wallets, transfers are neither income nor expense.
-    expect(state.monthIncome + state.monthExpense, 0);
+    expect(state.periodIncome + state.periodExpense, 0);
     expect(find.text('Income'), findsOneWidget);
     expect(find.text('Net'), findsOneWidget);
 
@@ -193,15 +193,15 @@ void main() {
     expect(find.text(r'+$120.00'), findsWidgets);
     // One wallet: the summary works like a bank statement.
     expect(find.text('Money in'), findsOneWidget);
-    expect(state.monthTransfersIn, 12000);
-    expect(state.monthTransfersOut, 0);
+    expect(state.periodTransfersIn, 12000);
+    expect(state.periodTransfersOut, 0);
 
     // ...and for the cash wallet as money going out.
     await chooseWallet('Cash');
     expect(state.walletFilter, cash);
     expect(find.text(r'-$120.00'), findsWidgets);
     expect(find.text('Money out'), findsOneWidget);
-    expect((state.monthTransfersIn, state.monthTransfersOut), (0, 12000));
+    expect((state.periodTransfersIn, state.periodTransfersOut), (0, 12000));
 
     // The label's ✕ shows all wallets again.
     await tester.tap(

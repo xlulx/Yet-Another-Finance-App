@@ -17,7 +17,6 @@
   "pickCategory": "Please choose a category",
   "noCategoriesOfType": "No categories of this type. Add one in Settings > Categories.",
   "addRecord": "Add record",
-  "noRecordsThisMonth": "No records this month.",
   "newRecord": "New record",
   "editRecord": "Edit record",
   "deleteRecordQuestion": "Delete this record?",
@@ -121,12 +120,8 @@
       }
     }
   },
-  "periodMonth": "Month",
-  "periodYear": "Year",
   "noDataForPeriod": "No data for this period.",
   "total": "Total",
-  "daily": "Daily",
-  "monthly": "Monthly",
   "settings": "Settings",
   "currency": "Currency",
   "language": "Language",
@@ -221,8 +216,6 @@
       }
     }
   },
-  "pickMonth": "Choose month",
-  "pickYear": "Choose year",
   "backupCreate": "Back up",
   "backupCreateHint": "Save all your data to a file, e.g. on Google Drive",
   "backupRestore": "Restore from backup",
@@ -466,5 +459,61 @@
   "featureRecurringTitle": "Recurring transactions",
   "featureRecurringText": "Rent, salary and subscriptions added for you, with reminders if you like",
   "featureBackupTitle": "Backups",
-  "featureBackupText": "Save all your data to one file, or export it as CSV"
+  "featureBackupText": "Save all your data to one file, or export it as CSV",
+  "periodLast3Months": "Last 3 months",
+  "periodLast12Months": "Last 12 months",
+  "periodCustom": "Custom range",
+  "last12Months": "Last 12 months",
+  "categoryEmpty": "No records in this category for the period.",
+  "recordCount": "{count, plural, =1{1 record} other{{count} records}}",
+  "@recordCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "pickPeriod": "Choose a period",
+  "wholeYear": "All of {year}",
+  "@wholeYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "noRecordsInPeriod": "No records in this period.",
+  "pieChart": "Pie chart",
+  "barChart": "Bar chart",
+  "averagePerDay": "{amount} a day on average",
+  "averagePerWeek": "{amount} a week on average",
+  "averagePerMonth": "{amount} a month on average",
+  "average": "Average",
+  "nothingOnDate": "Nothing on this date.",
+  "@averagePerDay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@averagePerWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@averagePerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "clearSelection": "Clear",
+  "showNet": "Show the net",
+  "showIncomeAndExpense": "Show income and expenses",
+  "showRunningTotal": "Show the running total",
+  "hideRunningTotal": "Hide the running total"
 }

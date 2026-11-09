@@ -122,3 +122,57 @@ List<(int income, int expense)> bucketTotals(
   }
   return [for (var i = 0; i < bucketCount; i++) (income[i], expense[i])];
 }
+
+/// How long one bar of a trend chart is.
+enum BucketUnit { day, week, month }
+
+/// A period of statistics, [from] up to [to] (exclusive), split into chart
+/// buckets: days up to a month, weeks up to about four months, then months.
+class StatsRange {
+  StatsRange(DateTime from, DateTime to)
+    : from = DateTime(from.year, from.month, from.day),
+      to = DateTime(to.year, to.month, to.day);
+
+  final DateTime from;
+  final DateTime to;
+
+  /// Days since [from]; counted on calendar dates, so daylight saving time
+  /// changes do not matter.
+  int _dayIndex(DateTime d) => DateTime.utc(
+    d.year,
+    d.month,
+    d.day,
+  ).difference(DateTime.utc(from.year, from.month, from.day)).inDays;
+
+  int get _months => (to.year - from.year) * 12 + to.month - from.month;
+
+  int get days => _dayIndex(to);
+
+  BucketUnit get unit => days <= 31
+      ? BucketUnit.day
+      : days <= 124
+      ? BucketUnit.week
+      : BucketUnit.month;
+
+  int get bucketCount => switch (unit) {
+    BucketUnit.day => days,
+    BucketUnit.week => (days + 6) ~/ 7,
+    // A partial last month still gets a bar.
+    BucketUnit.month => _months + (to.day > 1 ? 1 : 0),
+  };
+
+  /// The bucket a date falls in; outside the range, an index outside
+  /// 0 until [bucketCount].
+  int bucketOf(DateTime d) => switch (unit) {
+    BucketUnit.day => _dayIndex(d),
+    BucketUnit.week => _dayIndex(d) < 0 ? -1 : _dayIndex(d) ~/ 7,
+    BucketUnit.month => (d.year - from.year) * 12 + d.month - from.month,
+  };
+
+  /// First day of bucket [i].
+  DateTime bucketStart(int i) => switch (unit) {
+    BucketUnit.day => DateTime(from.year, from.month, from.day + i),
+    BucketUnit.week => DateTime(from.year, from.month, from.day + 7 * i),
+    BucketUnit.month => DateTime(from.year, from.month + i),
+  };
+}

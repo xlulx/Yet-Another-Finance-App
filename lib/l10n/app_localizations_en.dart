@@ -62,9 +62,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addRecord => 'Add record';
 
   @override
-  String get noRecordsThisMonth => 'No records this month.';
-
-  @override
   String get newRecord => 'New record';
 
   @override
@@ -247,22 +244,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get periodMonth => 'Month';
-
-  @override
-  String get periodYear => 'Year';
-
-  @override
   String get noDataForPeriod => 'No data for this period.';
 
   @override
   String get total => 'Total';
-
-  @override
-  String get daily => 'Daily';
-
-  @override
-  String get monthly => 'Monthly';
 
   @override
   String get settings => 'Settings';
@@ -413,12 +398,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String transferFromWallet(String name) {
     return 'From $name';
   }
-
-  @override
-  String get pickMonth => 'Choose month';
-
-  @override
-  String get pickYear => 'Choose year';
 
   @override
   String get backupCreate => 'Back up';
@@ -794,4 +773,83 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get featureBackupText =>
       'Save all your data to one file, or export it as CSV';
+
+  @override
+  String get periodLast3Months => 'Last 3 months';
+
+  @override
+  String get periodLast12Months => 'Last 12 months';
+
+  @override
+  String get periodCustom => 'Custom range';
+
+  @override
+  String get last12Months => 'Last 12 months';
+
+  @override
+  String get categoryEmpty => 'No records in this category for the period.';
+
+  @override
+  String recordCount(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$count records',
+      one: '1 record',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get pickPeriod => 'Choose a period';
+
+  @override
+  String wholeYear(String year) {
+    return 'All of $year';
+  }
+
+  @override
+  String get noRecordsInPeriod => 'No records in this period.';
+
+  @override
+  String get pieChart => 'Pie chart';
+
+  @override
+  String get barChart => 'Bar chart';
+
+  @override
+  String averagePerDay(String amount) {
+    return '$amount a day on average';
+  }
+
+  @override
+  String averagePerWeek(String amount) {
+    return '$amount a week on average';
+  }
+
+  @override
+  String averagePerMonth(String amount) {
+    return '$amount a month on average';
+  }
+
+  @override
+  String get average => 'Average';
+
+  @override
+  String get nothingOnDate => 'Nothing on this date.';
+
+  @override
+  String get clearSelection => 'Clear';
+
+  @override
+  String get showNet => 'Show the net';
+
+  @override
+  String get showIncomeAndExpense => 'Show income and expenses';
+
+  @override
+  String get showRunningTotal => 'Show the running total';
+
+  @override
+  String get hideRunningTotal => 'Hide the running total';
 }

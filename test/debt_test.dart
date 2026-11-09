@@ -90,7 +90,7 @@ void main() {
     );
     expect(state.balances[bank], 100000 - 30000 - 20000);
     expect(state.balances[cash], 50000 + 10000);
-    expect(state.monthIncome + state.monthExpense, 0);
+    expect(state.periodIncome + state.periodExpense, 0);
 
     // Remaining amounts and totals.
     expect(state.remainingOf(debtOf('Ali')), 20000);
@@ -100,17 +100,17 @@ void main() {
 
     // The records page lists the four movements that touched a wallet.
     await state.setMonth(DateTime(2025, 3));
-    expect(state.monthDebtEvents, hasLength(4));
-    expect(state.monthDebtIn + state.monthDebtOut, 0); // no wallet filter
+    expect(state.periodDebtEvents, hasLength(4));
+    expect(state.periodDebtIn + state.periodDebtOut, 0); // no wallet filter
 
     // Seen from the bank: 30000 lent and 20000 repaid went out, but
     // neither is income or expense.
     await state.setWalletFilter(bank);
     expect(
-      state.monthDebtEvents.map((e) => e.effect),
+      state.periodDebtEvents.map((e) => e.effect),
       unorderedEquals([-30000, -20000]),
     );
-    expect((state.monthDebtIn, state.monthDebtOut), (0, 0));
+    expect((state.periodDebtIn, state.periodDebtOut), (0, 0));
     await state.setWalletFilter(null);
 
     // Closing with money still owed: what Ali never paid back is an
@@ -118,20 +118,20 @@ void main() {
     await state.setDebtClosed(debtOf('Ali'), true);
     await state.setDebtClosed(debtOf('Ayşe'), true);
     expect(debtOf('Ali').closedAt, now);
-    expect((state.monthDebtIn, state.monthDebtOut), (30000, 20000));
-    final closing = state.monthDebtEvents.where((e) => e.isClosing);
+    expect((state.periodDebtIn, state.periodDebtOut), (30000, 20000));
+    final closing = state.periodDebtEvents.where((e) => e.isClosing);
     expect(closing.map((e) => e.date).toSet(), {now});
     // Wallet balances do not change.
     expect(state.balances[bank], 100000 - 30000 - 20000);
     expect(state.balances[cash], 50000 + 10000);
     // Seen from the bank, only Ali's loss.
     await state.setWalletFilter(bank);
-    expect((state.monthDebtIn, state.monthDebtOut), (0, 20000));
+    expect((state.periodDebtIn, state.periodDebtOut), (0, 20000));
     await state.setWalletFilter(null);
     // Reopening takes it back.
     await state.setDebtClosed(debtOf('Ali'), false);
     expect(debtOf('Ali').closedAt, isNull);
-    expect((state.monthDebtIn, state.monthDebtOut), (30000, 0));
+    expect((state.periodDebtIn, state.periodDebtOut), (30000, 0));
 
     // A wallet used by a debt cannot be deleted.
     expect(await state.deleteWallet(state.walletById(bank)!), isFalse);

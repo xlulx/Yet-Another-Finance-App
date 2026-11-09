@@ -200,12 +200,6 @@ abstract class AppLocalizations {
   /// **'Add record'**
   String get addRecord;
 
-  /// No description provided for @noRecordsThisMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'No records this month.'**
-  String get noRecordsThisMonth;
-
   /// No description provided for @newRecord.
   ///
   /// In en, this message translates to:
@@ -470,18 +464,6 @@ abstract class AppLocalizations {
   /// **'Every {count} {unit}'**
   String everyN(int count, String unit);
 
-  /// No description provided for @periodMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'Month'**
-  String get periodMonth;
-
-  /// No description provided for @periodYear.
-  ///
-  /// In en, this message translates to:
-  /// **'Year'**
-  String get periodYear;
-
   /// No description provided for @noDataForPeriod.
   ///
   /// In en, this message translates to:
@@ -493,18 +475,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total'**
   String get total;
-
-  /// No description provided for @daily.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily'**
-  String get daily;
-
-  /// No description provided for @monthly.
-  ///
-  /// In en, this message translates to:
-  /// **'Monthly'**
-  String get monthly;
 
   /// No description provided for @settings.
   ///
@@ -751,18 +721,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From {name}'**
   String transferFromWallet(String name);
-
-  /// No description provided for @pickMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose month'**
-  String get pickMonth;
-
-  /// No description provided for @pickYear.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose year'**
-  String get pickYear;
 
   /// No description provided for @backupCreate.
   ///
@@ -1417,6 +1375,132 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Save all your data to one file, or export it as CSV'**
   String get featureBackupText;
+
+  /// No description provided for @periodLast3Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 3 months'**
+  String get periodLast3Months;
+
+  /// No description provided for @periodLast12Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get periodLast12Months;
+
+  /// No description provided for @periodCustom.
+  ///
+  /// In en, this message translates to:
+  /// **'Custom range'**
+  String get periodCustom;
+
+  /// No description provided for @last12Months.
+  ///
+  /// In en, this message translates to:
+  /// **'Last 12 months'**
+  String get last12Months;
+
+  /// No description provided for @categoryEmpty.
+  ///
+  /// In en, this message translates to:
+  /// **'No records in this category for the period.'**
+  String get categoryEmpty;
+
+  /// No description provided for @recordCount.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 record} other{{count} records}}'**
+  String recordCount(int count);
+
+  /// No description provided for @pickPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a period'**
+  String get pickPeriod;
+
+  /// No description provided for @wholeYear.
+  ///
+  /// In en, this message translates to:
+  /// **'All of {year}'**
+  String wholeYear(String year);
+
+  /// No description provided for @noRecordsInPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'No records in this period.'**
+  String get noRecordsInPeriod;
+
+  /// No description provided for @pieChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Pie chart'**
+  String get pieChart;
+
+  /// No description provided for @barChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar chart'**
+  String get barChart;
+
+  /// No description provided for @averagePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a day on average'**
+  String averagePerDay(String amount);
+
+  /// No description provided for @averagePerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a week on average'**
+  String averagePerWeek(String amount);
+
+  /// No description provided for @averagePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a month on average'**
+  String averagePerMonth(String amount);
+
+  /// No description provided for @average.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get average;
+
+  /// No description provided for @nothingOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this date.'**
+  String get nothingOnDate;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearSelection;
+
+  /// No description provided for @showNet.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the net'**
+  String get showNet;
+
+  /// No description provided for @showIncomeAndExpense.
+  ///
+  /// In en, this message translates to:
+  /// **'Show income and expenses'**
+  String get showIncomeAndExpense;
+
+  /// No description provided for @showRunningTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Show the running total'**
+  String get showRunningTotal;
+
+  /// No description provided for @hideRunningTotal.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide the running total'**
+  String get hideRunningTotal;
 }
 
 class _AppLocalizationsDelegate

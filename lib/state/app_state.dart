@@ -6,6 +6,7 @@ import '../data/app_database.dart';
 import '../l10n/app_localizations.dart';
 import '../models/category.dart';
 import '../models/debt.dart';
+import '../models/period.dart';
 import '../models/record.dart';
 import '../models/recurring_rule.dart';
 import '../models/transfer.dart';
@@ -39,8 +40,8 @@ class AppState extends ChangeNotifier {
 
   List<Category> categories = [];
   List<RecurringRule> rules = [];
-  List<Record> monthRecords = [];
-  List<Transfer> monthTransfers = [];
+  List<Record> periodRecords = [];
+  List<Transfer> periodTransfers = [];
   List<Wallet> wallets = [];
 
   /// Current balance per wallet id.
@@ -54,11 +55,13 @@ class AppState extends ChangeNotifier {
 
   /// Debt movements that touched a wallet in the selected month (and the
   /// filtered wallet, if any), for the records page.
-  List<DebtEvent> monthDebtEvents = [];
+  List<DebtEvent> periodDebtEvents = [];
 
   /// Wallet shown on the records and statistics pages; null for all.
   int? walletFilter;
-  late DateTime month = DateTime(_clock().year, _clock().month);
+
+  /// Shown on the records and statistics pages; the current month at start.
+  late Period period = Period.month(_clock());
   String currency = '₺';
 
   AutoBackupFrequency autoBackup = AutoBackupFrequency.off;
@@ -260,28 +263,27 @@ class AppState extends ChangeNotifier {
       _payments.putIfAbsent(p.debtId, () => []).add(p);
       _paid[p.debtId] = (_paid[p.debtId] ?? 0) + p.amount;
     }
-    await _reloadMonth(notify: false);
+    await _reloadPeriod(notify: false);
     await syncReminders();
     notifyListeners();
   }
 
-  /// Reloads the selected month's entries for the wallet filter.
-  Future<void> _reloadMonth({bool notify = true}) async {
-    final to = DateTime(month.year, month.month + 1);
-    monthRecords = await db.records(
-      from: month,
+  /// Reloads the selected period's entries for the wallet filter.
+  Future<void> _reloadPeriod({bool notify = true}) async {
+    final (from, to) = (period.from, period.to);
+    periodRecords = await db.records(
+      from: from,
       to: to,
       walletId: walletFilter,
     );
-    monthTransfers = await db.transfers(
-      from: month,
+    periodTransfers = await db.transfers(
+      from: from,
       to: to,
       walletId: walletFilter,
     );
-    monthDebtEvents = [
+    periodDebtEvents = [
       for (final e in allDebtEvents())
-        if (!e.date.isBefore(month) &&
-            e.date.isBefore(to) &&
+        if (period.contains(e.date) &&
             // Closing without a wallet still counts across all wallets.
             (e.walletId != null || (e.isClosing && walletFilter == null)) &&
             (walletFilter == null || e.walletId == walletFilter))
@@ -290,42 +292,45 @@ class AppState extends ChangeNotifier {
     if (notify) notifyListeners();
   }
 
-  Future<void> setMonth(DateTime m) async {
-    month = DateTime(m.year, m.month);
-    await _reloadMonth();
+  Future<void> setPeriod(Period p) async {
+    period = p;
+    await _reloadPeriod();
   }
+
+  /// Shows the month of [m].
+  Future<void> setMonth(DateTime m) => setPeriod(Period.month(m));
+
+  /// Moves to the previous or next period of the same length.
+  Future<void> shiftPeriod(int delta) => setPeriod(period.shift(delta));
 
   Future<void> setWalletFilter(int? walletId) async {
     walletFilter = walletId;
-    await _reloadMonth();
+    await _reloadPeriod();
   }
-
-  Future<void> shiftMonth(int delta) =>
-      setMonth(DateTime(month.year, month.month + delta));
 
   // ---- Summary ----
 
   bool isIncome(Record r) => _byId[r.categoryId]?.type == CategoryType.income;
 
-  int get monthIncome =>
-      monthRecords.where(isIncome).fold(0, (sum, r) => sum + r.amount);
+  int get periodIncome =>
+      periodRecords.where(isIncome).fold(0, (sum, r) => sum + r.amount);
 
-  int get monthExpense => monthRecords
+  int get periodExpense => periodRecords
       .where((r) => !isIncome(r))
       .fold(0, (sum, r) => sum + r.amount);
 
   /// Transfers into the filtered wallet this month; 0 without a filter
   /// (between all wallets, transfers cancel out).
-  int get monthTransfersIn => walletFilter == null
+  int get periodTransfersIn => walletFilter == null
       ? 0
-      : monthTransfers
+      : periodTransfers
             .where((t) => t.toWalletId == walletFilter)
             .fold(0, (sum, t) => sum + t.amount);
 
   /// Transfers out of the filtered wallet this month; 0 without a filter.
-  int get monthTransfersOut => walletFilter == null
+  int get periodTransfersOut => walletFilter == null
       ? 0
-      : monthTransfers
+      : periodTransfers
             .where((t) => t.fromWalletId == walletFilter)
             .fold(0, (sum, t) => sum + t.amount);
 
@@ -438,13 +443,13 @@ class AppState extends ChangeNotifier {
 
   /// Money borrowed that will not be paid back, closed this month (in the
   /// filtered wallet, if any): counts as income.
-  int get monthDebtIn => monthDebtEvents
+  int get periodDebtIn => periodDebtEvents
       .where((e) => e.counts && e.effect > 0)
       .fold(0, (s, e) => s + e.effect);
 
   /// Money lent that will not come back, closed this month: counts as an
   /// expense.
-  int get monthDebtOut => monthDebtEvents
+  int get periodDebtOut => periodDebtEvents
       .where((e) => e.counts && e.effect < 0)
       .fold(0, (s, e) => s - e.effect);
 

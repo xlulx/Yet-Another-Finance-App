@@ -276,8 +276,8 @@ void main() {
           date: record.date,
         ),
       );
-      expect(state.monthRecords, isEmpty);
-      expect(state.monthTransfers.single.amount, 700);
+      expect(state.periodRecords, isEmpty);
+      expect(state.periodTransfers.single.amount, 700);
       expect(state.balances[bank], 1700);
     });
   });
