@@ -738,9 +738,10 @@ class _PeriodSummary extends StatelessWidget {
     final lost = sum((e) => e.isClosing && e.debt.lent);
     final gained = sum((e) => e.isClosing && !e.debt.lent);
 
+    // Centred in two equal columns, like the totals card above: what was
+    // lent on the left under "Owed to me", what was borrowed on the right.
     Widget cell(String label, int amount, {Color? color}) => Expanded(
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(label, style: theme.textTheme.labelMedium),
           const SizedBox(height: 2),
@@ -753,29 +754,30 @@ class _PeriodSummary extends StatelessWidget {
     );
     Widget pair(Widget a, Widget b) => Padding(
       padding: const EdgeInsets.symmetric(vertical: 6),
-      child: Row(children: [a, const SizedBox(width: 12), b]),
+      child: Row(children: [a, b]),
     );
 
     return Card(
       margin: const EdgeInsets.fromLTRB(12, 0, 12, 4),
       child: Padding(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        padding: const EdgeInsets.fromLTRB(8, 12, 8, 10),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
               PeriodSelector.label(state.period),
+              textAlign: TextAlign.center,
               style: theme.textTheme.titleSmall,
             ),
+            const SizedBox(height: 4),
             pair(
               cell(l.debtLentEvent, sum((e) => opened(e) && e.debt.lent)),
+              cell(l.debtBorrowedEvent, sum((e) => opened(e) && !e.debt.lent)),
+            ),
+            pair(
               cell(
                 l.repaymentReceived,
                 sum((e) => e.payment != null && e.debt.lent),
               ),
-            ),
-            pair(
-              cell(l.debtBorrowedEvent, sum((e) => opened(e) && !e.debt.lent)),
               cell(
                 l.repaymentMade,
                 sum((e) => e.payment != null && !e.debt.lent),
