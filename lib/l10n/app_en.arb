@@ -120,12 +120,8 @@
       }
     }
   },
-  "periodMonth": "Month",
-  "periodYear": "Year",
   "noDataForPeriod": "No data for this period.",
   "total": "Total",
-  "daily": "Daily",
-  "monthly": "Monthly",
   "settings": "Settings",
   "currency": "Currency",
   "language": "Language",
@@ -467,7 +463,6 @@
   "periodLast3Months": "Last 3 months",
   "periodLast12Months": "Last 12 months",
   "periodCustom": "Custom range",
-  "weekly": "Weekly",
   "last12Months": "Last 12 months",
   "categoryEmpty": "No records in this category for the period.",
   "recordCount": "{count, plural, =1{1 record} other{{count} records}}",
@@ -489,5 +484,32 @@
   },
   "noRecordsInPeriod": "No records in this period.",
   "pieChart": "Pie chart",
-  "barChart": "Bar chart"
+  "barChart": "Bar chart",
+  "averagePerDay": "{amount} a day on average",
+  "averagePerWeek": "{amount} a week on average",
+  "averagePerMonth": "{amount} a month on average",
+  "average": "Average",
+  "nothingOnDate": "Nothing on this date.",
+  "@averagePerDay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@averagePerWeek": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "@averagePerMonth": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "clearSelection": "Clear"
 }

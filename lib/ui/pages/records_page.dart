@@ -15,8 +15,8 @@ import '../widgets/selected_wallet_chip.dart';
 import 'debts_page.dart';
 import 'edit_record_page.dart';
 
-/// A record, transfer or debt movement, for the mixed list.
-DateTime _dateOf(Object e) => switch (e) {
+/// A record, transfer or debt movement, for the mixed lists.
+DateTime dateOfEntry(Object e) => switch (e) {
   Record r => r.date,
   Transfer t => t.date,
   DebtEvent d => d.date,
@@ -24,6 +24,13 @@ DateTime _dateOf(Object e) => switch (e) {
 };
 
 /// How a transfer changes the filtered wallet's balance; 0 without a filter.
+/// The list tile for a record, transfer or debt movement.
+Widget entryTile(Object e) => switch (e) {
+  Record r => RecordTile(record: r),
+  Transfer t => TransferTile(transfer: t),
+  final e => DebtEventTile(event: e as DebtEvent),
+};
+
 int _transferEffect(AppState state, Transfer t) {
   final w = state.walletFilter;
   if (w == null) return 0;
@@ -47,12 +54,12 @@ class RecordsPage extends StatelessWidget {
       ...state.periodRecords,
       ...state.periodTransfers,
       ...state.periodDebtEvents,
-    ]..sort((a, b) => _dateOf(b).compareTo(_dateOf(a)));
+    ]..sort((a, b) => dateOfEntry(b).compareTo(dateOfEntry(a)));
 
     // Group by day (entries are sorted newest first).
     final groups = <DateTime, List<Object>>{};
     for (final e in entries) {
-      final d = _dateOf(e);
+      final d = dateOfEntry(e);
       groups.putIfAbsent(DateTime(d.year, d.month, d.day), () => []).add(e);
     }
     // One row per day header and entry, built only when scrolled into view.
@@ -101,9 +108,7 @@ class RecordsPage extends StatelessWidget {
                 entries: g.value,
                 state: state,
               ),
-              Record r => _RecordTile(record: r),
-              Transfer t => _TransferTile(transfer: t),
-              final e => _DebtEventTile(event: e as DebtEvent),
+              final e => entryTile(e),
             };
           },
         ),
@@ -241,8 +246,8 @@ class _DayHeader extends StatelessWidget {
   }
 }
 
-class _RecordTile extends StatelessWidget {
-  const _RecordTile({required this.record});
+class RecordTile extends StatelessWidget {
+  const RecordTile({super.key, required this.record});
 
   final Record record;
 
@@ -297,8 +302,8 @@ class _RecordTile extends StatelessWidget {
   }
 }
 
-class _TransferTile extends StatelessWidget {
-  const _TransferTile({required this.transfer});
+class TransferTile extends StatelessWidget {
+  const TransferTile({super.key, required this.transfer});
 
   final Transfer transfer;
 
@@ -385,8 +390,8 @@ class _TransferTile extends StatelessWidget {
 }
 
 /// A debt being given or taken, or one of its repayments. Opens the debt.
-class _DebtEventTile extends StatelessWidget {
-  const _DebtEventTile({required this.event});
+class DebtEventTile extends StatelessWidget {
+  const DebtEventTile({super.key, required this.event});
 
   final DebtEvent event;
 

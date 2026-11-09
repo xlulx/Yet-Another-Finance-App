@@ -214,22 +214,10 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get periodMonth => 'Ay';
-
-  @override
-  String get periodYear => 'Yıl';
-
-  @override
   String get noDataForPeriod => 'Bu dönem için veri yok.';
 
   @override
   String get total => 'Toplam';
-
-  @override
-  String get daily => 'Günlük';
-
-  @override
-  String get monthly => 'Aylık';
 
   @override
   String get settings => 'Ayarlar';
@@ -758,9 +746,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get periodCustom => 'Özel aralık';
 
   @override
-  String get weekly => 'Haftalık';
-
-  @override
   String get last12Months => 'Son 12 ay';
 
   @override
@@ -787,4 +772,28 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get barChart => 'Sütun grafik';
+
+  @override
+  String averagePerDay(String amount) {
+    return 'Günde ortalama $amount';
+  }
+
+  @override
+  String averagePerWeek(String amount) {
+    return 'Haftada ortalama $amount';
+  }
+
+  @override
+  String averagePerMonth(String amount) {
+    return 'Ayda ortalama $amount';
+  }
+
+  @override
+  String get average => 'Ortalama';
+
+  @override
+  String get nothingOnDate => 'Bu tarihte kayıt yok.';
+
+  @override
+  String get clearSelection => 'Temizle';
 }

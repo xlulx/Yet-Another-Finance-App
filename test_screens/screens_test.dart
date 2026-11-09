@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'dart:ui' as ui;
 
+import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -372,7 +373,9 @@ void main() {
       }
       await shot(tester, '${lang}_3_stats');
       // A category's details.
-      await tester.tap(find.textContaining(lang == 'tr' ? 'Kira' : 'Rent'));
+      await tester.tap(
+        find.textContaining(lang == 'tr' ? 'Kira' : 'Rent').last,
+      );
       for (var i = 0; i < 10; i++) {
         await tester.runAsync(
           () => Future.delayed(const Duration(milliseconds: 30)),
@@ -389,6 +392,17 @@ void main() {
       await tester.tap(find.text('Net').first);
       await tester.pumpAndSettle();
       await shot(tester, '${lang}_3e_stats_net');
+      // Pick today's bar: its records are listed under the chart.
+      {
+        final rect = tester.getRect(find.byType(BarChart));
+        final now = DateTime.now();
+        final days = DateTime(now.year, now.month + 1, 0).day;
+        // The amounts on the left take 40 pixels.
+        final x = rect.left + 40 + (now.day - 0.5) * (rect.width - 40) / days;
+        await tester.tapAt(Offset(x, rect.bottom - 40));
+        await tester.pumpAndSettle();
+        await shot(tester, '${lang}_3h_stats_day');
+      }
       // The period picker, then the last three months, week by week.
       await tester.tap(find.byIcon(Icons.arrow_drop_down));
       await tester.pumpAndSettle();
@@ -398,7 +412,13 @@ void main() {
       await shot(tester, '${lang}_3g_last3_net');
       await tester.runAsync(() => state.setMonth(DateTime.now()));
       await tester.tap(find.text(lang == 'tr' ? 'Gider' : 'Expense').first);
-      await tester.tap(find.byIcon(Icons.pie_chart_outline).last);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(IconButton),
+          matching: find.byIcon(Icons.pie_chart),
+        ),
+      );
       await settleDb(tester);
       await pickWallet(tester, state, lang == 'tr' ? 'Banka' : 'Bank');
       await shot(tester, '${lang}_3b_stats_one_wallet');

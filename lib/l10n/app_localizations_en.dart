@@ -244,22 +244,10 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get periodMonth => 'Month';
-
-  @override
-  String get periodYear => 'Year';
-
-  @override
   String get noDataForPeriod => 'No data for this period.';
 
   @override
   String get total => 'Total';
-
-  @override
-  String get daily => 'Daily';
-
-  @override
-  String get monthly => 'Monthly';
 
   @override
   String get settings => 'Settings';
@@ -796,9 +784,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get periodCustom => 'Custom range';
 
   @override
-  String get weekly => 'Weekly';
-
-  @override
   String get last12Months => 'Last 12 months';
 
   @override
@@ -831,4 +816,28 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get barChart => 'Bar chart';
+
+  @override
+  String averagePerDay(String amount) {
+    return '$amount a day on average';
+  }
+
+  @override
+  String averagePerWeek(String amount) {
+    return '$amount a week on average';
+  }
+
+  @override
+  String averagePerMonth(String amount) {
+    return '$amount a month on average';
+  }
+
+  @override
+  String get average => 'Average';
+
+  @override
+  String get nothingOnDate => 'Nothing on this date.';
+
+  @override
+  String get clearSelection => 'Clear';
 }

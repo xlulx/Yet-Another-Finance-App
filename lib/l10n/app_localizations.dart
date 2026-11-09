@@ -464,18 +464,6 @@ abstract class AppLocalizations {
   /// **'Every {count} {unit}'**
   String everyN(int count, String unit);
 
-  /// No description provided for @periodMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'Month'**
-  String get periodMonth;
-
-  /// No description provided for @periodYear.
-  ///
-  /// In en, this message translates to:
-  /// **'Year'**
-  String get periodYear;
-
   /// No description provided for @noDataForPeriod.
   ///
   /// In en, this message translates to:
@@ -487,18 +475,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Total'**
   String get total;
-
-  /// No description provided for @daily.
-  ///
-  /// In en, this message translates to:
-  /// **'Daily'**
-  String get daily;
-
-  /// No description provided for @monthly.
-  ///
-  /// In en, this message translates to:
-  /// **'Monthly'**
-  String get monthly;
 
   /// No description provided for @settings.
   ///
@@ -1418,12 +1394,6 @@ abstract class AppLocalizations {
   /// **'Custom range'**
   String get periodCustom;
 
-  /// No description provided for @weekly.
-  ///
-  /// In en, this message translates to:
-  /// **'Weekly'**
-  String get weekly;
-
   /// No description provided for @last12Months.
   ///
   /// In en, this message translates to:
@@ -1471,6 +1441,42 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Bar chart'**
   String get barChart;
+
+  /// No description provided for @averagePerDay.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a day on average'**
+  String averagePerDay(String amount);
+
+  /// No description provided for @averagePerWeek.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a week on average'**
+  String averagePerWeek(String amount);
+
+  /// No description provided for @averagePerMonth.
+  ///
+  /// In en, this message translates to:
+  /// **'{amount} a month on average'**
+  String averagePerMonth(String amount);
+
+  /// No description provided for @average.
+  ///
+  /// In en, this message translates to:
+  /// **'Average'**
+  String get average;
+
+  /// No description provided for @nothingOnDate.
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing on this date.'**
+  String get nothingOnDate;
+
+  /// No description provided for @clearSelection.
+  ///
+  /// In en, this message translates to:
+  /// **'Clear'**
+  String get clearSelection;
 }
 
 class _AppLocalizationsDelegate

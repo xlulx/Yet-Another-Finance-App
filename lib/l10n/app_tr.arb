@@ -61,12 +61,8 @@
   "everyMonth": "Her ay",
   "everyYear": "Her yıl",
   "everyN": "Her {count} {unit}",
-  "periodMonth": "Ay",
-  "periodYear": "Yıl",
   "noDataForPeriod": "Bu dönem için veri yok.",
   "total": "Toplam",
-  "daily": "Günlük",
-  "monthly": "Aylık",
   "settings": "Ayarlar",
   "currency": "Para birimi",
   "language": "Dil",
@@ -218,7 +214,6 @@
   "periodLast3Months": "Son 3 ay",
   "periodLast12Months": "Son 12 ay",
   "periodCustom": "Özel aralık",
-  "weekly": "Haftalık",
   "last12Months": "Son 12 ay",
   "categoryEmpty": "Bu dönemde bu kategoride kayıt yok.",
   "recordCount": "{count} kayıt",
@@ -226,5 +221,11 @@
   "wholeYear": "{year} yılının tamamı",
   "noRecordsInPeriod": "Bu dönemde kayıt yok.",
   "pieChart": "Pasta grafik",
-  "barChart": "Sütun grafik"
+  "barChart": "Sütun grafik",
+  "averagePerDay": "Günde ortalama {amount}",
+  "averagePerWeek": "Haftada ortalama {amount}",
+  "averagePerMonth": "Ayda ortalama {amount}",
+  "average": "Ortalama",
+  "nothingOnDate": "Bu tarihte kayıt yok.",
+  "clearSelection": "Temizle"
 }

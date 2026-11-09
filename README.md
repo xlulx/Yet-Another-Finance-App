@@ -25,10 +25,10 @@ language by default; you can also pick one in Settings.
   repaid counts what is left as an expense (money lent) or income (money
   borrowed).
 - **Categories** — name, colour, icon or emoji; archiving.
-- **Statistics** — expenses or income by category (pie chart with
-  percentages) or over time (bar chart by day, week or month), and the net;
-  income, expenses and net at the top. Tap a category to see its records and
-  its last 12 months.
+- **Statistics** — expenses, income or net for the period, with the
+  average per day, week or month. Expenses and income by category as a pie
+  chart or over time as a bar chart with an average line; tap a bar to see
+  its records. Tap a category to see its records and its last 12 months.
 - **Periods** — the records and statistics pages share one period: a month,
   a year, the last 3 or 12 months, or any range of days.
 - **Recurring transactions** — "every N days/weeks/months/years"; due records
