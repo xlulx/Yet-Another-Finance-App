@@ -809,4 +809,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get hideRunningTotal => 'Birikimli toplamı gizle';
+
+  @override
+  String get sourceCode => 'Kaynak kodu';
+
+  @override
+  String get sourceCodeHint => 'YASBA açık kaynaklı: GitHub\'da görüntüle';
+
+  @override
+  String get noBrowser => 'Sayfayı açacak bir tarayıcı bulunamadı';
 }

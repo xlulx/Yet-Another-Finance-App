@@ -231,5 +231,8 @@
   "showNet": "Neti göster",
   "showIncomeAndExpense": "Gelir ve gideri göster",
   "showRunningTotal": "Birikimli toplamı göster",
-  "hideRunningTotal": "Birikimli toplamı gizle"
+  "hideRunningTotal": "Birikimli toplamı gizle",
+  "sourceCode": "Kaynak kodu",
+  "sourceCodeHint": "YASBA açık kaynaklı: GitHub'da görüntüle",
+  "noBrowser": "Sayfayı açacak bir tarayıcı bulunamadı"
 }

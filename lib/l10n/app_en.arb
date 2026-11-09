@@ -515,5 +515,8 @@
   "showNet": "Show the net",
   "showIncomeAndExpense": "Show income and expenses",
   "showRunningTotal": "Show the running total",
-  "hideRunningTotal": "Hide the running total"
+  "hideRunningTotal": "Hide the running total",
+  "sourceCode": "Source code",
+  "sourceCodeHint": "YASBA is open source: see it on GitHub",
+  "noBrowser": "No browser found to open the page"
 }

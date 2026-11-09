@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart' show Uint8List;
 import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import '../../l10n/app_localizations.dart';
 
@@ -15,6 +16,9 @@ import '../../state/app_state.dart';
 import '../../utils/app_version.dart';
 import '../../utils/money.dart';
 import '../restore_backup.dart';
+
+/// Where the app's source code lives.
+const sourceCodeUrl = 'https://github.com/xlulx/Yet-Another-Simple-Budget-App';
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
@@ -60,6 +64,20 @@ class SettingsPage extends StatelessWidget {
     }
     if (context.mounted) Navigator.of(context, rootNavigator: true).pop();
     messenger.showSnackBar(SnackBar(content: Text(message)));
+  }
+
+  /// Opens the repository in the browser; the app itself has no internet
+  /// access.
+  Future<void> _openSourceCode(BuildContext context) async {
+    final l = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final opened = await launchUrl(
+      Uri.parse(sourceCodeUrl),
+      mode: LaunchMode.externalApplication,
+    );
+    if (!opened) {
+      messenger.showSnackBar(SnackBar(content: Text(l.noBrowser)));
+    }
   }
 
   Future<void> _backup(BuildContext context) async {
@@ -296,6 +314,13 @@ class SettingsPage extends StatelessWidget {
             onTap: () => _import(context),
           ),
           const Divider(),
+          ListTile(
+            leading: const Icon(Icons.code),
+            title: Text(l.sourceCode),
+            subtitle: Text(l.sourceCodeHint),
+            trailing: const Icon(Icons.open_in_new, size: 20),
+            onTap: () => _openSourceCode(context),
+          ),
           AboutListTile(
             icon: const Icon(Icons.info_outline),
             applicationName: 'YASBA',
