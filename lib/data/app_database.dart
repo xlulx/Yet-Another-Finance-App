@@ -148,7 +148,7 @@ class AppDatabase {
     final id = await db.insert(
       'wallets',
       Wallet(
-        name: language == 'tr' ? 'Nakit' : 'Cash',
+        name: language == 'tr' ? _defaultWallet.$2 : _defaultWallet.$1,
         color: 0xFF43A047,
         icon: 'cash',
       ).toRow()..remove('id'),
@@ -192,49 +192,48 @@ class AppDatabase {
     await db.execute('ALTER TABLE debts ADD COLUMN closed_at INTEGER');
   }
 
+  /// Categories created on first launch: English name, Turkish name, type,
+  /// colour, icon.
+  static const _defaultCategories =
+      <(String, String, CategoryType, int, String)>[
+        ('Groceries', 'Market', CategoryType.expense, 0xFF66BB6A, 'cart'),
+        (
+          'Eating out',
+          'Yeme-İçme',
+          CategoryType.expense,
+          0xFFFFA726,
+          'restaurant',
+        ),
+        ('Transport', 'Ulaşım', CategoryType.expense, 0xFF42A5F5, 'car'),
+        ('Bills', 'Faturalar', CategoryType.expense, 0xFFEF5350, 'bill'),
+        ('Rent', 'Kira', CategoryType.expense, 0xFF8D6E63, 'home'),
+        ('Health', 'Sağlık', CategoryType.expense, 0xFFEC407A, 'health'),
+        ('Entertainment', 'Eğlence', CategoryType.expense, 0xFFAB47BC, 'movie'),
+        ('Shopping', 'Alışveriş', CategoryType.expense, 0xFF26A69A, 'shopping'),
+        ('Salary', 'Maaş', CategoryType.income, 0xFF43A047, 'work'),
+        (
+          'Other income',
+          'Diğer Gelir',
+          CategoryType.income,
+          0xFF7CB342,
+          'savings',
+        ),
+      ];
+
+  /// The first wallet's name: English, Turkish.
+  static const _defaultWallet = ('Cash', 'Nakit');
+
   static Future<void> _seedDefaultCategories(
     DatabaseExecutor db,
     String language,
   ) async {
     final tr = language == 'tr';
-    final defaults = <(String, CategoryType, int, String)>[
-      (tr ? 'Market' : 'Groceries', CategoryType.expense, 0xFF66BB6A, 'cart'),
-      (
-        tr ? 'Yeme-İçme' : 'Eating out',
-        CategoryType.expense,
-        0xFFFFA726,
-        'restaurant',
-      ),
-      (tr ? 'Ulaşım' : 'Transport', CategoryType.expense, 0xFF42A5F5, 'car'),
-      (tr ? 'Faturalar' : 'Bills', CategoryType.expense, 0xFFEF5350, 'bill'),
-      (tr ? 'Kira' : 'Rent', CategoryType.expense, 0xFF8D6E63, 'home'),
-      (tr ? 'Sağlık' : 'Health', CategoryType.expense, 0xFFEC407A, 'health'),
-      (
-        tr ? 'Eğlence' : 'Entertainment',
-        CategoryType.expense,
-        0xFFAB47BC,
-        'movie',
-      ),
-      (
-        tr ? 'Alışveriş' : 'Shopping',
-        CategoryType.expense,
-        0xFF26A69A,
-        'shopping',
-      ),
-      (tr ? 'Maaş' : 'Salary', CategoryType.income, 0xFF43A047, 'work'),
-      (
-        tr ? 'Diğer Gelir' : 'Other income',
-        CategoryType.income,
-        0xFF7CB342,
-        'savings',
-      ),
-    ];
-    for (var i = 0; i < defaults.length; i++) {
-      final (name, type, color, icon) = defaults[i];
+    for (final (i, (en, trName, type, color, icon))
+        in _defaultCategories.indexed) {
       await db.insert(
         'categories',
         Category(
-          name: name,
+          name: tr ? trName : en,
           type: type,
           color: color,
           icon: icon,
@@ -242,6 +241,33 @@ class AppDatabase {
         ).toRow(),
       );
     }
+  }
+
+  /// Renames the default categories and wallet into [language], leaving
+  /// alone any the user renamed. Used when the language is chosen on the
+  /// welcome screen, after they were created in the phone's language.
+  Future<void> localizeDefaults(String language) async {
+    final tr = language == 'tr';
+    final names = [
+      for (final (en, trName, _, _, _) in _defaultCategories) (en, trName),
+    ];
+    await db.transaction((txn) async {
+      for (final (en, trName) in names) {
+        await txn.update(
+          'categories',
+          {'name': tr ? trName : en},
+          where: 'name = ?',
+          whereArgs: [tr ? en : trName],
+        );
+      }
+      final (en, trName) = _defaultWallet;
+      await txn.update(
+        'wallets',
+        {'name': tr ? trName : en},
+        where: 'name = ?',
+        whereArgs: [tr ? en : trName],
+      );
+    });
   }
 
   Future<void> close() => db.close();
@@ -483,6 +509,19 @@ class AppDatabase {
       db.delete('transfers', where: 'id = ?', whereArgs: [id]);
 
   // ---- Settings ----
+
+  /// Whether nothing was entered yet: no records, transfers, debts or
+  /// recurring rules, and only the untouched first wallet.
+  Future<bool> isUntouched() async {
+    final rows = await db.rawQuery('''SELECT
+        (SELECT COUNT(*) FROM records) + (SELECT COUNT(*) FROM transfers)
+      + (SELECT COUNT(*) FROM debts) + (SELECT COUNT(*) FROM recurring_rules)
+        AS entries,
+        (SELECT COUNT(*) FROM wallets) AS wallets,
+        (SELECT COUNT(*) FROM wallets WHERE initial_balance <> 0) AS funded''');
+    final r = rows.first;
+    return r['entries'] == 0 && r['wallets'] == 1 && r['funded'] == 0;
+  }
 
   /// Every setting, read at once on start.
   Future<Map<String, String?>> settings() async => {

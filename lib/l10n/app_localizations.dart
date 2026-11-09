@@ -1297,6 +1297,60 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Written off'**
   String get closedDifference;
+
+  /// No description provided for @welcomeTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Welcome to YASBA'**
+  String get welcomeTitle;
+
+  /// No description provided for @welcomeText.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep track of your income, expenses and debts with ease. No account, no ads: all your data stays on your phone.'**
+  String get welcomeText;
+
+  /// No description provided for @startingBalanceTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Starting balance'**
+  String get startingBalanceTitle;
+
+  /// No description provided for @startingBalanceText.
+  ///
+  /// In en, this message translates to:
+  /// **'How much money is in your {wallet} wallet right now? You can add bank accounts, cards and more later, in Wallets.'**
+  String startingBalanceText(String wallet);
+
+  /// No description provided for @readyTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'You\'re all set'**
+  String get readyTitle;
+
+  /// No description provided for @readyText.
+  ///
+  /// In en, this message translates to:
+  /// **'Add your first income or expense with the Add record button.'**
+  String get readyText;
+
+  /// No description provided for @haveBackup.
+  ///
+  /// In en, this message translates to:
+  /// **'Used YASBA on another phone? Bring your data over from a backup.'**
+  String get haveBackup;
+
+  /// No description provided for @back.
+  ///
+  /// In en, this message translates to:
+  /// **'Back'**
+  String get back;
+
+  /// No description provided for @getStarted.
+  ///
+  /// In en, this message translates to:
+  /// **'Get started'**
+  String get getStarted;
 }
 
 class _AppLocalizationsDelegate

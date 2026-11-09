@@ -30,6 +30,8 @@ void main() {
     bank = await db.insertWallet(
       const Wallet(name: 'Bank', color: 0xFF42A5F5, initialBalance: 100000),
     );
+    // Skip the welcome screen of a fresh install.
+    await db.setSetting('onboarded', '1');
     state = AppState(db, clock: () => now);
     await state.load();
   });

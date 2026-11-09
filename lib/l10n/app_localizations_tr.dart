@@ -37,7 +37,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get previous => 'Önceki';
 
   @override
-  String get next => 'Sonraki';
+  String get next => 'İleri';
 
   @override
   String get amount => 'Tutar';
@@ -690,4 +690,36 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get closedDifference => 'Kapatılan fark';
+
+  @override
+  String get welcomeTitle => 'YASBA\'ya hoş geldin';
+
+  @override
+  String get welcomeText =>
+      'Gelirini, giderini ve borçlarını kolayca takip et. Hesap yok, reklam yok; tüm verilerin yalnızca telefonunda kalır.';
+
+  @override
+  String get startingBalanceTitle => 'Başlangıç bakiyesi';
+
+  @override
+  String startingBalanceText(String wallet) {
+    return '$wallet cüzdanında şu an ne kadar para var? Banka hesabı, kart gibi diğer cüzdanları sonra Cüzdanlar\'dan ekleyebilirsin.';
+  }
+
+  @override
+  String get readyTitle => 'Her şey hazır';
+
+  @override
+  String get readyText =>
+      'İlk gelir ya da giderini Kayıt ekle düğmesiyle ekleyebilirsin.';
+
+  @override
+  String get haveBackup =>
+      'Başka bir telefonda YASBA kullanıyor muydun? Verilerini yedekten aktarabilirsin.';
+
+  @override
+  String get back => 'Geri';
+
+  @override
+  String get getStarted => 'Başla';
 }

@@ -23,6 +23,8 @@ Future<void> addRecordFlow(
       path: inMemoryDatabasePath,
       language: language,
     );
+    // Skip the welcome screen of a fresh install.
+    await db.setSetting('onboarded', '1');
     state = AppState(db);
     await state.load();
     await state.setLanguage(language);
@@ -125,6 +127,8 @@ void main() {
       bank = await db.insertWallet(
         const Wallet(name: 'Bank', color: 0xFF42A5F5),
       );
+      // Skip the welcome screen of a fresh install.
+      await db.setSetting('onboarded', '1');
       state = AppState(db);
       await state.load();
       await state.setLanguage('en');

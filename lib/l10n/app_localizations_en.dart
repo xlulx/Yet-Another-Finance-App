@@ -728,4 +728,36 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get closedDifference => 'Written off';
+
+  @override
+  String get welcomeTitle => 'Welcome to YASBA';
+
+  @override
+  String get welcomeText =>
+      'Keep track of your income, expenses and debts with ease. No account, no ads: all your data stays on your phone.';
+
+  @override
+  String get startingBalanceTitle => 'Starting balance';
+
+  @override
+  String startingBalanceText(String wallet) {
+    return 'How much money is in your $wallet wallet right now? You can add bank accounts, cards and more later, in Wallets.';
+  }
+
+  @override
+  String get readyTitle => 'You\'re all set';
+
+  @override
+  String get readyText =>
+      'Add your first income or expense with the Add record button.';
+
+  @override
+  String get haveBackup =>
+      'Used YASBA on another phone? Bring your data over from a backup.';
+
+  @override
+  String get back => 'Back';
+
+  @override
+  String get getStarted => 'Get started';
 }

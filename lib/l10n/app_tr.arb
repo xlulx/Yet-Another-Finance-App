@@ -197,5 +197,15 @@
   "closeDebtQuestion": "Borç kapatılsın mı?",
   "closeDebtLossHint": "Kalan {amount} geri gelmeyecek sayılır ve gider olarak eklenir.",
   "closeDebtGainHint": "Kalan {amount} ödenmeyecek sayılır ve gelir olarak eklenir.",
-  "closedDifference": "Kapatılan fark"
+  "closedDifference": "Kapatılan fark",
+  "welcomeTitle": "YASBA'ya hoş geldin",
+  "welcomeText": "Gelirini, giderini ve borçlarını kolayca takip et. Hesap yok, reklam yok; tüm verilerin yalnızca telefonunda kalır.",
+  "startingBalanceTitle": "Başlangıç bakiyesi",
+  "startingBalanceText": "{wallet} cüzdanında şu an ne kadar para var? Banka hesabı, kart gibi diğer cüzdanları sonra Cüzdanlar'dan ekleyebilirsin.",
+  "readyTitle": "Her şey hazır",
+  "readyText": "İlk gelir ya da giderini Kayıt ekle düğmesiyle ekleyebilirsin.",
+  "haveBackup": "Başka bir telefonda YASBA kullanıyor muydun? Verilerini yedekten aktarabilirsin.",
+  "next": "İleri",
+  "back": "Geri",
+  "getStarted": "Başla"
 }
