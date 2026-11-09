@@ -46,6 +46,8 @@ Future<void> seed(AppDatabase db, String lang) async {
   final now = DateTime.now();
   DateTime d(int day, [int h = 12]) => DateTime(now.year, now.month, day, h);
   final today = now.day;
+  // English shots are in dollars, with amounts to match.
+  int m(int cents) => lang == 'tr' ? cents : (cents / 10).round();
   final rows = <(String, int, int, int)>[
     // title, cents, day offset (days before today), category id
     (
@@ -93,7 +95,7 @@ Future<void> seed(AppDatabase db, String lang) async {
       name: lang == 'tr' ? 'Banka' : 'Bank',
       color: 0xFF1E88E5,
       icon: 'bank',
-      initialBalance: 1250000,
+      initialBalance: m(1250000),
       sortOrder: 1,
     ),
   );
@@ -102,7 +104,7 @@ Future<void> seed(AppDatabase db, String lang) async {
       name: lang == 'tr' ? 'Kredi kartı' : 'Credit card',
       color: 0xFF5C6BC0,
       icon: 'card',
-      initialBalance: -340000,
+      initialBalance: m(-340000),
       sortOrder: 2,
     ),
   );
@@ -112,7 +114,7 @@ Future<void> seed(AppDatabase db, String lang) async {
     await db.insertRecord(
       Record(
         title: t,
-        amount: c,
+        amount: m(c),
         date: d(day, 18 - off),
         categoryId: cat,
         walletId: (i++).isEven ? bank : cash,
@@ -123,7 +125,7 @@ Future<void> seed(AppDatabase db, String lang) async {
     Transfer(
       fromWalletId: bank,
       toWalletId: cash,
-      amount: 200000,
+      amount: m(200000),
       date: d(today.clamp(1, 28), 10),
       note: lang == 'tr' ? 'ATM' : 'ATM',
     ),
@@ -132,7 +134,7 @@ Future<void> seed(AppDatabase db, String lang) async {
     Debt(
       person: lang == 'tr' ? 'Ali' : 'Alex',
       direction: DebtDirection.lent,
-      amount: 150000,
+      amount: m(150000),
       date: d((today - 6).clamp(1, 28)),
       dueDate: DateTime(now.year, now.month + 1, 1),
       walletId: bank,
@@ -141,7 +143,7 @@ Future<void> seed(AppDatabase db, String lang) async {
   await db.insertDebtPayment(
     DebtPayment(
       debtId: lent,
-      amount: 50000,
+      amount: m(50000),
       date: d((today - 1).clamp(1, 28), 20),
       walletId: cash,
     ),
@@ -150,7 +152,7 @@ Future<void> seed(AppDatabase db, String lang) async {
     Debt(
       person: lang == 'tr' ? 'Ayşe' : 'Emma',
       direction: DebtDirection.borrowed,
-      amount: 300000,
+      amount: m(300000),
       date: DateTime(now.year, now.month - 1, 12),
       dueDate: DateTime(now.year, now.month, 1),
       note: lang == 'tr' ? 'Tatil' : 'Holiday',
@@ -161,7 +163,7 @@ Future<void> seed(AppDatabase db, String lang) async {
     Debt(
       person: lang == 'tr' ? 'Mert' : 'Sam',
       direction: DebtDirection.lent,
-      amount: 20000,
+      amount: m(20000),
       date: DateTime(now.year, now.month - 1, 3),
       closed: true,
       closedAt: d((today - 2).clamp(1, 28), 11),
@@ -171,7 +173,7 @@ Future<void> seed(AppDatabase db, String lang) async {
     Debt(
       person: lang == 'tr' ? 'Zeynep' : 'Mia',
       direction: DebtDirection.borrowed,
-      amount: 40000,
+      amount: m(40000),
       date: DateTime(now.year, now.month - 1, 20),
       walletId: cash,
       closed: true,
@@ -181,7 +183,7 @@ Future<void> seed(AppDatabase db, String lang) async {
   await db.insertDebtPayment(
     DebtPayment(
       debtId: kept,
-      amount: 25000,
+      amount: m(25000),
       date: DateTime(now.year, now.month - 1, 28),
       walletId: cash,
     ),
@@ -189,7 +191,7 @@ Future<void> seed(AppDatabase db, String lang) async {
   await db.insertRecurringRule(
     RecurringRule(
       title: lang == 'tr' ? 'Maaş' : 'Salary',
-      amount: 4500000,
+      amount: m(4500000),
       categoryId: id('Salary', 'Maaş'),
       startDate: DateTime(now.year, now.month, 1, 9),
     ),
@@ -197,7 +199,7 @@ Future<void> seed(AppDatabase db, String lang) async {
   await db.insertRecurringRule(
     RecurringRule(
       title: lang == 'tr' ? 'Kira' : 'Rent',
-      amount: 1800000,
+      amount: m(1800000),
       categoryId: id('Rent', 'Kira'),
       startDate: DateTime(now.year, now.month, 1, 10),
     ),
@@ -205,7 +207,7 @@ Future<void> seed(AppDatabase db, String lang) async {
   await db.insertRecurringRule(
     RecurringRule(
       title: 'Netflix',
-      amount: 22999,
+      amount: lang == 'tr' ? 22999 : 1549,
       categoryId: id('Entertainment', 'Eğlence'),
       startDate: DateTime(now.year, now.month - 2, 15),
     ),
@@ -239,7 +241,7 @@ Future<AppState> start(WidgetTester tester, String lang) async {
       language: lang,
     );
     await seed(db, lang);
-    if (lang == 'en') await db.setSetting('currency', '₺');
+    if (lang == 'en') await db.setSetting('currency', '\$');
     state = AppState(db);
     await state.load();
     await state.setLanguage(lang);
@@ -296,6 +298,45 @@ void main() {
   });
 
   for (final lang in ['en', 'tr']) {
+    testWidgets('welcome $lang', (tester) async {
+      late AppState state;
+      await tester.runAsync(() async {
+        final dir = await Directory.systemTemp.createTemp('welcome');
+        final db = await AppDatabase.open(
+          factory: databaseFactoryFfiNoIsolate,
+          path: '${dir.path}/$lang.db',
+          language: lang,
+        );
+        state = AppState(db);
+        await state.load();
+        await state.setLanguage(lang);
+        if (lang == 'en') await state.setCurrency('\$');
+      });
+      final height =
+          double.tryParse(Platform.environment['SHOT_HEIGHT'] ?? '') ?? 2340;
+      tester.view.physicalSize = Size(1080, height);
+      tester.view.devicePixelRatio = 3;
+      await tester.pumpWidget(
+        RepaintBoundary(
+          key: const Key('root'),
+          child: YasbaApp(state: state),
+        ),
+      );
+      for (final (i, name) in [
+        '0a_welcome',
+        '0b_balance',
+        '0c_ready',
+      ].indexed) {
+        if (i > 0) {
+          await tester.tap(find.byType(FilledButton));
+          await tester.pumpAndSettle();
+        }
+        await shot(tester, '${lang}_$name');
+      }
+      // Restore the default checked by the test framework.
+      debugDisableShadows = true;
+    });
+
     testWidgets('screens $lang', (tester) async {
       final state = await start(tester, lang);
       await shot(tester, '${lang}_1_records');
