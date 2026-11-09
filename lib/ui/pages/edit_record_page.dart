@@ -65,13 +65,12 @@ class _EditRecordPageState extends State<EditRecordPage> {
     _walletId = t?.fromWalletId ?? r?.walletId ?? state.defaultWalletId;
     _toWalletId = t?.toWalletId;
     final now = DateTime.now();
-    // For a new entry, default to the 1st of the selected month unless it is
-    // the current month.
-    final m = state.month;
+    // For a new entry, default to today, or the first day of the period
+    // shown if today is not in it.
     _date =
         r?.date ??
         t?.date ??
-        (m.year == now.year && m.month == now.month ? now : m);
+        (state.period.contains(now) ? now : state.period.from);
   }
 
   @override

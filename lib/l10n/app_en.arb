@@ -17,7 +17,6 @@
   "pickCategory": "Please choose a category",
   "noCategoriesOfType": "No categories of this type. Add one in Settings > Categories.",
   "addRecord": "Add record",
-  "noRecordsThisMonth": "No records this month.",
   "newRecord": "New record",
   "editRecord": "Edit record",
   "deleteRecordQuestion": "Delete this record?",
@@ -221,8 +220,6 @@
       }
     }
   },
-  "pickMonth": "Choose month",
-  "pickYear": "Choose year",
   "backupCreate": "Back up",
   "backupCreateHint": "Save all your data to a file, e.g. on Google Drive",
   "backupRestore": "Restore from backup",
@@ -471,7 +468,6 @@
   "periodLast12Months": "Last 12 months",
   "periodCustom": "Custom range",
   "weekly": "Weekly",
-  "incomeAndExpense": "Income and expenses",
   "last12Months": "Last 12 months",
   "categoryEmpty": "No records in this category for the period.",
   "recordCount": "{count, plural, =1{1 record} other{{count} records}}",
@@ -481,5 +477,17 @@
         "type": "int"
       }
     }
-  }
+  },
+  "pickPeriod": "Choose a period",
+  "wholeYear": "All of {year}",
+  "@wholeYear": {
+    "placeholders": {
+      "year": {
+        "type": "String"
+      }
+    }
+  },
+  "noRecordsInPeriod": "No records in this period.",
+  "pieChart": "Pie chart",
+  "barChart": "Bar chart"
 }

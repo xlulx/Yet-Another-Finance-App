@@ -10,7 +10,7 @@ import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/menu_button.dart';
 import '../widgets/category_avatar.dart';
-import '../widgets/month_selector.dart';
+import '../widgets/period_selector.dart';
 import '../widgets/selected_wallet_chip.dart';
 import 'debts_page.dart';
 import 'edit_record_page.dart';
@@ -44,9 +44,9 @@ class RecordsPage extends StatelessWidget {
     final l = AppLocalizations.of(context);
     final state = context.watch<AppState>();
     final entries = <Object>[
-      ...state.monthRecords,
-      ...state.monthTransfers,
-      ...state.monthDebtEvents,
+      ...state.periodRecords,
+      ...state.periodTransfers,
+      ...state.periodDebtEvents,
     ]..sort((a, b) => _dateOf(b).compareTo(_dateOf(a)));
 
     // Group by day (entries are sorted newest first).
@@ -64,7 +64,7 @@ class RecordsPage extends StatelessWidget {
       appBar: AppBar(
         // The page's own scaffold sits below the app's, which has the menu.
         leading: const MenuButton(),
-        title: MonthSelector(month: state.month, onChanged: state.setMonth),
+        title: PeriodSelector(period: state.period, onChanged: state.setPeriod),
         centerTitle: true,
         bottom: SelectedWalletChip.bottomFor(state),
       ),
@@ -78,11 +78,11 @@ class RecordsPage extends StatelessWidget {
             .push(MaterialPageRoute(builder: (_) => const EditRecordPage())),
       ),
       body: GestureDetector(
-        // Swipe left/right to change the month.
+        // Swipe left/right to move to the previous or next period.
         onHorizontalDragEnd: (d) {
           final v = d.primaryVelocity ?? 0;
           if (v.abs() < 300) return;
-          state.shiftMonth(v < 0 ? 1 : -1);
+          state.shiftPeriod(v < 0 ? 1 : -1);
         },
         child: ListView.builder(
           padding: const EdgeInsets.only(bottom: 96),
@@ -92,7 +92,7 @@ class RecordsPage extends StatelessWidget {
             if (rows.isEmpty) {
               return Padding(
                 padding: const EdgeInsets.all(48),
-                child: Center(child: Text(l.noRecordsThisMonth)),
+                child: Center(child: Text(l.noRecordsInPeriod)),
               );
             }
             return switch (rows[i - 1]) {
@@ -123,9 +123,9 @@ class _SummaryCard extends StatelessWidget {
     // One wallet: a statement of money in and out, transfers included.
     // All wallets: real income and expenses (transfers cancel out).
     final income =
-        state.monthIncome + state.monthTransfersIn + state.monthDebtIn;
+        state.periodIncome + state.periodTransfersIn + state.periodDebtIn;
     final expense =
-        state.monthExpense + state.monthTransfersOut + state.monthDebtOut;
+        state.periodExpense + state.periodTransfersOut + state.periodDebtOut;
     final oneWallet = state.walletFilter != null;
     final scheme = Theme.of(context).colorScheme;
     final text = Theme.of(context).textTheme;

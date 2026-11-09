@@ -62,9 +62,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get addRecord => 'Add record';
 
   @override
-  String get noRecordsThisMonth => 'No records this month.';
-
-  @override
   String get newRecord => 'New record';
 
   @override
@@ -413,12 +410,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String transferFromWallet(String name) {
     return 'From $name';
   }
-
-  @override
-  String get pickMonth => 'Choose month';
-
-  @override
-  String get pickYear => 'Choose year';
 
   @override
   String get backupCreate => 'Back up';
@@ -808,9 +799,6 @@ class AppLocalizationsEn extends AppLocalizations {
   String get weekly => 'Weekly';
 
   @override
-  String get incomeAndExpense => 'Income and expenses';
-
-  @override
   String get last12Months => 'Last 12 months';
 
   @override
@@ -826,4 +814,21 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String get pickPeriod => 'Choose a period';
+
+  @override
+  String wholeYear(String year) {
+    return 'All of $year';
+  }
+
+  @override
+  String get noRecordsInPeriod => 'No records in this period.';
+
+  @override
+  String get pieChart => 'Pie chart';
+
+  @override
+  String get barChart => 'Bar chart';
 }

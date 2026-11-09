@@ -200,12 +200,6 @@ abstract class AppLocalizations {
   /// **'Add record'**
   String get addRecord;
 
-  /// No description provided for @noRecordsThisMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'No records this month.'**
-  String get noRecordsThisMonth;
-
   /// No description provided for @newRecord.
   ///
   /// In en, this message translates to:
@@ -751,18 +745,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'From {name}'**
   String transferFromWallet(String name);
-
-  /// No description provided for @pickMonth.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose month'**
-  String get pickMonth;
-
-  /// No description provided for @pickYear.
-  ///
-  /// In en, this message translates to:
-  /// **'Choose year'**
-  String get pickYear;
 
   /// No description provided for @backupCreate.
   ///
@@ -1442,12 +1424,6 @@ abstract class AppLocalizations {
   /// **'Weekly'**
   String get weekly;
 
-  /// No description provided for @incomeAndExpense.
-  ///
-  /// In en, this message translates to:
-  /// **'Income and expenses'**
-  String get incomeAndExpense;
-
   /// No description provided for @last12Months.
   ///
   /// In en, this message translates to:
@@ -1465,6 +1441,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{1 record} other{{count} records}}'**
   String recordCount(int count);
+
+  /// No description provided for @pickPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'Choose a period'**
+  String get pickPeriod;
+
+  /// No description provided for @wholeYear.
+  ///
+  /// In en, this message translates to:
+  /// **'All of {year}'**
+  String wholeYear(String year);
+
+  /// No description provided for @noRecordsInPeriod.
+  ///
+  /// In en, this message translates to:
+  /// **'No records in this period.'**
+  String get noRecordsInPeriod;
+
+  /// No description provided for @pieChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Pie chart'**
+  String get pieChart;
+
+  /// No description provided for @barChart.
+  ///
+  /// In en, this message translates to:
+  /// **'Bar chart'**
+  String get barChart;
 }
 
 class _AppLocalizationsDelegate

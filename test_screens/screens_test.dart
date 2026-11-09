@@ -262,6 +262,17 @@ Future<AppState> start(WidgetTester tester, String lang) async {
   return state;
 }
 
+/// Lets database work finish between frames.
+Future<void> settleDb(WidgetTester tester) async {
+  for (var i = 0; i < 10; i++) {
+    await tester.runAsync(
+      () => Future.delayed(const Duration(milliseconds: 30)),
+    );
+    await tester.pump();
+  }
+  await tester.pumpAndSettle();
+}
+
 Future<void> tapNav(WidgetTester tester, IconData icon) async {
   await tester.tap(find.byIcon(icon));
   await tester.pumpAndSettle();
@@ -371,31 +382,24 @@ void main() {
       await shot(tester, '${lang}_3d_category');
       tester.state<NavigatorState>(find.byType(Navigator).first).pop();
       await tester.pumpAndSettle();
-      // The last three months, week by week.
-      await tester.tap(find.text(lang == 'tr' ? 'Ay' : 'Month'));
+      // Bar chart, then the net.
+      await tester.tap(find.byIcon(Icons.bar_chart));
       await tester.pumpAndSettle();
-      await shot(tester, '${lang}_3e_periods');
+      await shot(tester, '${lang}_3c_stats_bars');
+      await tester.tap(find.text('Net').first);
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3e_stats_net');
+      // The period picker, then the last three months, week by week.
+      await tester.tap(find.byIcon(Icons.arrow_drop_down));
+      await tester.pumpAndSettle();
+      await shot(tester, '${lang}_3f_periods');
       await tester.tap(find.text(lang == 'tr' ? 'Son 3 ay' : 'Last 3 months'));
-      for (var i = 0; i < 10; i++) {
-        await tester.runAsync(
-          () => Future.delayed(const Duration(milliseconds: 30)),
-        );
-        await tester.pump();
-      }
-      await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
-      await tester.pumpAndSettle();
-      await shot(tester, '${lang}_3f_last3_chart');
-      await tester.drag(find.byType(ListView).last, const Offset(0, 2000));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(lang == 'tr' ? 'Son 3 ay' : 'Last 3 months'));
-      await tester.pumpAndSettle();
-      await tester.tap(find.text(lang == 'tr' ? 'Ay' : 'Month').last);
-      await tester.pumpAndSettle();
-      await tester.drag(find.byType(ListView).last, const Offset(0, -2000));
-      await tester.pumpAndSettle();
-      await shot(tester, '${lang}_3c_stats_debts');
-      await tester.drag(find.byType(ListView).last, const Offset(0, 2000));
-      await tester.pumpAndSettle();
+      await settleDb(tester);
+      await shot(tester, '${lang}_3g_last3_net');
+      await tester.runAsync(() => state.setMonth(DateTime.now()));
+      await tester.tap(find.text(lang == 'tr' ? 'Gider' : 'Expense').first);
+      await tester.tap(find.byIcon(Icons.pie_chart_outline).last);
+      await settleDb(tester);
       await pickWallet(tester, state, lang == 'tr' ? 'Banka' : 'Bank');
       await shot(tester, '${lang}_3b_stats_one_wallet');
       await pickWallet(tester, state, null);

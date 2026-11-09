@@ -62,9 +62,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get addRecord => 'Kayıt ekle';
 
   @override
-  String get noRecordsThisMonth => 'Bu ay için kayıt yok.';
-
-  @override
   String get newRecord => 'Yeni kayıt';
 
   @override
@@ -376,12 +373,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String transferFromWallet(String name) {
     return '$name cüzdanından';
   }
-
-  @override
-  String get pickMonth => 'Ay seçin';
-
-  @override
-  String get pickYear => 'Yıl seçin';
 
   @override
   String get backupCreate => 'Yedekle';
@@ -770,9 +761,6 @@ class AppLocalizationsTr extends AppLocalizations {
   String get weekly => 'Haftalık';
 
   @override
-  String get incomeAndExpense => 'Gelir ve gider';
-
-  @override
   String get last12Months => 'Son 12 ay';
 
   @override
@@ -782,4 +770,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String recordCount(int count) {
     return '$count kayıt';
   }
+
+  @override
+  String get pickPeriod => 'Dönem seç';
+
+  @override
+  String wholeYear(String year) {
+    return '$year yılının tamamı';
+  }
+
+  @override
+  String get noRecordsInPeriod => 'Bu dönemde kayıt yok.';
+
+  @override
+  String get pieChart => 'Pasta grafik';
+
+  @override
+  String get barChart => 'Sütun grafik';
 }

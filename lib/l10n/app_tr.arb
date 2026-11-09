@@ -17,7 +17,6 @@
   "pickCategory": "Lütfen bir kategori seçin",
   "noCategoriesOfType": "Bu türde kategori yok. Ayarlar > Kategoriler'den ekleyin.",
   "addRecord": "Kayıt ekle",
-  "noRecordsThisMonth": "Bu ay için kayıt yok.",
   "newRecord": "Yeni kayıt",
   "editRecord": "Kaydı düzenle",
   "deleteRecordQuestion": "Kayıt silinsin mi?",
@@ -108,8 +107,6 @@
   "net": "Net",
   "transferToWallet": "{name} cüzdanına",
   "transferFromWallet": "{name} cüzdanından",
-  "pickMonth": "Ay seçin",
-  "pickYear": "Yıl seçin",
   "backupCreate": "Yedekle",
   "backupCreateHint": "Tüm verilerini bir dosyaya kaydet (ör. Google Drive'a)",
   "backupRestore": "Yedekten geri yükle",
@@ -222,8 +219,12 @@
   "periodLast12Months": "Son 12 ay",
   "periodCustom": "Özel aralık",
   "weekly": "Haftalık",
-  "incomeAndExpense": "Gelir ve gider",
   "last12Months": "Son 12 ay",
   "categoryEmpty": "Bu dönemde bu kategoride kayıt yok.",
-  "recordCount": "{count} kayıt"
+  "recordCount": "{count} kayıt",
+  "pickPeriod": "Dönem seç",
+  "wholeYear": "{year} yılının tamamı",
+  "noRecordsInPeriod": "Bu dönemde kayıt yok.",
+  "pieChart": "Pasta grafik",
+  "barChart": "Sütun grafik"
 }

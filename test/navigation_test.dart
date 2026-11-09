@@ -4,6 +4,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:sqflite_common_ffi/sqflite_ffi.dart';
 import 'package:yasba/data/app_database.dart';
 import 'package:yasba/main.dart';
+import 'package:yasba/models/period.dart';
 import 'package:yasba/models/wallet.dart';
 import 'package:yasba/state/app_state.dart';
 
@@ -50,7 +51,7 @@ void main() {
 
     await tester.tap(find.byIcon(Icons.arrow_drop_down));
     await tester.pumpAndSettle();
-    expect(find.text('Choose month'), findsOneWidget);
+    expect(find.text('Choose a period'), findsOneWidget);
 
     // Go back a year and pick March.
     await tester.tap(
@@ -64,8 +65,27 @@ void main() {
     await tester.tap(find.text('Mar'));
     await settle(tester);
 
-    expect(state.month, DateTime(now.year - 1, 3));
+    expect(state.period.from, DateTime(now.year - 1, 3));
     expect(find.text('March ${now.year - 1}'), findsOneWidget);
+
+    // The whole year, then the last 3 months.
+    await tester.tap(find.byIcon(Icons.arrow_drop_down));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('All of ${now.year - 1}'));
+    await settle(tester);
+    expect(state.period.kind, PeriodKind.year);
+    expect(find.text('${now.year - 1}'), findsOneWidget);
+    await tester.tap(find.byIcon(Icons.arrow_drop_down));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Last 3 months'));
+    await settle(tester);
+    expect(state.period.kind, PeriodKind.last3Months);
+    expect(state.period.to, DateTime(now.year, now.month + 1));
+    // Back by its own length: the three months before.
+    await tester.tap(find.byIcon(Icons.chevron_left));
+    await settle(tester);
+    expect(state.period.from, DateTime(now.year, now.month - 5));
+    expect(state.period.to, DateTime(now.year, now.month - 2));
     await tester.runAsync(() => state.db.close());
   });
 

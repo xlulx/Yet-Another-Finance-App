@@ -8,6 +8,7 @@ import '../../state/app_state.dart';
 import '../../utils/money.dart';
 import '../widgets/wallet_dropdown.dart';
 import '../widgets/dialogs.dart';
+import '../widgets/period_selector.dart';
 
 /// Colour for money owed to me (green) or by me (red).
 Color _debtColor(BuildContext context, Debt d) =>
@@ -96,6 +97,7 @@ class DebtsPage extends StatelessWidget {
               padding: const EdgeInsets.all(32),
               child: Text(l.debtsEmpty, textAlign: TextAlign.center),
             ),
+          const _PeriodSummary(),
           if (open.isNotEmpty) _Header(l.openDebts),
           for (final d in open) _DebtTile(debt: d),
           if (settled.isNotEmpty) _Header(l.settledDebts),
@@ -707,6 +709,94 @@ class _PaymentDialogState extends State<_PaymentDialog> {
         ),
         FilledButton(onPressed: _save, child: Text(l.save)),
       ],
+    );
+  }
+}
+
+/// What moved in the period shown on the records and statistics pages,
+/// each kind next to its repayments, and what was written off when debts
+/// were closed with money still owed (which counts as expense or income).
+class _PeriodSummary extends StatelessWidget {
+  const _PeriodSummary();
+
+  @override
+  Widget build(BuildContext context) {
+    final l = AppLocalizations.of(context);
+    final state = context.watch<AppState>();
+    final theme = Theme.of(context);
+    // Every wallet, whatever the records page is filtered to.
+    final events = [
+      for (final e in state.allDebtEvents())
+        if (state.period.contains(e.date) &&
+            (e.walletId != null || e.isClosing))
+          e,
+    ];
+    if (events.isEmpty) return const SizedBox.shrink();
+    int sum(bool Function(DebtEvent) test) =>
+        events.where(test).fold(0, (s, e) => s + e.effect.abs());
+    bool opened(DebtEvent e) => e.payment == null && !e.isClosing;
+    final lost = sum((e) => e.isClosing && e.debt.lent);
+    final gained = sum((e) => e.isClosing && !e.debt.lent);
+
+    Widget cell(String label, int amount, {Color? color}) => Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(label, style: theme.textTheme.labelMedium),
+          const SizedBox(height: 2),
+          Text(
+            formatMoney(amount, state.currency),
+            style: theme.textTheme.titleSmall?.copyWith(color: color),
+          ),
+        ],
+      ),
+    );
+    Widget pair(Widget a, Widget b) => Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(children: [a, const SizedBox(width: 12), b]),
+    );
+
+    return Card(
+      margin: const EdgeInsets.fromLTRB(12, 0, 12, 4),
+      child: Padding(
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              PeriodSelector.label(state.period),
+              style: theme.textTheme.titleSmall,
+            ),
+            pair(
+              cell(l.debtLentEvent, sum((e) => opened(e) && e.debt.lent)),
+              cell(
+                l.repaymentReceived,
+                sum((e) => e.payment != null && e.debt.lent),
+              ),
+            ),
+            pair(
+              cell(l.debtBorrowedEvent, sum((e) => opened(e) && !e.debt.lent)),
+              cell(
+                l.repaymentMade,
+                sum((e) => e.payment != null && !e.debt.lent),
+              ),
+            ),
+            if (lost > 0 || gained > 0)
+              pair(
+                cell(
+                  l.closedUncollected,
+                  lost,
+                  color: lost > 0 ? theme.colorScheme.error : null,
+                ),
+                cell(
+                  l.closedUnpaid,
+                  gained,
+                  color: gained > 0 ? Colors.green.shade600 : null,
+                ),
+              ),
+          ],
+        ),
+      ),
     );
   }
 }

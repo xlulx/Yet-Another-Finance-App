@@ -33,7 +33,7 @@ class CategoryStatsPage extends StatefulWidget {
 class _CategoryStatsPageState extends State<CategoryStatsPage> {
   late final StatsRange _year;
   List<Record> _records = [];
-  List<(int, int)> _months = [];
+  List<int> _months = [];
   AppState? _state;
   int _loadId = 0;
 
@@ -89,8 +89,7 @@ class _CategoryStatsPageState extends State<CategoryStatsPage> {
         for (final r in all)
           if (!r.date.isBefore(widget.from) && r.date.isBefore(widget.to)) r,
       ];
-      // TrendChart takes (income, expense) pairs; one series is enough.
-      _months = [for (final m in months) (0, m)];
+      _months = months;
     });
   }
 
@@ -154,13 +153,13 @@ class _CategoryStatsPageState extends State<CategoryStatsPage> {
             child: SizedBox(
               height: 180,
               child: TrendChart(
-                buckets: _months,
+                values: _months,
                 labelOf: (i) => bucketLabel(_year, i),
                 shortLabelOf: (i) => bucketLabel(_year, i, short: true),
                 labelEvery: 2,
                 labelFromEnd: true,
                 currency: state.currency,
-                single: c.colorValue,
+                color: c.colorValue,
               ),
             ),
           ),
