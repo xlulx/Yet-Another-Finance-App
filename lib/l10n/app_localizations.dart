@@ -1501,6 +1501,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Hide the running total'**
   String get hideRunningTotal;
+
+  /// No description provided for @sourceCode.
+  ///
+  /// In en, this message translates to:
+  /// **'Source code'**
+  String get sourceCode;
+
+  /// No description provided for @sourceCodeHint.
+  ///
+  /// In en, this message translates to:
+  /// **'YASBA is open source: see it on GitHub'**
+  String get sourceCodeHint;
+
+  /// No description provided for @noBrowser.
+  ///
+  /// In en, this message translates to:
+  /// **'No browser found to open the page'**
+  String get noBrowser;
 }
 
 class _AppLocalizationsDelegate

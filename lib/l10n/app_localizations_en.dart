@@ -853,4 +853,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get hideRunningTotal => 'Hide the running total';
+
+  @override
+  String get sourceCode => 'Source code';
+
+  @override
+  String get sourceCodeHint => 'YASBA is open source: see it on GitHub';
+
+  @override
+  String get noBrowser => 'No browser found to open the page';
 }
