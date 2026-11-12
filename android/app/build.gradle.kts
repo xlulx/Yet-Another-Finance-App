@@ -50,8 +50,10 @@ android {
             keyAlias = "dev"
             keyPassword = "yasba-dev-public"
         }
-        // Real releases: the keystore and its password only exist in CI, taken
-        // from GitHub secrets (see .github/workflows/release.yml).
+        // Real releases: the keystores and their passwords only exist in CI,
+        // taken from GitHub secrets (see .github/workflows/release.yml).
+        // The release key signs the APK on GitHub and is Google Play's app
+        // signing key; Play requires a different upload key for bundles.
         val releaseStore = System.getenv("RELEASE_KEYSTORE_PATH")
         val releasePassword = System.getenv("RELEASE_KEYSTORE_PASSWORD")
         if (!releaseStore.isNullOrEmpty() && !releasePassword.isNullOrEmpty()) {
@@ -62,11 +64,21 @@ android {
                 keyPassword = releasePassword
             }
         }
+        val uploadStore = System.getenv("UPLOAD_KEYSTORE_PATH")
+        val uploadPassword = System.getenv("UPLOAD_KEYSTORE_PASSWORD")
+        if (!uploadStore.isNullOrEmpty() && !uploadPassword.isNullOrEmpty()) {
+            create("upload") {
+                storeFile = file(uploadStore)
+                storePassword = uploadPassword
+                keyAlias = "upload"
+                keyPassword = uploadPassword
+            }
+        }
     }
 
     // "dev":  test build installed next to the real app ("YASBA Dev",
     //         separate data).
-    // "prod": the real app; only built by the Release APK workflow.
+    // "prod": the real app; only built by the Release workflow.
     flavorDimensions += "channel"
     productFlavors {
         create("dev") {
@@ -79,9 +91,12 @@ android {
         create("prod") {
             dimension = "channel"
             resValue("string", "app_name", "YASBA")
-            // Left unsigned without a key, so a release is never signed with the
-            // wrong key.
-            signingConfig = signingConfigs.findByName("release")
+            // The APK with the release key, the bundle for Play with the upload
+            // key. Left unsigned without them, so nothing is ever signed with
+            // the wrong key.
+            signingConfig =
+                if (buildingBundle) signingConfigs.findByName("upload")
+                else signingConfigs.findByName("release")
         }
     }
 }

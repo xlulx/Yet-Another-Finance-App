@@ -101,11 +101,17 @@ comes from the version (`1.2.3` → `10203`), so it always grows.
 
 Secrets (the release key is **not** stored in the repository):
 
-- `RELEASE_KEYSTORE_BASE64`, `RELEASE_KEYSTORE_PASSWORD` — the signing key.
+- `RELEASE_KEYSTORE_BASE64`, `RELEASE_KEYSTORE_PASSWORD` — the release key.
+  It signs the APK and is also Google Play's app signing key, so APKs from
+  GitHub and installs from Play update each other.
 - `PLAY_SERVICE_ACCOUNT_JSON` (optional) — a Google Cloud service account
   with release rights in the Play Console. When set, the workflow also
   builds an App Bundle and uploads it to Google Play as a draft on a testing
   track (closed testing by default), to be rolled out from the Play Console.
+- `UPLOAD_KEYSTORE_BASE64`, `UPLOAD_KEYSTORE_PASSWORD` — needed with the Play
+  secret: the upload key that signs the App Bundle. Play requires it to be a
+  different key from the app signing key; Play re-signs the app with the
+  release key.
 
 ### Screenshots and store images
 
