@@ -103,6 +103,10 @@ jobs:
           java-version: '17'
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
+          # The version the app is developed and tested with. A new Flutter
+          # release can need newer Android build tools; move this on purpose,
+          # after trying it, not when Flutter happens to release.
+          flutter-version: 3.47.9
           channel: stable
           cache: true
 
